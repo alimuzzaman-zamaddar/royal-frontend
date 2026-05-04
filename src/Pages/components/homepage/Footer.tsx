@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useRef, useState } from "react";
 import {
   FaInstagram,
   FaFacebookF,
@@ -62,26 +63,78 @@ const footerData = {
 };
 
 export const Footer = () => {
+  const footerRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const footer = footerRef.current;
+    if (!footer) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.18,
+        rootMargin: "0px 0px -70px 0px",
+      },
+    );
+
+    observer.observe(footer);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const revealClass = isVisible
+    ? "translate-y-0 opacity-100"
+    : "translate-y-8 opacity-0";
+
+  const lineClass = isVisible
+    ? "scale-x-100 opacity-100"
+    : "scale-x-0 opacity-0";
+
   return (
-    <footer className="relative w-full overflow-hidden bg-[#020202] px-5 py-14 sm:px-6 lg:py-16">
+    <footer
+      ref={footerRef}
+      className="relative w-full overflow-hidden bg-[#020202] px-5 py-14 sm:px-6 lg:py-16"
+    >
       {/* Soft Background Glow */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-0 h-[320px] w-[700px] -translate-x-1/2 rounded-full bg-[#FFD700]/[0.06] blur-[120px]" />
+        <div
+          className={`absolute left-1/2 top-0 h-[320px] w-[700px] -translate-x-1/2 rounded-full bg-[#FFD700]/[0.06] blur-[120px] transition-opacity duration-[1200ms] ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+        />
       </div>
 
       <div className="relative z-10 mx-auto max-w-[360px] sm:max-w-[520px] xl:max-w-[1480px]">
         {/* Flex Footer Layout */}
-        <div className="flex flex-wrap justify-between gap-y-8 xl:flex-nowrap xl:gap-x-16">
+        <div className="flex flex-wrap justify-center xl:justify-between gap-y-8 xl:flex-nowrap xl:gap-x-16">
           {/* Brand */}
-          <div className="flex w-full flex-col items-center text-center xl:w-[28%] xl:items-start xl:text-left">
+          <div
+            className={`flex w-full flex-col items-center text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-[28%] xl:items-start xl:text-left ${revealClass}`}
+            style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
+          >
             <img
               src={footerData.brand.logo}
               alt="Royal Exchange Logo"
-              className="mb-4 w-auto object-contain xl:mb-6"
+              className="mb-4 w-auto object-contain transition-all duration-500 hover:scale-[1.03] hover:drop-shadow-[0_0_18px_rgba(255,215,0,0.35)] xl:mb-6"
             />
 
             <p
-              className="text-sm font-normal leading-[150%] text-[#FFD700]"
+              className="text-sm font-normal leading-[150%] text-[#FFD700] transition-colors duration-300 hover:text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
             >
               {footerData.brand.tagline}
@@ -89,7 +142,10 @@ export const Footer = () => {
           </div>
 
           {/* Navigate */}
-          <div className="w-1/2 pr-4 text-left xl:w-[18%] xl:pr-0">
+          <div
+            className={`w-1/3 pr-4 text-left transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-[18%] xl:pr-0 ${revealClass}`}
+            style={{ transitionDelay: isVisible ? "170ms" : "0ms" }}
+          >
             <h3
               className="mb-4 text-base font-normal uppercase leading-[150%] text-[#FFD700] xl:mb-5"
               style={{ fontFamily: "'Cinzel', serif" }}
@@ -97,15 +153,16 @@ export const Footer = () => {
               {footerData.navigate.title}
             </h3>
 
-            <ul className="space-y-3">
+            <ul className="space-y-2 xl:space-y-3">
               {footerData.navigate.links.map((link, index) => (
                 <li key={index}>
                   <a
                     href="#"
-                    className="text-base font-normal leading-[150%] text-[#B8B0A4] transition-colors hover:text-[#FFD700] xl:text-sm"
+                    className="group relative inline-block text-xs font-normal leading-[150%] text-[#B8B0A4] transition-all duration-300 hover:translate-x-1 hover:text-[#FFD700] xl:text-sm"
                     style={{ fontFamily: "'Lora', serif" }}
                   >
                     {link}
+                    <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-[#FFD700] transition-all duration-300 group-hover:w-full" />
                   </a>
                 </li>
               ))}
@@ -113,7 +170,10 @@ export const Footer = () => {
           </div>
 
           {/* Services */}
-          <div className="w-1/2 pl-4 text-left xl:w-[18%] xl:pl-0">
+          <div
+            className={`w-1/3 pl-4 text-left transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-[18%] xl:pl-0 ${revealClass}`}
+            style={{ transitionDelay: isVisible ? "260ms" : "0ms" }}
+          >
             <h3
               className="mb-4 text-base font-normal uppercase leading-[150%] text-[#FFD700] xl:mb-5"
               style={{ fontFamily: "'Cinzel', serif" }}
@@ -121,15 +181,16 @@ export const Footer = () => {
               {footerData.services.title}
             </h3>
 
-            <ul className="space-y-3">
+            <ul className="space-y-2 xl:space-y-3">
               {footerData.services.links.map((link, index) => (
                 <li key={index}>
                   <a
                     href="#"
-                    className="text-base font-normal leading-[150%] text-[#B8B0A4] transition-colors hover:text-[#FFD700] xl:text-sm"
+                    className="group relative inline-block text-xs font-normal leading-[150%] text-[#B8B0A4] transition-all duration-300 hover:translate-x-1 hover:text-[#FFD700] xl:text-sm"
                     style={{ fontFamily: "'Lora', serif" }}
                   >
                     {link}
+                    <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-[#FFD700] transition-all duration-300 group-hover:w-full" />
                   </a>
                 </li>
               ))}
@@ -137,7 +198,10 @@ export const Footer = () => {
           </div>
 
           {/* Connect */}
-          <div className="flex w-full flex-col items-center text-center xl:w-[24%] xl:items-start xl:text-left">
+          <div
+            className={`flex w-full flex-col items-center text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-[24%] xl:items-start xl:text-left ${revealClass}`}
+            style={{ transitionDelay: isVisible ? "350ms" : "0ms" }}
+          >
             {/* Newsletter - mobile/tablet first, XL after social */}
             <p
               className="order-1 mb-3 text-base font-semibold text-[#FFD700] xl:order-3 xl:mb-3 xl:text-sm"
@@ -150,16 +214,19 @@ export const Footer = () => {
               <input
                 type="email"
                 placeholder={footerData.connect.placeholder}
-                className="mb-3 h-10 w-full rounded-md border border-[#3A3024] bg-[#1E1A16] px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#8D8277] focus:border-[#FFD700]"
+                className="mb-3 h-10 w-full rounded-md border border-[#3A3024] bg-[#1E1A16] px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#8D8277] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)]"
                 style={{ fontFamily: "'Lora', serif" }}
               />
 
               <button
                 type="submit"
-                className="h-10 w-full rounded-md bg-[#FFD700] px-5 text-xs font-bold uppercase tracking-[0.8px] text-[#080500] transition-all hover:bg-[#f5d87a]"
+                className="group relative h-10 w-full overflow-hidden rounded-md bg-[#FFD700] px-5 text-xs font-bold uppercase tracking-[0.8px] text-[#080500] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
-                {footerData.connect.buttonText}
+                <span className="relative z-10">
+                  {footerData.connect.buttonText}
+                </span>
+                <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
               </button>
             </form>
 
@@ -181,7 +248,7 @@ export const Footer = () => {
                     key={social.id}
                     href={social.url}
                     aria-label={social.label}
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#FFD700]/20 bg-[#FFD700]/15 text-[#FFD700] transition-all hover:scale-110 hover:bg-[#FFD700] hover:text-[#080500] xl:h-8 xl:w-8"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-[#FFD700]/20 bg-[#FFD700]/15 text-[#FFD700] transition-all duration-300 hover:-translate-y-1 hover:scale-110 hover:border-[#FFD700]/60 hover:bg-[#FFD700] hover:text-[#080500] hover:shadow-[0_8px_22px_rgba(255,215,0,0.18)] xl:h-8 xl:w-8"
                   >
                     <Icon className="text-base xl:text-sm" />
                   </a>
@@ -192,10 +259,16 @@ export const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="mt-12 h-[1px] w-full bg-gradient-to-r from-transparent via-[#FFD700]/40 to-transparent" />
+        <div
+          className={`mt-12 h-[1px] w-full origin-center bg-gradient-to-r from-transparent via-[#FFD700]/40 to-transparent transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${lineClass}`}
+          style={{ transitionDelay: isVisible ? "520ms" : "0ms" }}
+        />
 
         {/* Bottom Text */}
-        <div className="pt-8 text-center">
+        <div
+          className={`pt-8 text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+          style={{ transitionDelay: isVisible ? "620ms" : "0ms" }}
+        >
           <p
             className="text-xs font-normal leading-[150%] text-[#8D8277]"
             style={{ fontFamily: "'Lora', serif" }}
@@ -204,7 +277,7 @@ export const Footer = () => {
           </p>
 
           <p
-            className="mt-2 text-xs font-normal leading-[150%] text-[#A58B00]"
+            className="mt-2 text-xs font-normal leading-[150%] text-[#A58B00] transition-colors duration-300 hover:text-[#FFD700]"
             style={{ fontFamily: "'Lora', serif" }}
           >
             {footerData.credit}

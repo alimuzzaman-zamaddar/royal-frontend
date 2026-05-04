@@ -1,4 +1,5 @@
-
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useRef, useState } from "react";
 
 import mainImg from "../../../assets/Frame 61.png";
 import tshirtImg from "../../../assets/tshirt (1).png";
@@ -43,21 +44,73 @@ const royalExchangeData = {
 };
 
 export const RoyalExchangeSection = () => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.18,
+        rootMargin: "0px 0px -90px 0px",
+      },
+    );
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const revealClass = isVisible
+    ? "translate-y-0 opacity-100"
+    : "translate-y-8 opacity-0";
+
+  const imageRevealClass = isVisible
+    ? "translate-y-0 opacity-100 lg:translate-x-0"
+    : "translate-y-8 opacity-0 lg:translate-x-8";
+
   return (
-    <section className="w-full bg-[#020202] px-5 py-14 sm:px-6 sm:py-16 lg:py-20">
+    <section
+      id="royal-exchange"
+      ref={sectionRef}
+      className="w-full bg-[#020202] px-5 py-14 sm:px-6 sm:py-16 lg:py-20"
+    >
       <div className="mx-auto grid max-w-[1480px] grid-cols-1 items-center gap-10 lg:grid-cols-2 xl:gap-14">
         {/* LEFT CONTENT */}
         <div className="text-center lg:text-left w-full">
           <p
-            className="mb-4 text-sm font-normal uppercase leading-[150%] text-[#FFD700]"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className={`mb-4 text-sm font-normal uppercase leading-[150%] text-[#FFD700] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+            style={{
+              fontFamily: "'Cinzel', serif",
+              transitionDelay: isVisible ? "80ms" : "0ms",
+            }}
           >
             {royalExchangeData.label}
           </p>
 
           <h2
-            className="mb-8 lineage-heading"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className={`mb-8 lineage-heading transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+            style={{
+              fontFamily: "'Cinzel', serif",
+              transitionDelay: isVisible ? "160ms" : "0ms",
+            }}
           >
             {royalExchangeData.title}
           </h2>
@@ -66,8 +119,13 @@ export const RoyalExchangeSection = () => {
             {royalExchangeData.paragraphs.map((text, index) => (
               <p
                 key={index}
-                className="text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg"
-                style={{ fontFamily: "'Lora', serif" }}
+                className={`text-base font-normal leading-[150%] text-[#FFFAF0] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-lg ${revealClass}`}
+                style={{
+                  fontFamily: "'Lora', serif",
+                  transitionDelay: isVisible
+                    ? `${250 + index * 110}ms`
+                    : "0ms",
+                }}
               >
                 {text}
               </p>
@@ -78,14 +136,19 @@ export const RoyalExchangeSection = () => {
             {royalExchangeData.features.map((feature, index) => (
               <div
                 key={index}
-                className="flex items-start justify-center gap-3 lg:justify-start"
+                className={`group flex items-start justify-center gap-3 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-1 lg:justify-start ${revealClass}`}
+                style={{
+                  transitionDelay: isVisible
+                    ? `${430 + index * 100}ms`
+                    : "0ms",
+                }}
               >
-                <span className="mt-[2px] text-lg leading-none text-[#FFD700]">
+                <span className="mt-[2px] text-lg leading-none text-[#FFD700] transition-all duration-300 group-hover:scale-125 group-hover:drop-shadow-[0_0_10px_rgba(255,215,0,0.55)]">
                   ✓
                 </span>
 
                 <p
-                  className="text-sm leading-[150%] text-[#FFFAF0] sm:text-base"
+                  className="text-sm leading-[150%] text-[#FFFAF0] transition-colors duration-300 group-hover:text-[#FFD700] sm:text-base"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
                   {feature}
@@ -95,25 +158,34 @@ export const RoyalExchangeSection = () => {
           </div>
 
           <button
-            className="mt-8 rounded-md bg-[#FFD700] px-6 py-3 text-sm font-bold uppercase tracking-[1.2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all hover:scale-[1.02] hover:bg-[#f5d87a] sm:px-7 sm:text-base"
-            style={{ fontFamily: "'Montserrat', sans-serif" }}
+            className={`group relative mt-8 overflow-hidden rounded-md bg-[#FFD700] px-6 py-3 text-sm font-bold uppercase tracking-[1.2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.02] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.28)] sm:px-7 sm:text-base ${revealClass}`}
+            style={{
+              fontFamily: "'Montserrat', sans-serif",
+              transitionDelay: isVisible ? "760ms" : "0ms",
+            }}
           >
-            {royalExchangeData.buttonText}
+            <span className="relative z-10">{royalExchangeData.buttonText}</span>
+            <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
         </div>
 
         {/* RIGHT IMAGE AREA */}
-        <div className="w-full">
-          <div className="relative overflow-hidden rounded-xl">
+        <div
+          className={`w-full transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${imageRevealClass}`}
+          style={{ transitionDelay: isVisible ? "300ms" : "0ms" }}
+        >
+          <div className="group relative overflow-hidden rounded-xl shadow-[0_16px_50px_rgba(0,0,0,0.28)] transition-all duration-500 hover:shadow-[0_22px_60px_rgba(255,215,0,0.12)]">
             <img
               src={royalExchangeData.mainImage}
               alt={royalExchangeData.mainImageAlt}
-              className=" w-full object-cover sm:h-[420px] lg:h-[378px] xl:h-[410px]"
+              className="w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] h-[420px] lg:h-[378px] xl:h-[410px]"
             />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-4 pb-4 pt-16">
               <p
-                className="text-center text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-xl"
+                className="text-center text-xs font-normal leading-[150%] text-[#FFFAF0] transition-colors duration-300 group-hover:text-[#FFD700] sm:text-xl"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 {royalExchangeData.caption}
@@ -125,12 +197,21 @@ export const RoyalExchangeSection = () => {
             {royalExchangeData.gallery.map((item, index) => (
               <div
                 key={index}
-                className="overflow-hidden rounded-lg bg-[#FFFAF0]"
+                className={`group overflow-hidden rounded-lg bg-[#FFFAF0] shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(255,215,0,0.14)] ${
+                  isVisible
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-5 opacity-0"
+                }`}
+                style={{
+                  transitionDelay: isVisible
+                    ? `${520 + index * 90}ms`
+                    : "0ms",
+                }}
               >
                 <img
                   src={item.image}
                   alt={item.alt}
-                  className="h-[110px] w-full object-cover transition-transform duration-500 hover:scale-105 sm:h-[96px] lg:h-[86px] xl:h-[96px]"
+                  className="xl:h-[110px] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 sm:h-[96px] lg:h-[86px] xl:h-[96px]"
                 />
               </div>
             ))}

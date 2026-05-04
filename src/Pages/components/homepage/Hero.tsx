@@ -12,12 +12,6 @@ export const Hero = () => {
     setMounted(true);
   }, []);
 
-  const fadeUp = (delay: number) => ({
-    opacity: mounted ? 1 : 0,
-    transform: mounted ? "translateY(0)" : "translateY(30px)",
-    transition: `opacity 0.9s ease ${delay}s, transform 0.9s ease ${delay}s`,
-  });
-
   const heroBackground = {
     backgroundImage: `
     linear-gradient(180deg, rgba(2,2,2,0.82) 0%, rgba(7,6,3,0.96) 100%),
@@ -27,7 +21,13 @@ export const Hero = () => {
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
   };
-
+  const fadeUp = (delay: number) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted
+      ? "translateY(0) scale(1)"
+      : "translateY(24px) scale(0.98)",
+    transition: `opacity 0.9s ease ${delay}s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s`,
+  });
   return (
     <>
       <section
@@ -256,40 +256,46 @@ export const Hero = () => {
         {/* HERO CONTENT */}
         <div className="relative z-30 flex w-full flex-col items-center text-center px-4 pt-[95px] sm:pt-[110px] md:pt-[120px] xl:pt-0">
           {/* Logo */}
-          <div className="mb-7 rounded-lg bg-[#020202] p-3 shadow-[0_0_40px_0_rgba(255,215,0,0.60)] sm:p-4 mt-22 xl:mb-6">
+          <div
+            className="group mb-7 rounded-lg bg-[#020202] p-3 shadow-[0_0_40px_0_rgba(255,215,0,0.60)] transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_55px_0_rgba(255,215,0,0.70)] sm:p-4 mt-22 xl:mb-6"
+            style={fadeUp(0.15)}
+          >
             <img
               src={img}
               alt="Logo"
-              className="h-[86px] w-[100px] object-contain sm:h-[105px] sm:w-[122px] md:h-[115px] md:w-[135px] xl:h-auto xl:w-auto"
+              className="h-[86px] w-[100px] object-contain transition-all duration-500 group-hover:drop-shadow-[0_0_16px_rgba(255,215,0,0.45)] sm:h-[105px] sm:w-[122px] md:h-[115px] md:w-[135px] xl:h-auto xl:w-auto"
             />
           </div>
 
           {/* Small Title */}
           <p
-            className="text-[#FFD700] font-cinzel text-[34px] font-normal uppercase leading-[110%] tracking-[2px] sm:text-[44px] md:text-[56px] xl:text-[64px] xl:leading-[120%] xl:tracking-[1.92px]"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className="text-[#FFD700] font-cinzel text-[34px] font-normal uppercase leading-[110%] tracking-[2px] transition-all duration-500 sm:text-[44px] md:text-[56px] xl:text-[64px] xl:leading-[120%] xl:tracking-[1.92px]"
+            style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.3) }}
           >
             WE ARE THE
           </p>
 
           {/* Main Heading */}
           <h1
-            className="text-[#FFD700] font-cinzel text-[48px] font-bold uppercase leading-[110%] tracking-[1px] sm:text-[68px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className="text-[#FFD700] font-cinzel text-[48px] font-bold uppercase leading-[110%] tracking-[1px] drop-shadow-[0_0_18px_rgba(255,215,0,0.18)] transition-all duration-500 sm:text-[68px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
+            style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.45) }}
           >
             INHERITORS
           </h1>
 
           {/* Subheading */}
           <p
-            className="my-5 max-w-[420px] text-[#D4AF37] font-cinzel text-[19px] font-normal uppercase leading-[130%] tracking-[1px] sm:text-[24px] md:text-[30px] xl:my-6 xl:max-w-none xl:text-[32px] xl:leading-[120%]"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className="my-5 max-w-[420px] text-[#D4AF37] font-cinzel text-[19px] font-normal uppercase leading-[130%] tracking-[1px] transition-all duration-500 sm:text-[24px] md:text-[30px] xl:my-6 xl:max-w-none xl:text-[32px] xl:leading-[120%]"
+            style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.6) }}
           >
             Of the Earth and All Within It
           </p>
 
           {/* Description */}
-          <p className="mx-auto mb-7 max-w-[430px] text-[#FFFAF0] font-lora text-base font-normal leading-[150%] sm:text-lg md:max-w-[620px] xl:mb-12 xl:w-[35%] xl:max-w-none xl:text-lg">
+          <p
+            className="mx-auto mb-7 max-w-[430px] text-[#FFFAF0] font-lora text-base font-normal leading-[150%] transition-all duration-500 sm:text-lg md:max-w-[620px] xl:mb-12 xl:w-[35%] xl:max-w-none xl:text-lg"
+            style={fadeUp(0.75)}
+          >
             Royal Exchange Publishing stands as a creative platform for authors
             who carry the ancestral memory of this land. We guide you to build
             your legacy.
@@ -298,14 +304,16 @@ export const Hero = () => {
           {/* Buttons */}
           <div
             className="button-container flex w-full flex-col items-center justify-center gap-4 sm:flex-row xl:flex-row"
-            style={fadeUp(1.0)}
+            style={fadeUp(0.9)}
           >
-            <button className="hero-btn-kingdom lx:w-[235px] rounded-lg bg-[#d4a017] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all hover:scale-105 hover:brightness-110 md:w-auto md:text-base xl:text-[0.72rem]">
-              ENTER THE KINGDOM
+            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#d4a017] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
+              <span className="relative z-10">ENTER THE KINGDOM</span>
+              <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
             </button>
 
-            <button className="hero-btn-works lg:w-[235px] rounded-lg bg-[#c0185a] px-7 py-3 text-white font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#c0185a40] transition-all hover:scale-105 hover:brightness-110 md:w-auto md:text-base xl:text-[0.72rem]">
-              EXPLORE OUR WORKS
+            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#c0185a] px-7 py-3 text-white font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#c0185a40] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(192,24,90,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
+              <span className="relative z-10">EXPLORE OUR WORKS</span>
+              <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover:left-full" />
             </button>
           </div>
         </div>

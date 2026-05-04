@@ -1,4 +1,3 @@
-import React from 'react'
 import { Header } from './components/homepage/Header'
 import { Hero } from './components/homepage/Hero'
 import { LineageSection } from './components/homepage/LineageSection'

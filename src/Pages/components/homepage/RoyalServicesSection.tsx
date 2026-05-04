@@ -1,8 +1,12 @@
-import React from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useRef, useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
 import {
-  FaArrowRight,
-} from "react-icons/fa";
-import { BookingSvg, CrownSvg, DesignSvg, FormattingSvg } from "../../../lib/Svg";
+  BookingSvg,
+  CrownSvg,
+  DesignSvg,
+  FormattingSvg,
+} from "../../../lib/Svg";
 
 const royalServicesData = {
   title: "ROYAL SERVICES",
@@ -48,21 +52,69 @@ const royalServicesData = {
 };
 
 export const RoyalServicesSection = () => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.16,
+        rootMargin: "0px 0px -90px 0px",
+      },
+    );
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const revealClass = isVisible
+    ? "translate-y-0 opacity-100"
+    : "translate-y-8 opacity-0";
+
   return (
-    <section className="w-full bg-[#4F0D53] px-5 py-16 sm:px-6 md:py-20 xl:px-8">
+    <section
+      id="services"
+      ref={sectionRef}
+      className="w-full bg-[#4F0D53] px-5 py-16 sm:px-6 md:py-20 xl:px-8"
+    >
       <div className="mx-auto max-w-[1480px]">
         {/* Heading */}
         <div className="mb-12 text-center sm:mb-14 lg:mb-16">
           <h2
-            className="text-[#FFFAF0] text-[38px] font-normal leading-[120%] sm:text-[52px] md:text-[64px] lg:text-[72px]"
-            style={{ fontFamily: "'Cinzel', serif" }}
+            className={`text-[#FFFAF0] text-[38px] font-normal leading-[120%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-[52px] md:text-[64px] lg:text-[72px] ${revealClass}`}
+            style={{
+              fontFamily: "'Cinzel', serif",
+              transitionDelay: isVisible ? "80ms" : "0ms",
+            }}
           >
             {royalServicesData.title}
           </h2>
 
           <p
-            className="mt-4 text-[#FFD700] text-lg font-normal leading-[150%] sm:text-xl md:text-2xl"
-            style={{ fontFamily: "'Lora', serif" }}
+            className={`mt-4 text-[#FFD700] text-lg font-normal leading-[150%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-xl md:text-2xl ${revealClass}`}
+            style={{
+              fontFamily: "'Lora', serif",
+              transitionDelay: isVisible ? "160ms" : "0ms",
+            }}
           >
             {royalServicesData.subtitle}
           </p>
@@ -70,26 +122,37 @@ export const RoyalServicesSection = () => {
 
         {/* Cards */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {royalServicesData.services.map((service) => {
+          {royalServicesData.services.map((service, index) => {
             const Icon = service.icon;
 
             return (
               <div
                 key={service.id}
-                className="rounded-[18px] border border-[#6A1B6F] bg-[#250027] px-6 py-8 text-center shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.25)] sm:px-7 sm:py-10"
+                className={`group rounded-[18px] border border-[#6A1B6F] bg-[#250027] px-6 py-8 text-center shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:border-[#FFD700]/35 hover:shadow-[0_18px_48px_rgba(255,215,0,0.12)] sm:px-7 sm:py-10 ${revealClass}`}
+                style={{
+                  transitionDelay: isVisible
+                    ? `${260 + index * 110}ms`
+                    : "0ms",
+                }}
               >
                 {/* Icon */}
                 <div
-                  className="mx-auto mb-8 flex h-[64px] w-[64px] items-center justify-center rounded-full border"
-                  style={{ borderColor: service.iconColor }}
+                  className="mx-auto mb-8 flex h-[64px] w-[64px] items-center justify-center rounded-full border transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_28px_rgba(255,215,0,0.16)]"
+                  style={{
+                    borderColor: service.iconColor,
+                    boxShadow: isVisible
+                      ? `0 0 0 rgba(255,255,255,0)`
+                      : "none",
+                  }}
                 >
-                  <Icon
-                  />
+                  <div className="transition-transform duration-500 group-hover:scale-110">
+                    <Icon />
+                  </div>
                 </div>
 
                 {/* Title */}
                 <h3
-                  className="text-[#FFFAF0] text-[24px] font-normal leading-[130%] sm:text-[28px]"
+                  className="text-[#FFFAF0] text-[24px] font-normal leading-[130%] transition-colors duration-300 group-hover:text-[#FFD700] sm:text-[28px]"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   {service.title}
@@ -97,7 +160,7 @@ export const RoyalServicesSection = () => {
 
                 {/* Description */}
                 <p
-                  className="mt-6 min-h-[105px] text-[#E9D8E9] text-base font-normal leading-[160%]"
+                  className="mt-6 min-h-[105px] text-[#E9D8E9] text-base font-normal leading-[160%] transition-colors duration-300 group-hover:text-[#FFFAF0]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
                   {service.description}
@@ -105,11 +168,14 @@ export const RoyalServicesSection = () => {
 
                 {/* Button */}
                 <button
-                  className="mt-7 inline-flex items-center gap-2 rounded border border-[#B8860B] px-4 py-2 text-sm font-semibold text-[#FFD700] transition-all hover:bg-[#FFD700] hover:text-[#250027]"
+                  className="group/btn relative mt-7 inline-flex overflow-hidden items-center gap-2 rounded border border-[#B8860B] px-4 py-2 text-sm font-semibold text-[#FFD700] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#FFD700] hover:text-[#250027] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
-                  {service.buttonText}
-                  <FaArrowRight className="text-sm" />
+                  <span className="relative z-10">{service.buttonText}</span>
+
+                  <FaArrowRight className="relative z-10 text-sm transition-transform duration-300 group-hover/btn:translate-x-1" />
+
+                  <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover/btn:left-full" />
                 </button>
               </div>
             );

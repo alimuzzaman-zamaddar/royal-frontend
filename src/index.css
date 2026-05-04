@@ -67,7 +67,7 @@
   }
 
   .lineage-heading {
-    @apply mb-5 text-center text-[26px] font-normal uppercase leading-[120%] text-[#FFFAF0] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:mb-6 xl:text-left xl:text-[64px];
+    @apply mb-5 text-center text-[20px] font-normal uppercase leading-[120%] text-[#FFFAF0] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:mb-6 xl:text-left xl:text-[64px];
     font-family: "Cinzel", serif;
   }
 

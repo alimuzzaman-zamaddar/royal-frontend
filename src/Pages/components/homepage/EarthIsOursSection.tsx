@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useRef, useState } from "react";
 
 const earthSectionData = {
   title: "THE EARTH IS OURS",
@@ -11,57 +12,128 @@ const earthSectionData = {
 };
 
 export const EarthIsOursSection = () => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.22,
+        rootMargin: "0px 0px -90px 0px",
+      },
+    );
+
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const revealClass = isVisible
+    ? "translate-y-0 opacity-100"
+    : "translate-y-8 opacity-0";
+
+  const lineClass = isVisible
+    ? "scale-x-100 opacity-70"
+    : "scale-x-0 opacity-0";
+
   return (
-    <section className="relative w-full overflow-hidden bg-[#020202] px-5 py-20 text-center sm:px-6 md:py-24 lg:py-28">
-      {/* Background Glow */}
-      {/* <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-0 h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-[#FFD700]/10 blur-[130px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,215,0,0.10)_0%,rgba(2,2,2,0.96)_52%,#020202_100%)]" />
-      </div> */}
+    <section
+      id="contact"
+      ref={sectionRef}
+      className="relative w-full overflow-hidden bg-[#020202] px-5 py-20 text-center sm:px-6 md:py-24 lg:py-28"
+    >
+      {/* Premium Soft Glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className={`absolute left-1/2 top-1/2 h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FFD700]/[0.06] blur-[120px] transition-opacity duration-[1200ms] ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      </div>
 
       <div className="relative z-10 mx-auto max-w-[1100px]">
         {/* Top Gold Line */}
-        <div className="mx-auto mb-10 h-[3px] w-full max-w-[520px] bg-gradient-to-r from-transparent via-[#FFD700] to-transparent opacity-70" />
+        <div
+          className={`mx-auto mb-10 h-[3px] w-full max-w-[520px] origin-center bg-gradient-to-r from-transparent via-[#FFD700] to-transparent transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${lineClass}`}
+          style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
+        />
 
         <h2
-          className="text-[42px] font-normal uppercase leading-[115%] tracking-[2px] text-[#FFD700] sm:text-[58px] md:text-[72px] lg:text-[82px]"
-          style={{ fontFamily: "'Cinzel', serif" }}
+          className={`text-[42px] font-normal uppercase leading-[115%] tracking-[2px] text-[#FFD700] drop-shadow-[0_0_18px_rgba(255,215,0,0.14)] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-[58px] md:text-[72px] lg:text-[82px] ${revealClass}`}
+          style={{
+            fontFamily: "'Cinzel', serif",
+            transitionDelay: isVisible ? "180ms" : "0ms",
+          }}
         >
           {earthSectionData.title}
         </h2>
 
         <div className="mx-auto mt-9 max-w-[980px] space-y-4">
           <p
-            className="text-sm font-normal leading-[170%] text-[#FFFAF0] sm:text-base"
-            style={{ fontFamily: "'Lora', serif" }}
+            className={`text-sm font-normal leading-[170%] text-[#FFFAF0] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${revealClass}`}
+            style={{
+              fontFamily: "'Lora', serif",
+              transitionDelay: isVisible ? "300ms" : "0ms",
+            }}
           >
             {earthSectionData.description}
           </p>
 
           <p
-            className="text-sm font-normal leading-[170%] text-[#FFFAF0] sm:text-base"
-            style={{ fontFamily: "'Lora', serif" }}
+            className={`text-sm font-normal leading-[170%] text-[#FFFAF0] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${revealClass}`}
+            style={{
+              fontFamily: "'Lora', serif",
+              transitionDelay: isVisible ? "420ms" : "0ms",
+            }}
           >
             {earthSectionData.subDescription}
           </p>
         </div>
 
         <button
-          className="mt-8 rounded-md bg-[#FFD700] px-7 py-3 text-xs font-bold uppercase tracking-[2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-300 hover:scale-[1.03] hover:bg-[#f5d87a] sm:px-8 sm:py-3.5 sm:text-sm"
-          style={{ fontFamily: "'Montserrat', sans-serif" }}
+          className={`group relative mt-8 overflow-hidden rounded-md bg-[#FFD700] px-7 py-3 text-xs font-bold uppercase tracking-[2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.03] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.30)] sm:px-8 sm:py-3.5 sm:text-sm ${revealClass}`}
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            transitionDelay: isVisible ? "540ms" : "0ms",
+          }}
         >
-          {earthSectionData.buttonText}
+          <span className="relative z-10">{earthSectionData.buttonText}</span>
+          <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
         </button>
 
         <p
-          className="mt-8 text-sm italic leading-[150%] text-[#FFD700] sm:text-base"
-          style={{ fontFamily: "'Lora', serif" }}
+          className={`mt-8 text-sm italic leading-[150%] text-[#FFD700] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[#FFFAF0] sm:text-base ${revealClass}`}
+          style={{
+            fontFamily: "'Lora', serif",
+            transitionDelay: isVisible ? "660ms" : "0ms",
+          }}
         >
           "{earthSectionData.quote}"
         </p>
 
         {/* Bottom Gold Line */}
-        <div className="mx-auto mt-10 h-[3px] w-full max-w-[520px] bg-gradient-to-r from-transparent via-[#FFD700] to-transparent opacity-60" />
+        <div
+          className={`mx-auto mt-10 h-[3px] w-full max-w-[520px] origin-center bg-gradient-to-r from-transparent via-[#FFD700] to-transparent transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${lineClass}`}
+          style={{ transitionDelay: isVisible ? "760ms" : "0ms" }}
+        />
       </div>
     </section>
   );
