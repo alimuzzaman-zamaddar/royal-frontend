@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Lora:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@layer components {
+  .hero-section {
+    @apply relative flex flex-col items-center justify-center text-center px-6 overflow-hidden min-h-[calc(100vh-56px)] z-10;
+  }
+
+  .hero-title {
+    @apply text-[#FFD700]  text-[64px] font-normal leading-[120%] tracking-[1.92px] sm:text-[48px] md:text-[56px];
+    font-family: 'Cinzel', serif;
+  }
+
+  .hero-heading {
+    @apply text-[#FFD700]  text-[96px] font-bold leading-[120%] tracking-[1.92px] sm:text-[72px] md:text-[84px];
+    font-family: 'Cinzel', serif;
+  }
+
+  .hero-subheading {
+    @apply text-[#D4AF37]  text-[32px] font-normal leading-[120%] my-6 sm:text-[28px] md:text-[30px];
+    font-family: 'Cinzel', serif;
+  }
+
+  .hero-description {
+    @apply text-[#FFFAF0]  text-lg font-normal leading-[150%] xl:w-[35%] mx-auto mb-12 sm:text-base md:text-lg;
+    font-family: 'Lora', serif;
+  }
+
+  .button-container {
+    @apply flex gap-4 flex-wrap justify-center;
+  }
+
+  .hero-btn-kingdom,
+  .hero-btn-works {
+    @apply text-[#080500]  text-[0.72rem] font-bold tracking-[0.18em] px-7 py-3 shadow-[0_4px_24px_#d4a01740] transition-all sm:text-sm md:text-base;
+    font-family: 'Cinzel', serif;
+  }
+
+  .hero-btn-kingdom {
+    @apply bg-[#d4a017] hover:brightness-110 hover:scale-105;
+  }
+
+  .hero-btn-works {
+    @apply bg-[#c0185a] hover:brightness-110 hover:scale-105 text-white;
+  }
+}
+
+
+@layer components {
+  .lineage-section {
+    @apply w-full bg-[#4a0d4f] px-5 py-7 sm:px-6 sm:py-10 xl:px-6 xl:py-20;
+  }
+
+  .lineage-container {
+    @apply mx-auto flex max-w-[390px] flex-col items-center justify-between gap-4 sm:max-w-[520px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1480px] xl:flex-row xl:gap-12;
+  }
+
+  .lineage-content {
+    @apply flex w-full flex-col items-center text-center text-white xl:w-[70%] xl:items-start xl:text-left;
+  }
+
+  .lineage-label {
+    @apply mb-4 text-center text-xs font-normal uppercase leading-[150%] text-[#FFD700] xl:mb-0 xl:text-left xl:text-base;
+    font-family: "Lora", serif;
+    font-feature-settings: "liga" off, "clig" off;
+  }
+
+  .lineage-heading {
+    @apply mb-5 text-center text-[26px] font-normal uppercase leading-[120%] text-[#FFFAF0] sm:text-[34px] md:text-[44px] lg:text-[54px] xl:mb-6 xl:text-left xl:text-[64px];
+    font-family: "Cinzel", serif;
+  }
+
+  .lineage-description {
+    @apply mb-5 text-center text-[15px] font-normal leading-[150%] text-[#FFFAF0] sm:text-base md:text-lg xl:mb-6 xl:text-left xl:text-lg;
+    font-family: "Lora", serif;
+    font-feature-settings: "liga" off, "clig" off;
+  }
+
+  .lineage-quote-wrapper {
+    @apply mb-5 border-l-2 border-[#FFD700] pl-3 xl:mb-8 xl:pl-4;
+  }
+
+  .lineage-quote {
+    @apply text-center text-base font-normal leading-[150%] text-[#FFD700] sm:text-lg xl:text-left xl:text-xl;
+    font-family: "Lora", serif;
+    font-feature-settings: "liga" off, "clig" off;
+  }
+
+  .lineage-button {
+    @apply mb-4 flex items-center gap-2 rounded border border-[#FFD700] px-4 py-2 text-center text-sm font-semibold leading-6 tracking-[0.8px] text-[#FFD700] transition-opacity hover:opacity-80 sm:text-base xl:mb-0 xl:text-base;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  .lineage-image-column {
+    @apply flex w-full justify-center xl:w-[30%];
+  }
+
+  .lineage-image-wrapper {
+    @apply w-full;
+  }
+
+  .lineage-image {
+    @apply h-auto w-full rounded-2xl object-cover shadow-2xl;
+  }
+
+  .lineage-caption {
+    @apply mt-3 text-center text-sm font-normal leading-[150%] text-[#FFD700] sm:text-base xl:text-xl;
+    font-family: "Lora", serif;
+    font-feature-settings: "liga" off, "clig" off;
+  }
+}
+
+
+
+
+
+@layer components {
+  .royal-library-card {
+    @apply max-w-[300px] w-full bg-[#1E1E1E] rounded-xl overflow-hidden shadow-lg;
+  }
+
+  .royal-library-card img {
+    @apply w-full h-auto object-cover rounded-t-xl;
+  }
+
+  .royal-library-card-body {
+    @apply p-4;
+  }
+
+  .royal-library-card-title {
+    @apply text-[#FFD700] text-xl font-bold;
+  }
+
+  .royal-library-card-desc {
+    @apply text-[#D4AF37] text-lg my-2;
+  }
+
+  .royal-library-card-author {
+    @apply text-sm text-[#FFD700];
+  }
+
+  .royal-library-card-btn {
+    @apply bg-[#FFD700] text-[#080500] text-xs font-semibold py-2 px-4 rounded-md shadow-md hover:bg-[#d4a017];
+  }
+
+  /* Submit Your Work Card */
+  .submit-card {
+    @apply max-w-[300px] w-full bg-[#1E1E1E] rounded-xl overflow-hidden shadow-lg;
+  }
+
+  .submit-card img {
+    @apply h-12 w-12 mb-4;
+  }
+
+  .submit-card-title {
+    @apply text-[#FFD700] text-xl font-bold text-center;
+  }
+
+  .submit-card-desc {
+    @apply text-[#FFFAF0] text-lg text-center mt-2 mb-6;
+  }
+
+  .submit-card-btn {
+    @apply bg-[#FF5F60] text-white text-xs font-semibold py-2 px-4 rounded-md shadow-md hover:bg-[#ff4b50];
+  }
+}
+
+
+@layer components {
+  .royal-library-card {
+    @apply max-w-[413px] w-full bg-[#1E1E1E] rounded-xl overflow-hidden shadow-lg;
+  }
+
+  .royal-library-card img {
+    @apply w-full h-[510px] object-cover rounded-t-xl;
+  }
+
+  .royal-library-card-body {
+    @apply p-4 flex flex-col items-start;
+  }
+
+  .royal-library-card-title {
+    @apply text-[#FFFAF0] text-2xl font-normal leading-[150%] text-left;
+    font-family: 'Cinzel', serif;
+  }
+
+  .royal-library-card-desc {
+    @apply text-[#D4AF37]  text-base font-normal leading-[150%];
+  }
+
+  .royal-library-card-btn {
+    @apply bg-[#FFD700] w-full text-[#080500] text-xs font-semibold py-2 px-4 rounded-md shadow-md hover:bg-[#d4a017];
+  }
+
+  .royal-library-card-btn-coming {
+    @apply bg-[#0F52BA] text-[#fff] text-xs font-semibold py-2 px-4 rounded-md shadow-md hover:bg-[#06439e];
+  }
+
+  /* Submit Your Work Card */
+  .submit-card {
+    @apply max-w-[413px] w-full bg-[#1E1E1E] rounded-xl overflow-hidden shadow-lg;
+  }
+
+  .submit-card img {
+    @apply h-12 w-12 mb-4;
+  }
+
+  .submit-card-title {
+    @apply text-[#FFD700] text-xl font-bold text-center;
+  }
+
+  .submit-card-desc {
+    @apply text-[#FFFAF0] text-lg text-center mt-2 mb-6;
+  }
+
+  .submit-card-btn {
+    @apply bg-[#E0115F] w-full text-white text-xs font-semibold py-2 px-4 rounded-md rounded-lg;
+  }
+}
