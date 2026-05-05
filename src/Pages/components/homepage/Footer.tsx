@@ -7,7 +7,7 @@ import {
   FaEnvelope,
 } from "react-icons/fa";
 
-import logo from "../../../assets/Frame 67.png";
+import logo from "../../../assets/Frame 67 (1).png";
 
 const footerData = {
   brand: {
@@ -132,13 +132,6 @@ export const Footer = () => {
               alt="Royal Exchange Logo"
               className="mb-4 w-auto object-contain transition-all duration-500 hover:scale-[1.03] hover:drop-shadow-[0_0_18px_rgba(255,215,0,0.35)] xl:mb-6"
             />
-
-            <p
-              className="text-sm font-normal leading-[150%] text-[#FFD700] transition-colors duration-300 hover:text-[#FFFAF0]"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {footerData.brand.tagline}
-            </p>
           </div>
 
           {/* Navigate */}

@@ -69,7 +69,7 @@ export const EarthIsOursSection = () => {
         />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1100px]">
+      <div className="relative z-10 mx-auto max-w-[1480px]">
         {/* Top Gold Line */}
         <div
           className={`mx-auto mb-10 h-[3px] w-full max-w-[520px] origin-center bg-gradient-to-r from-transparent via-[#FFD700] to-transparent transition-all duration-[1000ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${lineClass}`}
@@ -86,7 +86,7 @@ export const EarthIsOursSection = () => {
           {earthSectionData.title}
         </h2>
 
-        <div className="mx-auto mt-9 max-w-[980px] space-y-4">
+        <div className="mx-auto mt-9 space-y-4">
           <p
             className={`text-sm font-normal leading-[170%] text-[#FFFAF0] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${revealClass}`}
             style={{

@@ -14,7 +14,7 @@ export const Hero = () => {
 
   const heroBackground = {
     backgroundImage: `
-    linear-gradient(180deg, rgba(2,2,2,0.82) 0%, rgba(7,6,3,0.96) 100%),
+    linear-gradient(180deg, rgba(2, 2, 2, 0.90) 0%, #070603 100%),
     url(${bgimage})
   `,
     backgroundSize: "cover",
@@ -263,7 +263,7 @@ export const Hero = () => {
             <img
               src={img}
               alt="Logo"
-              className="h-[86px] w-[100px] object-contain transition-all duration-500 group-hover:drop-shadow-[0_0_16px_rgba(255,215,0,0.45)] sm:h-[105px] sm:w-[122px] md:h-[115px] md:w-[135px] xl:h-auto xl:w-auto"
+              className="h-18 w-18 object-contain transition-all duration-500 group-hover:drop-shadow-[0_0_16px_rgba(255,215,0,0.45)] sm:h-[80px] sm:w-[90px] md:h-[90px] md:w-[100px]"
             />
           </div>
 
@@ -294,7 +294,10 @@ export const Hero = () => {
           {/* Description */}
           <p
             className="mx-auto mb-7 max-w-[430px] text-[#FFFAF0] font-lora text-base font-normal leading-[150%] transition-all duration-500 sm:text-lg md:max-w-[620px] xl:mb-12 xl:w-[35%] xl:max-w-none xl:text-lg"
-            style={fadeUp(0.75)}
+            style={{
+              ...fadeUp(0.75),
+              fontFamily: "'Lora', serif",
+            }}
           >
             Royal Exchange Publishing stands as a creative platform for authors
             who carry the ancestral memory of this land. We guide you to build
@@ -306,7 +309,7 @@ export const Hero = () => {
             className="button-container flex w-full flex-col items-center justify-center gap-4 sm:flex-row xl:flex-row"
             style={fadeUp(0.9)}
           >
-            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#d4a017] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
+            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#FFD700] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
               <span className="relative z-10">ENTER THE KINGDOM</span>
               <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
             </button>

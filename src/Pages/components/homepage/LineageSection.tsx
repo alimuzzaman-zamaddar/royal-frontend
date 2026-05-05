@@ -58,7 +58,7 @@ export const LineageSection = () => {
           </p>
 
           <h2
-            className={`lineage-heading transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+            className={`lineage-heading transition-all duration-[900ms] mt-4 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "170ms" : "0ms" }}
           >
             The Original Inhabitants <br />
@@ -132,7 +132,7 @@ export const LineageSection = () => {
               />
             </div>
 
-            <p className="lineage-caption transition-colors duration-300 group-hover:text-[#FFFAF0]">
+            <p className="lineage-caption ">
               The Royal Exchange Lineage
             </p>
           </div>

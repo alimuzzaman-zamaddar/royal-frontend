@@ -160,8 +160,8 @@ export const RoyalExchangeSection = () => {
           <button
             className={`group relative mt-8 overflow-hidden rounded-md bg-[#FFD700] px-6 py-3 text-sm font-bold uppercase tracking-[1.2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.02] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.28)] sm:px-7 sm:text-base ${revealClass}`}
             style={{
-              fontFamily: "'Montserrat', sans-serif",
-              transitionDelay: isVisible ? "760ms" : "0ms",
+              fontFamily: "'Lora', serif",
+              transitionDelay: isVisible ? "160ms" : "0ms",
             }}
           >
             <span className="relative z-10">{royalExchangeData.buttonText}</span>

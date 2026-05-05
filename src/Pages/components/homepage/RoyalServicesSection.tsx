@@ -94,13 +94,13 @@ export const RoyalServicesSection = () => {
     <section
       id="services"
       ref={sectionRef}
-      className="w-full bg-[#4F0D53] px-5 py-16 sm:px-6 md:py-20 xl:px-8"
+      className="w-full bg-[#4A0E4E] px-5 py-16 sm:px-6 md:py-20 xl:px-8"
     >
       <div className="mx-auto max-w-[1480px]">
         {/* Heading */}
         <div className="mb-12 text-center sm:mb-14 lg:mb-16">
           <h2
-            className={`text-[#FFFAF0] text-[38px] font-normal leading-[120%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-[52px] md:text-[64px] lg:text-[72px] ${revealClass}`}
+            className={`text-[#FFFAF0] text-[38px] font-normal leading-[120%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-[52px] md:text-[64px] ${revealClass}`}
             style={{
               fontFamily: "'Cinzel', serif",
               transitionDelay: isVisible ? "80ms" : "0ms",
@@ -110,7 +110,7 @@ export const RoyalServicesSection = () => {
           </h2>
 
           <p
-            className={`mt-4 text-[#FFD700] text-lg font-normal leading-[150%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-xl md:text-2xl ${revealClass}`}
+            className={`mt-4 text-[#FFD700] text-lg font-thin leading-[150%] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-xl md:text-2xl ${revealClass}`}
             style={{
               fontFamily: "'Lora', serif",
               transitionDelay: isVisible ? "160ms" : "0ms",
@@ -160,7 +160,7 @@ export const RoyalServicesSection = () => {
 
                 {/* Description */}
                 <p
-                  className="mt-6 min-h-[105px] text-[#E9D8E9] text-base font-normal leading-[160%] transition-colors duration-300 group-hover:text-[#FFFAF0]"
+                  className="mt-6 min-h-[105px] text-[#E9D8E9] text-sm font-normal leading-[160%] transition-colors duration-300 group-hover:text-[#FFFAF0]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
                   {service.description}
@@ -168,7 +168,7 @@ export const RoyalServicesSection = () => {
 
                 {/* Button */}
                 <button
-                  className="group/btn relative mt-7 inline-flex overflow-hidden items-center gap-2 rounded border border-[#B8860B] px-4 py-2 text-sm font-semibold text-[#FFD700] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#FFD700] hover:text-[#250027] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
+                  className="group/btn relative inline-flex overflow-hidden items-center gap-2 rounded border border-[#B8860B] px-4 py-2 text-sm font-semibold text-[#FFD700] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#FFD700] hover:text-[#250027] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   <span className="relative z-10">{service.buttonText}</span>

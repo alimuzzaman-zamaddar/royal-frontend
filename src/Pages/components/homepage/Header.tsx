@@ -92,8 +92,11 @@ export const Header = () => {
               key={link.label}
               href={link.href}
               onClick={(e) => handleSmoothScroll(e, link.href)}
-              className="group relative text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off] font-lora text-base font-normal leading-[150%] transition-colors duration-300 hover:text-[#FFFAF0]"
-            >
+              
+              className="group relative text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off]  font-lora text-base font-normal leading-[150%] transition-colors duration-300 hover:text-[#FFFAF0]"
+                       style={{
+              fontFamily: "'Lora', serif",
+            }} >
               {link.label}
 
               <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-[#FFD700] transition-all duration-300 group-hover:w-full" />
@@ -107,6 +110,9 @@ export const Header = () => {
             href="#royal-exchange"
             onClick={(e) => handleSmoothScroll(e, "#royal-exchange")}
             className="group relative overflow-hidden rounded bg-[#FFD700] px-4 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base"
+            style={{
+              fontFamily: "'Lora', serif",
+            }}
           >
             <span className="relative z-10">SHOP</span>
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
@@ -176,6 +182,7 @@ export const Header = () => {
               onClick={(e) => handleSmoothScroll(e, link.href)}
               style={{
                 transitionDelay: isMenuOpen ? `${index * 65}ms` : "0ms",
+                              fontFamily: "'Lora', serif",
               }}
               className={`group border-b border-[#FFD700]/10 pb-4 text-[#FFD700] font-lora text-base font-normal tracking-[0.5px] transition-all duration-500 hover:translate-x-1 hover:border-[#FFD700]/40 hover:text-[#FFFAF0] ${
                 isMenuOpen
@@ -200,6 +207,9 @@ export const Header = () => {
               ? "translate-y-0 opacity-100 delay-300"
               : "translate-y-3 opacity-0"
           }`}
+                      style={{
+              fontFamily: "'Lora', serif",
+            }}
         >
           <span className="relative z-10">SHOP</span>
           <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
