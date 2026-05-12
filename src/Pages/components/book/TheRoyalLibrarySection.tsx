@@ -60,7 +60,7 @@ const libraryData = [
   },
 ];
 
-export const RoyalLibrarySection = () => {
+export const TheRoyalLibrarySection = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -103,7 +103,7 @@ export const RoyalLibrarySection = () => {
     <section
       id="books"
       ref={sectionRef}
-      className="w-full bg-[#020202] px-5 py-12 text-center sm:px-6 sm:py-16 xl:px-8 xl:py-20"
+      className="w-full bg-[#4B0F4E] px-5 py-12 text-center sm:px-6 sm:py-16 xl:px-8 xl:py-20"
     >
       <div className="mx-auto max-w-[1480px]">
         <h2

@@ -269,7 +269,7 @@ export const Hero = () => {
 
           {/* Small Title */}
           <p
-            className="text-[#FFD700] font-cinzel text-[34px] font-normal uppercase leading-[110%] tracking-[2px] transition-all duration-500 sm:text-[44px] md:text-[56px] xl:text-[64px] xl:leading-[120%] xl:tracking-[1.92px]"
+            className="text-[#FFD700] font-cinzel mb-4 xl-mb-0 text-[20px] font-normal uppercase leading-[110%] tracking-[2px] transition-all duration-500 sm:text-[44px] md:text-[56px] xl:text-[38px] xl:leading-[120%] xl:tracking-[1.92px]"
             style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.3) }}
           >
             WE ARE THE
@@ -277,7 +277,7 @@ export const Hero = () => {
 
           {/* Main Heading */}
           <h1
-            className="text-[#FFD700] font-cinzel text-[48px] font-bold uppercase leading-[110%] tracking-[1px] drop-shadow-[0_0_18px_rgba(255,215,0,0.18)] transition-all duration-500 sm:text-[68px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
+            className="text-[#FFD700] font-cinzel text-[32px] font-bold uppercase leading-[110%] tracking-[1px] drop-shadow-[0_0_18px_rgba(255,215,0,0.18)] transition-all duration-500 sm:text-[44px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
             style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.45) }}
           >
             INHERITORS
