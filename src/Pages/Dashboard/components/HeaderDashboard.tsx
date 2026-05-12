@@ -4,7 +4,7 @@ import img from "../../../assets/mainlogo.png";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
 import { Link } from "react-router-dom";
 
-export const Header = () => {
+export const HeaderDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -80,7 +80,7 @@ export const Header = () => {
   return (
     <>
       <header
-        className={`absolute top-0 left-0 right-0 z-50 mx-6 mt-8 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
+        className={` z-50 mx-6 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
           isMounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
         }`}
       >

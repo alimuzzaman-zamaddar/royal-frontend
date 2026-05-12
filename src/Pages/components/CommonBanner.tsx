@@ -66,7 +66,7 @@ export const CommonBanner = ({
             <img
               src={logoimg}
               alt="Logo"
-              className="mx-auto h-42 w-50 max-w-full"
+              className="mx-auto w-25 h-20 xl:h-42 xl:w-50 max-w-full"
             />
           </div>
         )}

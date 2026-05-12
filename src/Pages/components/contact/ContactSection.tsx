@@ -83,7 +83,6 @@ export const ContactSection = () => {
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitted(false);
 
-    // Later you can replace this with EmailJS, backend API, Formspree, etc.
     console.log("Contact form submitted:", data);
 
     await new Promise((resolve) => setTimeout(resolve, 700));
@@ -100,31 +99,31 @@ export const ContactSection = () => {
     <section
       id="contact"
       ref={sectionRef}
-      className="w-full overflow-hidden bg-[#4A0E4E] px-5 py-16 sm:px-6 md:py-20 xl:px-8 xl:py-24"
+      className="w-full overflow-hidden bg-[#4A0E4E] px-4 py-14 sm:px-6 sm:py-16 md:py-20 xl:px-8 xl:py-24"
     >
-      <div className="mx-auto flex max-w-[1220px] flex-col items-center gap-12 lg:flex-row lg:items-center lg:justify-between xl:gap-20">
+      <div className="mx-auto flex w-full max-w-[1220px] flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 xl:gap-20">
         {/* LEFT CONTACT INFO */}
         <div
-          className={`w-full max-w-[500px] text-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-left ${revealClass}`}
+          className={`w-full max-w-[520px] text-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-left ${revealClass}`}
           style={{
             transitionDelay: isVisible ? "100ms" : "0ms",
           }}
         >
           <h2
-            className="mb-10 text-[32px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[38px]"
+            className="mb-8 text-center text-[28px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[32px] md:text-[38px] lg:mb-10 lg:text-left"
             style={{ fontFamily: "'Lora', serif" }}
           >
             Contact Information
           </h2>
 
-          <div className="space-y-10">
+          <div className="mx-auto max-w-[390px] space-y-8 sm:space-y-10 lg:mx-0 lg:max-w-none">
             {contactInfo.map((item, index) => {
               const Icon = item.icon;
 
               return (
                 <div
                   key={item.id}
-                  className={`flex items-center justify-center gap-4 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:justify-start ${revealClass}`}
+                  className={`flex items-start justify-start gap-4 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
                   style={{
                     transitionDelay: isVisible
                       ? `${220 + index * 120}ms`
@@ -135,16 +134,16 @@ export const ContactSection = () => {
                     <Icon className="text-lg" />
                   </div>
 
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h3
-                      className="text-left text-[24px] font-normal leading-[120%] text-[#FFFAF0] sm:text-[28px]"
+                      className="text-left text-[22px] font-normal leading-[120%] text-[#FFFAF0] sm:text-[24px] md:text-[28px]"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
                       {item.title}
                     </h3>
 
                     <p
-                      className="mt-2 text-left text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg"
+                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#FFFAF0] sm:text-base md:text-lg"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
                       {item.value}
@@ -158,7 +157,7 @@ export const ContactSection = () => {
 
         {/* RIGHT FORM */}
         <div
-          className={`w-full max-w-[730px] rounded-[18px] bg-[#6A2A6A]/70 px-5 py-6 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 lg:px-7 ${revealClass}`}
+          className={`w-full max-w-[730px] rounded-[18px] bg-[#6A2A6A]/70 px-4 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-6 lg:px-7 ${revealClass}`}
           style={{
             transitionDelay: isVisible ? "240ms" : "0ms",
           }}
@@ -179,6 +178,7 @@ export const ContactSection = () => {
                   id="fullName"
                   type="text"
                   placeholder="Your Full Name"
+                  autoComplete="name"
                   {...register("fullName", {
                     required: "Full name is required",
                     minLength: {
@@ -190,7 +190,7 @@ export const ContactSection = () => {
                       message: "Full name cannot be more than 60 characters",
                     },
                   })}
-                  className={`h-10 w-full rounded-md border bg-[#8B5A87]/70 px-5 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
+                  className={`h-11 w-full rounded-md border bg-[#8B5A87]/70 px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] sm:h-10 sm:px-5 ${
                     errors.fullName
                       ? "border-[#E0115F]"
                       : "border-[#C9A6C8]/50"
@@ -219,6 +219,7 @@ export const ContactSection = () => {
                   id="email"
                   type="email"
                   placeholder="Your@gmail.com"
+                  autoComplete="email"
                   {...register("email", {
                     required: "Email address is required",
                     pattern: {
@@ -227,7 +228,7 @@ export const ContactSection = () => {
                       message: "Please enter a valid email address",
                     },
                   })}
-                  className={`h-10 w-full rounded-md border bg-[#8B5A87]/70 px-5 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
+                  className={`h-11 w-full rounded-md border bg-[#8B5A87]/70 px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] sm:h-10 sm:px-5 ${
                     errors.email
                       ? "border-[#E0115F]"
                       : "border-[#C9A6C8]/50"
@@ -268,7 +269,7 @@ export const ContactSection = () => {
                     message: "Message cannot be more than 500 characters",
                   },
                 })}
-                className={`w-full resize-none rounded-md border bg-[#8B5A87]/70 px-5 py-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
+                className={`w-full resize-none rounded-md border bg-[#8B5A87]/70 px-4 py-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#FFFAF0]/85 transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] sm:px-5 ${
                   errors.message
                     ? "border-[#E0115F]"
                     : "border-[#C9A6C8]/50"
@@ -287,7 +288,7 @@ export const ContactSection = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative mt-4 h-10 w-full overflow-hidden border rounded-lg bg-black/0 border-[#C9A6C8]/50 text-center text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#250027] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="group relative mt-4 h-11 w-full overflow-hidden rounded-lg border border-[#C9A6C8]/50 bg-black/0 text-center text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#250027] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)] disabled:cursor-not-allowed disabled:opacity-70 sm:h-10"
               style={{ fontFamily: "'Lora', serif" }}
             >
               <span className="relative z-10">

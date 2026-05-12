@@ -62,10 +62,10 @@ export const FounderStorySection = () => {
       ref={sectionRef}
       className="w-full overflow-hidden bg-[#4A0E4E] px-5 py-16 sm:px-6 md:py-20 xl:px-8 xl:py-24"
     >
-      <div className="mx-auto flex max-w-[1480px] flex-col items-center gap-12 lg:flex-row lg:justify-between xl:gap-20">
+      <div className="mx-auto flex max-w-370 flex-col-reverse items-center gap-12 lg:flex-row lg:justify-between xl:gap-20">
         {/* LEFT TEXT */}
         <div
-          className={`w-full max-w-[760px] text-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-left ${revealClass}`}
+          className={`w-full max-w-[760px] text-center transition-all duration-900 ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-left ${revealClass}`}
           style={{
             transitionDelay: isVisible ? "120ms" : "0ms",
           }}
