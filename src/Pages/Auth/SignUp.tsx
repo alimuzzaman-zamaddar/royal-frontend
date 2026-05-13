@@ -5,14 +5,16 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
 
-type LoginFormValues = {
+type SignupFormValues = {
+  fullName: string;
   email: string;
   password: string;
-  rememberMe: boolean;
+  confirmPassword: string;
 };
 
-export const Login = () => {
+export const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -20,32 +22,37 @@ export const Login = () => {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
+  } = useForm<SignupFormValues>({
     mode: "onBlur",
     defaultValues: {
+      fullName: "",
       email: "",
       password: "",
-      rememberMe: false,
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const password = watch("password");
+
+  const onSubmit = async (data: SignupFormValues) => {
     setApiError("");
     setSuccessMessage("");
 
     try {
       /*
         Ready for API call.
-        Replace this block with your real login API.
+        Replace this block with your real signup API.
 
         Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            fullName: data.fullName,
             email: data.email,
             password: data.password,
           }),
@@ -54,17 +61,21 @@ export const Login = () => {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.message || "Login failed");
+          throw new Error(result.message || "Signup failed");
         }
 
         localStorage.setItem("token", result.authorization.token);
       */
 
-      console.log("Login payload:", data);
+      console.log("Signup payload:", {
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+      });
 
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      setSuccessMessage("Logged in successfully.");
+      setSuccessMessage("Account created successfully.");
       reset();
     } catch (error) {
       const message =
@@ -73,14 +84,14 @@ export const Login = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleSignup = () => {
     /*
-      Ready for Google login.
+      Ready for Google signup.
       Example:
       window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
     */
 
-    console.log("Google login clicked");
+    console.log("Google signup clicked");
   };
 
   return (
@@ -101,20 +112,59 @@ export const Login = () => {
             className="text-[26px] font-semibold leading-[120%] text-[#FFFAF0] sm:text-[30px]"
             style={{ fontFamily: "'Lora', serif" }}
           >
-           Welcome Back, Partner
+            Create New Account
           </h1>
 
           <p
             className="mt-3 text-base font-normal leading-[150%] text-[#CDBDCA] sm:text-lg"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            Glad to see you again. Log in to your account.
+            Enter your details to sign up
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Email */}
+          {/* Full Name */}
           <div>
+            <label
+              htmlFor="fullName"
+              className="mb-3 block text-base font-semibold text-[#FFFAF0]"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              Full Name <span className="text-[#E0115F]">*</span>
+            </label>
+
+            <input
+              id="fullName"
+              type="text"
+              placeholder="Enter your Name"
+              autoComplete="name"
+              {...register("fullName", {
+                required: "Full name is required",
+                minLength: {
+                  value: 2,
+                  message: "Full name must be at least 2 characters",
+                },
+                maxLength: {
+                  value: 60,
+                  message: "Full name cannot be more than 60 characters",
+                },
+              })}
+              className={`h-[54px] w-full rounded-lg border bg-[#6A0E69] px-4 text-base text-[#FFFAF0] outline-none placeholder:text-[#BFA7C0] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
+                errors.fullName ? "border-[#E0115F]" : "border-[#B8860B]/30"
+              }`}
+              style={{ fontFamily: "'Lora', serif" }}
+            />
+
+            {errors.fullName && (
+              <p className="mt-2 text-sm text-[#FFD700]">
+                {errors.fullName.message}
+              </p>
+            )}
+          </div>
+
+          {/* Email */}
+          <div className="mt-5">
             <label
               htmlFor="email"
               className="mb-3 block text-base font-semibold text-[#FFFAF0]"
@@ -163,7 +213,7 @@ export const Login = () => {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 {...register("password", {
                   required: "Password is required",
                   minLength: {
@@ -194,27 +244,54 @@ export const Login = () => {
             )}
           </div>
 
-          {/* Remember + Forgot */}
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* Confirm Password */}
+          <div className="mt-5">
             <label
-              className="flex cursor-pointer items-center gap-2 text-sm text-[#CDBDCA]"
+              htmlFor="confirmPassword"
+              className="mb-3 block text-base font-semibold text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
             >
-              <input
-                type="checkbox"
-                {...register("rememberMe")}
-                className="h-4 w-4 cursor-pointer accent-[#FFD700]"
-              />
-              Remember me
+              Confirm Password <span className="text-[#E0115F]">*</span>
             </label>
 
-            <a
-              href="/forgot-password"
-              className="text-sm text-[#FFD700] transition-colors hover:text-[#FFFAF0]"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              Forgot Password?
-            </a>
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                autoComplete="new-password"
+                {...register("confirmPassword", {
+                  required: "Confirm password is required",
+                  validate: (value) =>
+                    value === password || "Passwords do not match",
+                })}
+                className={`h-[54px] w-full rounded-lg border bg-[#6A0E69] px-4 pr-12 text-base text-[#FFFAF0] outline-none placeholder:text-[#BFA7C0] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
+                  errors.confirmPassword
+                    ? "border-[#E0115F]"
+                    : "border-[#B8860B]/30"
+                }`}
+                style={{ fontFamily: "'Lora', serif" }}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#BFA7C0] transition-colors hover:text-[#FFD700]"
+                aria-label={
+                  showConfirmPassword
+                    ? "Hide confirm password"
+                    : "Show confirm password"
+                }
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+
+            {errors.confirmPassword && (
+              <p className="mt-2 text-sm text-[#FFD700]">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           {/* API Messages */}
@@ -230,7 +307,7 @@ export const Login = () => {
             </p>
           )}
 
-          {/* Login Button */}
+          {/* Signup Button */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -238,23 +315,23 @@ export const Login = () => {
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
             <span className="relative z-10">
-              {isSubmitting ? "Logging in..." : "Login"}
+              {isSubmitting ? "Creating Account..." : "Signup"}
             </span>
 
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
 
-          {/* Signup Link */}
+          {/* Login Link */}
           <p
             className="mt-8 text-center text-base text-[#BFA7C0]"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            Don&apos;t have an account?{" "}
+            Already have an account?{" "}
             <a
-              href="/auth/signup"
-              className="font-semibold text-[#FFFAF0] transition-colors hover:text-[#FFD700]"
+              href="/auth/login"
+              className="font-semibold cursor-pointer text-[#FFFAF0] transition-colors hover:text-[#FFD700]"
             >
-              Signup
+              Login
             </a>
           </p>
 
@@ -270,10 +347,10 @@ export const Login = () => {
             <div className="h-px w-full max-w-[150px] bg-[#B8860B]/70" />
           </div>
 
-          {/* Google Login */}
+          {/* Google Signup */}
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleSignup}
             className="flex h-[52px] w-full cursor-pointer items-center justify-center gap-4 rounded-lg border border-[#FFD700]/30 text-base font-normal text-[#CDBDCA] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#080500] hover:shadow-[0_8px_24px_rgba(255,215,0,0.20)]"
             style={{ fontFamily: "'Lora', serif" }}
           >

@@ -101,7 +101,7 @@ export const ContactSection = () => {
       ref={sectionRef}
       className="w-full overflow-hidden bg-[#4A0E4E] px-4 py-14 sm:px-6 sm:py-16 md:py-20 xl:px-8 xl:py-24"
     >
-      <div className="mx-auto flex w-full max-w-[1220px] flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 xl:gap-20">
+      <div className="mx-auto flex w-full max-w-[1480px] flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 xl:gap-20">
         {/* LEFT CONTACT INFO */}
         <div
           className={`w-full max-w-[520px] text-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:text-left ${revealClass}`}
@@ -157,7 +157,7 @@ export const ContactSection = () => {
 
         {/* RIGHT FORM */}
         <div
-          className={`w-full max-w-[730px] rounded-[18px] bg-[#6A2A6A]/70 px-4 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-6 lg:px-7 ${revealClass}`}
+          className={`w-full max-w-[1000px] rounded-[18px] bg-[#6A2A6A]/70 px-4 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.18)] backdrop-blur-sm transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-6 sm:py-6 lg:px-7 ${revealClass}`}
           style={{
             transitionDelay: isVisible ? "240ms" : "0ms",
           }}

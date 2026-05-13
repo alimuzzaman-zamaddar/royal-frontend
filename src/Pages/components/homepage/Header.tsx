@@ -27,11 +27,11 @@ export const Header = () => {
     },
     {
       label: "SHOP",
-      href: "#books",
+      href: "/shop",
     },
     {
       label: "SERVICES",
-      href: "#royal-exchange",
+      href: "/services",
     },
     {
       label: "BOOKS",
@@ -121,7 +121,7 @@ export const Header = () => {
           <a href="">
             <CartSvg />
           </a>
-          <Link           to="/sign-up"
+          <Link           to="/auth/signup"
             className="group xl:block hidden relative overflow-hidden rounded-2xl bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
             style={{
               fontFamily: "'Lora', serif",
@@ -214,7 +214,7 @@ export const Header = () => {
         {/* Drawer Button */}
         <div className="">
           <Link
-          to="/sign-up"
+          to="/auth/signup"
             className={`group relative mt-8 block w-full overflow-hidden rounded-2xl bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
               isMenuOpen
                 ? "translate-y-0 opacity-100 delay-300"
