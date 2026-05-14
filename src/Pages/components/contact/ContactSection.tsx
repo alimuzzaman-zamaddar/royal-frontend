@@ -123,7 +123,7 @@ export const ContactSection = () => {
               return (
                 <div
                   key={item.id}
-                  className={`flex items-start justify-start gap-4 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+                  className={`flex items-center justify-start gap-4 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
                   style={{
                     transitionDelay: isVisible
                       ? `${220 + index * 120}ms`
