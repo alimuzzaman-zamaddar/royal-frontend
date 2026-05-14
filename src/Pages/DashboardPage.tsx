@@ -368,22 +368,22 @@ export const DashboardPage = () => {
   );
 };
 
-const EmptyTab = ({ title, text }: { title: string; text: string }) => {
-  return (
-    <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
-      <h2
-        className="text-[32px] font-normal text-[#FFD700] sm:text-[42px]"
-        style={{ fontFamily: "'Cinzel', serif" }}
-      >
-        {title}
-      </h2>
+// const EmptyTab = ({ title, text }: { title: string; text: string }) => {
+//   return (
+//     <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+//       <h2
+//         className="text-[32px] font-normal text-[#FFD700] sm:text-[42px]"
+//         style={{ fontFamily: "'Cinzel', serif" }}
+//       >
+//         {title}
+//       </h2>
 
-      <p
-        className="mt-4 max-w-[520px] text-base leading-[160%] text-[#FFFAF0] sm:text-lg"
-        style={{ fontFamily: "'Lora', serif" }}
-      >
-        {text}
-      </p>
-    </div>
-  );
-};
+//       <p
+//         className="mt-4 max-w-[520px] text-base leading-[160%] text-[#FFFAF0] sm:text-lg"
+//         style={{ fontFamily: "'Lora', serif" }}
+//       >
+//         {text}
+//       </p>
+//     </div>
+//   );
+// };
