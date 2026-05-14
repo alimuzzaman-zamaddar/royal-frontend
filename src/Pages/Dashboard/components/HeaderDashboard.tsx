@@ -104,8 +104,7 @@ export const HeaderDashboard = () => {
       >
         {/* Logo */}
         <a
-          href="https://royalexchange230.com/"
-          // onClick={(e) => handleSmoothScroll(e, "#home")}
+          href="/"
           className="group flex items-center gap-3 cursor-pointer select-none transition-transform duration-300 hover:scale-[1.03]"
         >
           <img

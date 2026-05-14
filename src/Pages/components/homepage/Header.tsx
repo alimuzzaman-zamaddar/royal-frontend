@@ -196,14 +196,13 @@ export const Header = () => {
         {/* Drawer Header */}
         <div className="flex items-center justify-between border-b border-[#FFD700]/20 pb-5">
           <a
-            href="https://royalexchange230.com"
-            // onClick={(e) => handleSmoothScroll(e, "#home")}
+            href="/"
             className="group transition-transform duration-300 hover:scale-[1.03]"
           >
             <img
               src={img}
               alt="Logo"
-              className="h-[46px] w-auto object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_14px_rgba(255,215,0,0.45)]"
+              className="h-11.5 w-auto object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_14px_rgba(255,215,0,0.45)]"
             />
           </a>
 

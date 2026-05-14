@@ -143,7 +143,7 @@ export const ContactSection = () => {
                     </h3>
 
                     <p
-                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#FFFAF0] sm:text-base md:text-lg"
+                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#a8a8a8] sm:text-base md:text-lg"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
                       {item.value}

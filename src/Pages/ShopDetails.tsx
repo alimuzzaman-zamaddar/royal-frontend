@@ -3,7 +3,7 @@ import { FaStar, FaPlus, FaMinus, FaBoxes } from "react-icons/fa";
 
 import productMainImg from "../assets/Ebook cover.jpeg";
 import thumb1 from "../assets/Ebook cover.jpeg";
-import thumb2 from "../assets/Ebook cover.jpeg";
+import thumb2 from "../assets/middlecard.jpeg";
 import thumb3 from "../assets/Ebook cover.jpeg";
 import thumb4 from "../assets/Ebook cover.jpeg";
 import { RelatedProductsSection } from "./components/Shop/RelatedProductsSection";
@@ -56,7 +56,7 @@ export const ShopDetailsPage = () => {
 
   return (
     <main className="min-h-screen w-full bg-[#020202] px-5 py-10 sm:px-6 md:py-14 xl:px-8 xl:py-16">
-      <div className="mx-auto max-w-[1480px]">
+      <div className="mx-auto max-w-370">
         {/* Breadcrumb */}
         <div
           className="mb-8 flex flex-wrap items-center gap-2 text-sm font-normal text-[#FFFAF0] sm:text-base"
@@ -86,7 +86,7 @@ export const ShopDetailsPage = () => {
               <img
                 src={selectedImage}
                 alt={productDetailsData.title}
-                className="h-[420px] w-full rounded-[14px] object-cover transition-all duration-500 sm:h-[560px] lg:h-[620px] xl:h-[665px]"
+                className="h-105 w-full rounded-[14px] object-contain transition-all duration-500 sm:h-140 lg:h-155 xl:h-166.25"
               />
             </div>
           </div>
@@ -154,14 +154,14 @@ export const ShopDetailsPage = () => {
 
             {/* Description */}
             <p
-              className="mt-8 max-w-[690px] text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg lg:text-base xl:text-[17px]"
+              className="mt-8 max-w-172.5 text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg lg:text-base xl:text-[17px]"
               style={{ fontFamily: "'Lora', serif" }}
             >
               {productDetailsData.description}
             </p>
 
             {/* Quantity */}
-            <div className="mt-7 flex h-10 w-[105px] items-center justify-between rounded-md border border-[#FFD700] px-3 text-[#FFFAF0]">
+            <div className="mt-7 flex h-10 w-26.25 items-center justify-between rounded-md border border-[#FFD700] px-3 text-[#FFFAF0]">
               <button
                 type="button"
                 onClick={handleDecrease}
@@ -220,14 +220,14 @@ export const ShopDetailsPage = () => {
                     onClick={() => setSelectedImage(image)}
                     className={`overflow-hidden rounded-md border transition-all duration-300 hover:-translate-y-1 ${
                       isActive
-                        ? "border-[#FFD700]"
-                        : "border-transparent hover:border-[#FFD700]/60"
+                        ? "border-[#FFD700]/30"
+                        : "border-transparent hover:border-[#FFD700]/40"
                     }`}
                   >
                     <img
                       src={image}
                       alt={`${productDetailsData.title} thumbnail ${index + 1}`}
-                      className="h-[70px] w-full rounded-md object-cover sm:h-[82px]"
+                      className="h-17.5 w-full rounded-md object-cover sm:h-20.5"
                     />
                   </button>
                 );
