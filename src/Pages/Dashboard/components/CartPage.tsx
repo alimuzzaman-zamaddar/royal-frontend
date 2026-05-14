@@ -1,44 +1,35 @@
-import { useMemo, useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useMemo, useState } from "react";
 import { FaMinus, FaPlus, FaTrashAlt } from "react-icons/fa";
-
-import capImg from "../../../assets/cap.png";
-
-type CartItem = {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-};
-
-const initialCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: "Checked Out Cap",
-    price: 60,
-    quantity: 1,
-    image: capImg,
-  },
-  {
-    id: 2,
-    name: "Checked Out Cap",
-    price: 60,
-    quantity: 1,
-    image: capImg,
-  },
-  {
-    id: 3,
-    name: "Checked Out Cap",
-    price: 60,
-    quantity: 1,
-    image: capImg,
-  },
-];
+import {
+  CART_UPDATED_EVENT,
+  decreaseCartItem,
+  getCartItems,
+  increaseCartItem,
+  removeCartItem,
+  type CartStorageItem,
+} from "../../../lib/cartStorage";
 
 export const CartPage = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+  const [cartItems, setCartItems] = useState<CartStorageItem[]>([]);
 
   const shipping = 20;
+
+  const refreshCart = () => {
+    setCartItems(getCartItems());
+  };
+
+  useEffect(() => {
+    refreshCart();
+
+    window.addEventListener(CART_UPDATED_EVENT, refreshCart);
+    window.addEventListener("storage", refreshCart);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
+      window.removeEventListener("storage", refreshCart);
+    };
+  }, []);
 
   const subTotal = useMemo(() => {
     return cartItems.reduce(
@@ -50,25 +41,18 @@ export const CartPage = () => {
   const total = subTotal + (cartItems.length > 0 ? shipping : 0);
 
   const handleIncrease = (id: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-      ),
-    );
+    increaseCartItem(id);
+    refreshCart();
   };
 
   const handleDecrease = (id: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }
-          : item,
-      ),
-    );
+    decreaseCartItem(id);
+    refreshCart();
   };
 
   const handleRemove = (id: number) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    removeCartItem(id);
+    refreshCart();
   };
 
   return (
@@ -159,7 +143,7 @@ const CartItemCard = ({
   onDecrease,
   onRemove,
 }: {
-  item: CartItem;
+  item: CartStorageItem;
   onIncrease: (id: number) => void;
   onDecrease: (id: number) => void;
   onRemove: (id: number) => void;

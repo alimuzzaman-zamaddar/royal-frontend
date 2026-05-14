@@ -3,7 +3,7 @@ import { DashboardPage } from "../DashboardPage";
 const DashboardHome = () => {
   return (
     <div className="">
-<DashboardPage />
+      <DashboardPage />
     </div>
   );
 };

@@ -1,25 +1,24 @@
 import { useState } from "react";
-import {
-  FaStar,
-  FaPlus,
-  FaMinus,
-  FaBoxes,
-} from "react-icons/fa";
+import { FaStar, FaPlus, FaMinus, FaBoxes } from "react-icons/fa";
 
-import productMainImg from  "../assets/Ebook cover.jpeg";
+import productMainImg from "../assets/Ebook cover.jpeg";
 import thumb1 from "../assets/Ebook cover.jpeg";
 import thumb2 from "../assets/Ebook cover.jpeg";
 import thumb3 from "../assets/Ebook cover.jpeg";
 import thumb4 from "../assets/Ebook cover.jpeg";
 import { RelatedProductsSection } from "./components/Shop/RelatedProductsSection";
+import { addToCart } from "../lib/cartStorage";
 
 const productDetailsData = {
+  id: 1,
   breadcrumb: ["The Throne Room", "Shop", "Product Details"],
   title: "No Sense Security",
+  author: "by Julius Spenser",
   rating: 5,
   reviewCount: 20,
   oldPrice: "$49.99 USD",
   price: "$39.99 USD",
+  priceAmount: 39.99,
   stockStatus: "In Stock",
   stockCount: "12 items left",
   description:
@@ -28,7 +27,9 @@ const productDetailsData = {
 };
 
 export const ShopDetailsPage = () => {
-  const [selectedImage, setSelectedImage] = useState(productDetailsData.images[0]);
+  const [selectedImage, setSelectedImage] = useState(
+    productDetailsData.images[0],
+  );
   const [quantity, setQuantity] = useState(1);
 
   const handleIncrease = () => {
@@ -37,6 +38,20 @@ export const ShopDetailsPage = () => {
 
   const handleDecrease = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const handleAddToCart = () => {
+    addToCart(
+      {
+        id: productDetailsData.id,
+        name: productDetailsData.title,
+        author: productDetailsData.author,
+        image: selectedImage,
+        price: productDetailsData.priceAmount,
+        badge: "Product Details",
+      },
+      quantity,
+    );
   };
 
   return (
@@ -50,7 +65,11 @@ export const ShopDetailsPage = () => {
           {productDetailsData.breadcrumb.map((item, index) => (
             <span
               key={item}
-              className={index === productDetailsData.breadcrumb.length - 1 ? "text-[#FFD700]" : ""}
+              className={
+                index === productDetailsData.breadcrumb.length - 1
+                  ? "text-[#FFD700]"
+                  : ""
+              }
             >
               {item}
               {index !== productDetailsData.breadcrumb.length - 1 && (
@@ -60,7 +79,7 @@ export const ShopDetailsPage = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8 py-10 xl:py-20">
+        <div className="grid grid-cols-1 gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8 xl:py-20">
           {/* LEFT IMAGE */}
           <div className="w-full">
             <div className="overflow-hidden rounded-[14px]">
@@ -87,7 +106,10 @@ export const ShopDetailsPage = () => {
                   <div className="flex items-center gap-1">
                     {Array.from({ length: productDetailsData.rating }).map(
                       (_, index) => (
-                        <FaStar key={index} className="text-lg text-[#FFD700]" />
+                        <FaStar
+                          key={index}
+                          className="text-lg text-[#FFD700]"
+                        />
                       ),
                     )}
                   </div>
@@ -170,6 +192,7 @@ export const ShopDetailsPage = () => {
             <div className="mt-5 flex flex-col gap-5">
               <button
                 type="button"
+                onClick={handleAddToCart}
                 className="h-11 w-full rounded-md border border-[#FFD700] text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#020202] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
@@ -214,7 +237,7 @@ export const ShopDetailsPage = () => {
         </div>
       </div>
 
-     < RelatedProductsSection />
+      <RelatedProductsSection />
     </main>
   );
 };

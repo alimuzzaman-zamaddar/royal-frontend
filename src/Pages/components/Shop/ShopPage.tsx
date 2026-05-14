@@ -5,6 +5,7 @@ import bookImg1 from "../../../assets/middlecard.jpeg";
 import bookImg2 from "../../../assets/Front cover.png";
 import { CheckSvg } from "../../../lib/Svg";
 import { useNavigate } from "react-router-dom";
+import { addToCart } from "../../../lib/cartStorage";
 
 type Category =
   | "All"
@@ -135,7 +136,6 @@ const products: Product[] = [
     author: "by Julius Spenser",
     category: "Books",
     image: bookImg1,
-    badge: "New Arrival",
     isNewest: true,
     buttonText: "Link",
   },
@@ -440,8 +440,6 @@ export const ShopPage = () => {
     return filtered;
   }, [searchValue, selectedCategories, selectedPriceRanges, sortBy]);
 
-
-
   return (
     <main className="min-h-screen w-full bg-[#020202] px-5 py-12 sm:px-6 md:py-16 xl:px-8 xl:py-20">
       <div className="mx-auto flex max-w-[1480px] flex-col gap-8 lg:flex-row">
@@ -607,8 +605,7 @@ export const ShopPage = () => {
 };
 
 const ProductCard = ({ product }: { product: Product }) => {
-
-      const navigate =  useNavigate();
+  const navigate = useNavigate();
   return (
     <article className="group flex h-full flex-col rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)]">
       <div className="relative overflow-hidden rounded-[12px]">
@@ -618,7 +615,12 @@ const ProductCard = ({ product }: { product: Product }) => {
           className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
         />
 
-        <button className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded bg-[#BBA400] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]">
+        <button
+          type="button"
+          onClick={() => addToCart(product)}
+          className="absolute left-3 top-3 cursor-pointer flex h-9 w-9 items-center justify-center rounded bg-[#BBA400] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
+          aria-label="Add to cart"
+        >
           <FaShoppingCart />
         </button>
 
@@ -722,7 +724,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         </div>
 
         <button
-        onClick={() => navigate(`/shop/${product.id}`)}
+          onClick={() => navigate(`/shop/${product.id}`)}
           className="mt-auto h-12 w-full rounded-md cursor-pointer bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
         >

@@ -3,10 +3,28 @@ import { FaTimes } from "react-icons/fa";
 import img from "../../../assets/mainlogo.png";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
 import { Link } from "react-router-dom";
+import { CART_UPDATED_EVENT, getCartCount } from "../../../lib/cartStorage";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      setCartCount(getCartCount());
+    };
+
+    updateCartCount();
+
+    window.addEventListener(CART_UPDATED_EVENT, updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -18,7 +36,7 @@ export const Header = () => {
 
   const navLinks = [
     {
-      label: "THE THORON ROOM",
+      label: "THE THRONE ROOM",
       href: "/",
     },
     {
@@ -118,11 +136,24 @@ export const Header = () => {
 
         {/* Right Side */}
         <div className="flex items-center gap-8">
-          <a href="">
+          <Link
+            to="/cart"
+            className="relative inline-flex items-center justify-center"
+          >
             <CartSvg />
-          </a>
-          <Link           to="/auth/signup"
-            className="group xl:block hidden relative overflow-hidden rounded-2xl bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
+
+            {cartCount > 0 && (
+              <span
+                className="absolute -right-3 -top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FFD700] px-1 text-[11px] font-bold text-[#020202] shadow-[0_0_14px_rgba(255,215,0,0.45)]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            to="/auth/signup"
+            className="group xl:block hidden relative overflow-hidden rounded-lg bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
             style={{
               fontFamily: "'Lora', serif",
             }}
@@ -214,8 +245,8 @@ export const Header = () => {
         {/* Drawer Button */}
         <div className="">
           <Link
-          to="/auth/signup"
-            className={`group relative mt-8 block w-full overflow-hidden rounded-2xl bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
+            to="/auth/signup"
+            className={`group relative mt-8 block w-full overflow-hidden rounded-lg bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
               isMenuOpen
                 ? "translate-y-0 opacity-100 delay-300"
                 : "translate-y-3 opacity-0"

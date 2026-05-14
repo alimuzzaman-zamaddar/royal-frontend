@@ -1,4 +1,3 @@
-import React from 'react'
 import { CartPage } from './Dashboard/components/CartPage'
 
 const Cart = () => {

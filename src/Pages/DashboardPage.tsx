@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,6 +12,10 @@ import {
 } from "react-icons/fa";
 
 import avatarImg from "../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { MyOrders } from "./Dashboard/components/MyOrders";
+import { OrderHistoryTab } from "./Dashboard/components/OrderHistoryTab";
+import { SettingsTab } from "./Dashboard/components/SettingsTab";
+import { LogoutTab } from "./Dashboard/components/LogoutTab";
 
 type TabKey = "personal" | "orders" | "history" | "settings" | "logout";
 
@@ -82,7 +87,7 @@ export const DashboardPage = () => {
   const renderTabContent = () => {
     if (activeTab === "personal") {
       return (
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form className="border border-[#FFD700]/30 p-6 rounded-xl" onSubmit={handleSubmit(onSubmit)} noValidate>
           {/* Avatar */}
           <div className="relative mb-9 h-[92px] w-[92px]">
             <img
@@ -310,25 +315,25 @@ export const DashboardPage = () => {
     }
 
     if (activeTab === "orders") {
-      return <EmptyTab title="My Orders" text="Your active orders will appear here." />;
+      return <MyOrders />;
     }
 
     if (activeTab === "history") {
-      return <EmptyTab title="Order History" text="Your previous orders will appear here." />;
+      return <OrderHistoryTab />;
     }
 
     if (activeTab === "settings") {
-      return <EmptyTab title="Setting" text="Account settings will appear here." />;
+      return <SettingsTab/>;
     }
 
-    return <EmptyTab title="Logout" text="You can handle logout functionality here." />;
+    return <LogoutTab />;
   };
 
   return (
     <section className="min-h-screen w-full bg-[#4A0E4E] px-5 py-16 sm:px-6 lg:px-8 xl:py-24">
       <div className="mx-auto flex max-w-[1480px] flex-col gap-8 lg:flex-row lg:items-start">
         {/* Sidebar */}
-        <aside className="w-full rounded-[14px] border border-[#FFD700]/80 p-4 lg:w-[380px] xl:w-[390px]">
+        <aside className="w-full rounded-[14px] border border-[#FFD700]/30 p-4 lg:w-[380px] xl:w-[390px]">
           <div className="flex flex-col gap-6">
             {dashboardTabs.map((tab) => {
               const Icon = tab.icon;
@@ -339,7 +344,7 @@ export const DashboardPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as TabKey)}
-                  className={`flex h-12 w-full items-center gap-3 rounded-xl px-4 text-left text-base transition-all duration-300 sm:h-14 sm:text-lg ${
+                  className={`flex h-12 w-full cursor-pointer items-center gap-3 rounded-xl px-4 text-left text-base transition-all duration-300 sm:h-14 sm:text-lg ${
                     isActive
                       ? "rounded-xl bg-[linear-gradient(90deg,#6E5B1D_0%,#D4AF37_100%)] text-[#FFFAF0]"
                       : "bg-[#5A105D] text-[#FFFAF0] hover:bg-[#791579]"
@@ -355,7 +360,7 @@ export const DashboardPage = () => {
         </aside>
 
         {/* Content */}
-        <main className="w-full rounded-[14px] border border-[#FFD700]/80 p-5 sm:p-6 md:p-8 lg:flex-1 xl:p-10">
+        <main className="w-full">
           {renderTabContent()}
         </main>
       </div>

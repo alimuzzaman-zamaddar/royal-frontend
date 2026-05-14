@@ -3,10 +3,28 @@ import { FaTimes } from "react-icons/fa";
 import img from "../../../assets/mainlogo.png";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
 import { Link } from "react-router-dom";
+import { CART_UPDATED_EVENT, getCartCount } from "../../../lib/cartStorage";
 
 export const HeaderDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      setCartCount(getCartCount());
+    };
+
+    updateCartCount();
+
+    window.addEventListener(CART_UPDATED_EVENT, updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -18,7 +36,7 @@ export const HeaderDashboard = () => {
 
   const navLinks = [
     {
-      label: "THE THORON ROOM",
+      label: "THE THRONE ROOM",
       href: "/",
     },
     {
@@ -27,11 +45,11 @@ export const HeaderDashboard = () => {
     },
     {
       label: "SHOP",
-      href: "#books",
+      href: "/shop",
     },
     {
       label: "SERVICES",
-      href: "#royal-exchange",
+      href: "/services",
     },
     {
       label: "BOOKS",
@@ -80,7 +98,7 @@ export const HeaderDashboard = () => {
   return (
     <>
       <header
-        className={` z-50 mx-6 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
+        className={`absolute top-0 left-0 right-0 z-50 mx-6 mt-8 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
           isMounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
         }`}
       >
@@ -118,11 +136,24 @@ export const HeaderDashboard = () => {
 
         {/* Right Side */}
         <div className="flex items-center gap-8">
-          <a href="">
+          <Link
+            to="/cart"
+            className="relative inline-flex items-center justify-center"
+          >
             <CartSvg />
-          </a>
-          <Link           to="/sign-up"
-            className="group xl:block hidden relative overflow-hidden rounded-2xl bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
+
+            {cartCount > 0 && (
+              <span
+                className="absolute -right-3 -top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FFD700] px-1 text-[11px] font-bold text-[#020202] shadow-[0_0_14px_rgba(255,215,0,0.45)]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            to="/auth/signup"
+            className="group xl:block hidden relative overflow-hidden rounded-lg bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
             style={{
               fontFamily: "'Lora', serif",
             }}
@@ -214,8 +245,8 @@ export const HeaderDashboard = () => {
         {/* Drawer Button */}
         <div className="">
           <Link
-          to="/sign-up"
-            className={`group relative mt-8 block w-full overflow-hidden rounded-2xl bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
+            to="/auth/signup"
+            className={`group relative mt-8 block w-full overflow-hidden rounded-lg bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
               isMenuOpen
                 ? "translate-y-0 opacity-100 delay-300"
                 : "translate-y-3 opacity-0"

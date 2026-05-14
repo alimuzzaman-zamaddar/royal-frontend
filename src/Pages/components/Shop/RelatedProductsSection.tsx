@@ -7,6 +7,7 @@ import "swiper/css/navigation";
 
 import bookImg1 from "../../../assets/middlecard.jpeg";
 import bookImg2 from "../../../assets/Ebook cover.jpeg";
+import { addToCart } from "../../../lib/cartStorage";
 
 type RelatedProduct = {
   id: number;
@@ -178,6 +179,7 @@ const RelatedProductCard = ({ product }: { product: RelatedProduct }) => {
 
         <button
           type="button"
+          onClick={() => addToCart(product)}
           className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded bg-[#BBA400] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
           aria-label="Add to cart"
         >
