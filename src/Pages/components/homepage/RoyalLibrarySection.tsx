@@ -14,20 +14,14 @@ import { Book2Svg, BookSvg } from "../../../lib/Svg";
 type SubmitWorkFormValues = {
   firstName: string;
   email: string;
-  interests: string[];
+  bookTitle: string;
+  aboutManuscript: string;
 };
 
 type UploadedFileItem = {
   id: string;
   file: File;
 };
-
-const interestOptions = [
-  "Clothing Drops",
-  "Publishing",
-  "Book Releases",
-  "Everything",
-];
 
 const libraryData = [
   {
@@ -270,11 +264,16 @@ export const RoyalLibrarySection = () => {
                   <div className="w-full pt-4">
                     <button
                       type="button"
-                      onClick={() => {
-                        if (item.buttonText === "SUBMIT YOUR WORK") {
-                          openSubmitWorkModal();
-                        }
-                      }}
+ onClick={() => {
+  if (item.buttonText === "SUBMIT YOUR WORK") {
+    openSubmitWorkModal();
+  } else if (item.buttonText === "NOTIFY ME") {
+    const section = document.getElementById("notify-me");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+}}
                       className="relative w-full cursor-pointer overflow-hidden rounded-md px-4 py-3 text-xs font-semibold shadow-md transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110 hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
                       style={{
                         backgroundColor: item.buttonBg,
@@ -324,7 +323,8 @@ const SubmitWorkModal = ({
     defaultValues: {
       firstName: "",
       email: "",
-      interests: [],
+      bookTitle: "",
+      aboutManuscript: "",
     },
   });
 
@@ -337,7 +337,7 @@ const SubmitWorkModal = ({
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
 
-    const maxFileSize = 5 * 1024 * 1024;
+    const maxFileSize = 10 * 1024 * 1024;
     const fileArray = Array.from(files);
     const validFiles: UploadedFileItem[] = [];
 
@@ -348,7 +348,7 @@ const SubmitWorkModal = ({
       }
 
       if (file.size > maxFileSize) {
-        setFileError("Each file must be 5 MB or less.");
+        setFileError("Each file must be 10 MB or less.");
         return;
       }
 
@@ -401,6 +401,32 @@ const SubmitWorkModal = ({
       };
 
       console.log("Submit work payload:", payload);
+
+      /*
+        Ready for API call.
+
+        const formData = new FormData();
+
+        formData.append("firstName", data.firstName);
+        formData.append("email", data.email);
+        formData.append("bookTitle", data.bookTitle);
+        formData.append("aboutManuscript", data.aboutManuscript);
+
+        uploadedFiles.forEach((item) => {
+          formData.append("files", item.file);
+        });
+
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/submit-work`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Submission failed");
+        }
+      */
 
       await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -456,21 +482,22 @@ const SubmitWorkModal = ({
             className="text-[20px] font-normal uppercase leading-[120%] text-[#FFD700] sm:text-[24px]"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            Join The Exchange
+            Submit Your Story
           </h2>
 
-          <div className="mx-auto my-2.5 h-px w-full max-w-[130px] bg-gradient-to-r from-transparent via-[#B8860B] to-transparent" />
-
           <p
-            className="mx-auto max-w-[420px] text-[10px] font-normal leading-[150%] text-[#D4AF37] sm:text-[11px]"
+            className="mx-auto mt-2 max-w-[420px] text-[10px] font-semibold leading-[150%] text-[#D4AF37] sm:text-[11px]"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            Get early access to drops, book releases, and exclusive Royal
-            Exchange updates. No spam only legacy.
+            Your story deserves a throne. Upload your manuscript and share your
+            vision with us.
           </p>
+
+          <div className="mx-auto my-3 h-px w-full max-w-[130px] bg-gradient-to-r from-transparent via-[#B8860B] to-transparent" />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-3">
+          {/* First Name */}
           <div>
             <label
               htmlFor="firstName"
@@ -505,6 +532,7 @@ const SubmitWorkModal = ({
             )}
           </div>
 
+          {/* Email */}
           <div className="mt-3">
             <label
               htmlFor="submitWorkEmail"
@@ -539,45 +567,75 @@ const SubmitWorkModal = ({
             )}
           </div>
 
+          {/* Book Title */}
           <div className="mt-3">
-            <p
-              className="mb-2 text-xs font-semibold text-[#FFFAF0]"
+            <label
+              htmlFor="bookTitle"
+              className="mb-1.5 block text-xs font-semibold text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
             >
-              I am interested in :
-            </p>
+              Book Title
+            </label>
 
-            <div className="space-y-2">
-              {interestOptions.map((interest) => (
-                <label
-                  key={interest}
-                  className="flex h-[34px] cursor-pointer items-center gap-2 rounded-md border border-[#B8860B]/45 bg-[#6A0E69] px-3 text-xs text-[#FFFAF0] transition-all duration-300 hover:border-[#FFD700]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  <input
-                    type="checkbox"
-                    value={interest}
-                    {...register("interests", {
-                      validate: (value) =>
-                        value.length > 0 ||
-                        "Please select at least one interest",
-                    })}
-                    className="h-3.5 w-3.5 cursor-pointer accent-[#FFD700]"
-                  />
+            <input
+              id="bookTitle"
+              type="text"
+              placeholder="Enter your book title"
+              {...register("bookTitle", {
+                maxLength: {
+                  value: 120,
+                  message: "Book title cannot exceed 120 characters",
+                },
+              })}
+              className={`h-[36px] w-full rounded-md border bg-[#6A0E69] px-3 text-xs text-[#FFFAF0] outline-none placeholder:text-[#CDBDCA] transition-all duration-300 focus:border-[#FFD700] ${
+                errors.bookTitle ? "border-[#E0115F]" : "border-[#B8860B]/45"
+              }`}
+              style={{ fontFamily: "'Lora', serif" }}
+            />
 
-                  {interest}
-                </label>
-              ))}
-            </div>
-
-            {errors.interests && (
+            {errors.bookTitle && (
               <p className="mt-1 text-[11px] text-[#FFD700]">
-                {errors.interests.message}
+                {errors.bookTitle.message}
               </p>
             )}
           </div>
 
+          {/* About Manuscript */}
           <div className="mt-3">
+            <label
+              htmlFor="aboutManuscript"
+              className="mb-1.5 block text-xs font-semibold text-[#FFFAF0]"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              About Your manuscript
+            </label>
+
+            <textarea
+              id="aboutManuscript"
+              placeholder="Tell us about manuscript"
+              {...register("aboutManuscript", {
+                maxLength: {
+                  value: 1000,
+                  message: "Message cannot exceed 1000 characters",
+                },
+              })}
+              className={`min-h-[90px] w-full resize-none rounded-md border bg-[#6A0E69] px-3 py-3 text-xs text-[#FFFAF0] outline-none placeholder:text-[#CDBDCA] transition-all duration-300 focus:border-[#FFD700] ${
+                errors.aboutManuscript
+                  ? "border-[#E0115F]"
+                  : "border-[#B8860B]/45"
+              }`}
+              style={{ fontFamily: "'Lora', serif" }}
+            />
+
+            {errors.aboutManuscript && (
+              <p className="mt-1 text-[11px] text-[#FFD700]">
+                {errors.aboutManuscript.message}
+              </p>
+            )}
+          </div>
+
+          {/* Upload File */}
+          <div className="mt-3 rounded-md border border-[#B8860B]/45 px-3 py-3">
             <p
               className="mb-2 text-xs font-semibold text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
@@ -588,20 +646,23 @@ const SubmitWorkModal = ({
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="flex min-h-[82px] flex-col items-center justify-center rounded-md border border-dashed border-[#B8860B] bg-[#6A0E69]/40 px-4 py-3 text-center transition-all duration-300 hover:border-[#FFD700]"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex min-h-[92px] cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-[#B8860B] bg-[#6A0E69]/40 px-4 py-3 text-center transition-all duration-300 hover:border-[#FFD700]"
             >
+              <FaUpload className="mb-2 text-[26px] text-[#FFD700]" />
+
               <p
-                className="text-[11px] text-[#FFFAF0]"
+                className="text-xs text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                Drop your file here
+                Drag &amp; drop your file here
               </p>
 
               <p
-                className="my-0.5 text-[10px] text-[#FFFAF0]/70"
+                className="text-xs text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                or
+                or click to browse
               </p>
 
               <input
@@ -613,21 +674,11 @@ const SubmitWorkModal = ({
                 className="hidden"
               />
 
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex h-7 cursor-pointer items-center gap-2 rounded border border-[#B8860B]/50 px-4 text-[11px] text-[#FFFAF0] transition-all duration-300 hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                <FaUpload className="text-[10px]" />
-                Browse
-              </button>
-
               <p
                 className="mt-2 text-[9px] text-[#FFFAF0]/60"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                Files must be pdf or doc within max size of 5 MB
+                PDF, DOC, DOCX . Max 10 MB
               </p>
             </div>
 
@@ -663,7 +714,10 @@ const SubmitWorkModal = ({
 
                       <button
                         type="button"
-                        onClick={() => handleRemoveFile(item.id)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleRemoveFile(item.id);
+                        }}
                         className="cursor-pointer text-[#E0115F] transition-colors duration-300 hover:text-[#FFD700]"
                         aria-label="Remove file"
                       >
@@ -683,24 +737,17 @@ const SubmitWorkModal = ({
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
             <span className="relative z-10">
-              {isSubmitting ? "Submitting..." : "Enter The Exchange"}
+              {isSubmitting ? "Submitting..." : "Submit Your Work"}
             </span>
 
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
 
           <p
-            className="mt-3 text-center text-[9px] leading-[150%] text-[#FFFAF0] sm:text-[10px]"
+            className="mt-3 text-center text-[9px] leading-[150%] text-[#FFFAF0]/70 sm:text-[10px]"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            By joining, you agree to our{" "}
-            <a
-              href="/privacy-policy"
-              className="text-[#FFD700] transition-colors hover:text-[#FFFAF0]"
-            >
-              Privacy Policy
-            </a>
-            . Unsubscribe anytime.
+            Your information is secure and confidential.
           </p>
         </form>
       </div>

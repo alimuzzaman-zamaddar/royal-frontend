@@ -161,6 +161,7 @@ export const Footer = () => {
 
   return (
     <footer
+      id="notify-me"
       ref={footerRef}
       className="relative w-full overflow-hidden bg-[#020202] px-5 py-14 sm:px-6 lg:py-16"
     >
@@ -259,6 +260,7 @@ export const Footer = () => {
 
             <form
               onSubmit={handleSubmit(onNewsletterSubmit)}
+        
               noValidate
               className="order-2 w-full max-w-[292px] xl:order-4 xl:max-w-[300px]"
             >
