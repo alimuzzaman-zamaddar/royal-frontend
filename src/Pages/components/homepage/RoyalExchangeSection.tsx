@@ -47,6 +47,11 @@ export const RoyalExchangeSection = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  const [selectedImage, setSelectedImage] = useState({
+    image: royalExchangeData.mainImage,
+    alt: royalExchangeData.mainImageAlt,
+  });
+
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -164,7 +169,9 @@ export const RoyalExchangeSection = () => {
               transitionDelay: isVisible ? "160ms" : "0ms",
             }}
           >
-            <span className="relative z-10">{royalExchangeData.buttonText}</span>
+            <span className="relative z-10">
+              {royalExchangeData.buttonText}
+            </span>
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
         </div>
@@ -176,8 +183,8 @@ export const RoyalExchangeSection = () => {
         >
           <div className="group relative overflow-hidden rounded-xl shadow-[0_16px_50px_rgba(0,0,0,0.28)] transition-all duration-500 hover:shadow-[0_22px_60px_rgba(255,215,0,0.12)]">
             <img
-              src={royalExchangeData.mainImage}
-              alt={royalExchangeData.mainImageAlt}
+              src={selectedImage.image}
+              alt={selectedImage.alt}
               className="w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] h-[420px] lg:h-[378px] xl:h-[410px]"
             />
 
@@ -194,27 +201,43 @@ export const RoyalExchangeSection = () => {
           </div>
 
           <div className="mt-4 grid gap-3 grid-cols-4 sm:gap-4">
-            {royalExchangeData.gallery.map((item, index) => (
-              <div
-                key={index}
-                className={`group overflow-hidden rounded-lg bg-[#FFFAF0] shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(255,215,0,0.14)] ${
-                  isVisible
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-5 opacity-0"
-                }`}
-                style={{
-                  transitionDelay: isVisible
-                    ? `${520 + index * 90}ms`
-                    : "0ms",
-                }}
-              >
-                <img
-                  src={item.image}
-                  alt={item.alt}
-                  className="xl:h-[110px] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 sm:h-[96px] lg:h-[86px] xl:h-[96px]"
-                />
-              </div>
-            ))}
+            {royalExchangeData.gallery.map((item, index) => {
+              const isActive = selectedImage.image === item.image;
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() =>
+                    setSelectedImage({
+                      image: item.image,
+                      alt: item.alt,
+                    })
+                  }
+                  className={`group cursor-pointer overflow-hidden rounded-lg bg-[#FFFAF0] shadow-[0_8px_24px_rgba(0,0,0,0.18)] transition-all duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(255,215,0,0.14)] ${
+                    isActive
+                      ? "border border-[#FFD700] ring-2 ring-[#FFD700]/40"
+                      : "border border-transparent"
+                  } ${
+                    isVisible
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-5 opacity-0"
+                  }`}
+                  style={{
+                    transitionDelay: isVisible
+                      ? `${520 + index * 90}ms`
+                      : "0ms",
+                  }}
+                  aria-label={`Show ${item.alt}`}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.alt}
+                    className="xl:h-[110px] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 sm:h-[96px] lg:h-[86px] xl:h-[96px]"
+                  />
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

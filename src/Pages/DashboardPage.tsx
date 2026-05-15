@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   FaRegUser,
@@ -11,7 +11,7 @@ import {
   FaPencilAlt,
 } from "react-icons/fa";
 
-import avatarImg from "../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import avatarImg from "../assets/images (3).jpg";
 import { MyOrders } from "./Dashboard/components/MyOrders";
 import { OrderHistoryTab } from "./Dashboard/components/OrderHistoryTab";
 import { SettingsTab } from "./Dashboard/components/SettingsTab";
@@ -59,6 +59,49 @@ export const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("personal");
   const [isSaved, setIsSaved] = useState(false);
 
+  // Replace this with real user profile image from API when available
+const userProfileImage = "";
+
+const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+const [profileImagePreview, setProfileImagePreview] = useState(
+  userProfileImage || avatarImg,
+);
+
+// const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(
+//   null,
+// );
+
+useEffect(() => {
+  return () => {
+    if (profileImagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(profileImagePreview);
+    }
+  };
+}, [profileImagePreview]);
+
+const handleProfileImageClick = () => {
+  fileInputRef.current?.click();
+};
+
+const handleProfileImageChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+) => {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    console.log("Please upload a valid image file.");
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+
+  // setSelectedProfileFile(file);
+  setProfileImagePreview(previewUrl);
+};
+
   const {
     register,
     handleSubmit,
@@ -88,22 +131,30 @@ export const DashboardPage = () => {
     if (activeTab === "personal") {
       return (
         <form className="border border-[#FFD700]/30 p-6 rounded-xl" onSubmit={handleSubmit(onSubmit)} noValidate>
-          {/* Avatar */}
-          <div className="relative mb-9 h-[92px] w-[92px]">
-            <img
-              src={avatarImg}
-              alt="User avatar"
-              className="h-[92px] w-[92px] rounded-full object-cover"
-            />
+<div className="relative mb-9 h-[92px] w-[92px]">
+  <img
+    src={profileImagePreview}
+    alt="User avatar"
+    className="h-[92px] w-[92px] rounded-full object-cover"
+  />
 
-            <button
-              type="button"
-              className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-[#FFFAF0] bg-[#003D21] text-[#FFFAF0] transition-all duration-300 hover:scale-105 hover:bg-[#005C32]"
-              aria-label="Edit profile image"
-            >
-              <FaPencilAlt className="text-sm" />
-            </button>
-          </div>
+  <input
+    ref={fileInputRef}
+    type="file"
+    accept="image/*"
+    onChange={handleProfileImageChange}
+    className="hidden"
+  />
+
+  <button
+    type="button"
+    onClick={handleProfileImageClick}
+    className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[#FFFAF0] bg-[#003D21] text-[#FFFAF0] transition-all duration-300 hover:scale-105 hover:bg-[#005C32]"
+    aria-label="Edit profile image"
+  >
+    <FaPencilAlt className="text-sm" />
+  </button>
+</div>
 
           {/* Form Grid */}
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">

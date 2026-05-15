@@ -138,10 +138,10 @@ export const RoyalServicesProcessSection = () => {
         ref={sectionRef}
         className="w-full overflow-hidden bg-[#4A0E4E] px-5 py-16 text-center sm:px-6 md:py-20 xl:px-8 xl:py-24"
       >
-        <div className="mx-auto max-w-[1480px]">
+        <div className="mx-auto max-w-370">
           {/* Heading */}
           <div
-            className={`mx-auto max-w-[1220px] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+            className={`mx-auto max-w-305 transition-all duration-850 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
           >
             <h2
@@ -220,7 +220,7 @@ export const RoyalServicesProcessSection = () => {
             <button
               type="button"
               onClick={openPopup}
-              className="group relative mt-6 overflow-hidden rounded-md bg-[#FFD700] px-8 py-3 text-sm font-bold uppercase tracking-[3px] text-[#080500] shadow-[0_8px_28px_rgba(255,215,0,0.20)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#f5d87a] hover:shadow-[0_12px_36px_rgba(255,215,0,0.30)] sm:px-10 sm:text-base"
+              className="group relative mt-6 cursor-pointer overflow-hidden rounded-md bg-[#FFD700] px-8 py-3 text-sm font-bold uppercase tracking-[3px] text-[#080500] shadow-[0_8px_28px_rgba(255,215,0,0.20)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#f5d87a] hover:shadow-[0_12px_36px_rgba(255,215,0,0.30)] sm:px-10 sm:text-base"
               style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
               <span className="relative z-10">
@@ -315,7 +315,7 @@ const JoinExchangePopup = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[999] flex items-center justify-center bg-[#4A0E4E]/30 bg-blur-xs px-4 py-8 transition-all duration-300 ${
+      className={`fixed inset-0 z-[999] flex items-center justify-center bg-[#4A0E4E]/60 backdrop-blur-sm px-4 py-8 transition-all duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
       onMouseDown={onClose}
