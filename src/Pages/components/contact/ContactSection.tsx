@@ -136,14 +136,14 @@ export const ContactSection = () => {
 
                   <div className="min-w-0 flex-1">
                     <h3
-                      className="text-left text-[22px] font-normal leading-[120%] text-[#FFFAF0] sm:text-[24px] md:text-[28px]"
+                      className="text-left text-[16px] font-normal leading-[120%] text-[#FFFAF0] md:text-[18px]"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
                       {item.title}
                     </h3>
 
                     <p
-                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#a8a8a8] sm:text-base md:text-lg"
+                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#a8a8a8] sm:text-base "
                       style={{ fontFamily: "'Lora', serif" }}
                     >
                       {item.value}

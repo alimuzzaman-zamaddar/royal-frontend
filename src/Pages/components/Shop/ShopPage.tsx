@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { FaSearch, FaShoppingCart, FaSlidersH, FaStar } from "react-icons/fa";
-
+import { FaSearch, FaSlidersH, FaStar } from "react-icons/fa";
+import { BsCart3 } from "react-icons/bs";
 import bookImg1 from "../../../assets/middlecard.jpeg";
 import bookImg2 from "../../../assets/Front cover.png";
 import { CheckSvg } from "../../../lib/Svg";
@@ -615,23 +615,25 @@ const ProductCard = ({ product }: { product: Product }) => {
           className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
         />
 
-        <button
+<div className=" flex h-full w-full items-end justify-between p-4">
+          <button
           type="button"
           onClick={() => addToCart(product)}
-          className="absolute left-3 top-3 cursor-pointer flex h-9 w-9 items-center justify-center rounded bg-[#BBA400] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
+          className="absolute left-3 top-3 cursor-pointer xl:text-base flex p-2 items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
           aria-label="Add to cart"
         >
-          <FaShoppingCart />
+          <BsCart3  />
         </button>
 
         {product.badge && (
           <span
-            className="absolute right-3 top-5 rounded-sm bg-[#D4A800] px-3 py-1 text-xs text-[#020202]"
+            className="absolute right-3 top-3 rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] px-3 py-1 text-xs xl:text-base text-[#020202]"
             style={{ fontFamily: "'Lora', serif" }}
           >
             {product.badge}
           </span>
         )}
+</div>
       </div>
 
       <div className="flex flex-1 flex-col pt-5">
