@@ -5,22 +5,66 @@ import bgimage from "../../../assets/bgimage.png";
 import videoxl from "../../../assets/IMG_1875.mp4";
 import video from "../../../assets/IMG_1874 (1).mp4";
 
-export const Hero = () => {
+type HeroSectionData = {
+  main_title?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  video?: string;
+  button_text?: string;
+  button_link?: string;
+  button2_text?: string;
+  button2_link?: string;
+};
+
+type HeroProps = {
+  hero?: HeroSectionData;
+};
+
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+export const Hero = ({ hero }: HeroProps) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const mainTitle = hero?.main_title || "WE ARE THE";
+  const title = hero?.title || "INHERITORS";
+  const subtitle = hero?.subtitle || "OF THE EARTH AND ALL WITHIN IT";
+  const description =
+    hero?.description ||
+    "Royal Exchange Publishing stands as a creative platform for authors who carry the ancestral memory of this land. We guide you to build your legacy.";
+
+  const buttonText = hero?.button_text || "ENTER THE KINGDOM";
+  const buttonLink = hero?.button_link || "#";
+
+  const button2Text = hero?.button2_text || "EXPLORE OUR WORKS";
+  const button2Link = hero?.button2_link || "#";
+
+  const apiVideo = getCmsAssetUrl(hero?.video);
+  const desktopVideoSrc = apiVideo || videoxl;
+  const mobileVideoSrc = apiVideo || video;
+
   const heroBackground = {
     backgroundImage: `
-    linear-gradient(180deg, rgba(2, 2, 2, 0.90) 0%, #070603 100%),
-    url(${bgimage})
-  `,
+      linear-gradient(180deg, rgba(2, 2, 2, 0.90) 0%, #070603 100%),
+      url(${bgimage})
+    `,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
   };
+
   const fadeUp = (delay: number) => ({
     opacity: mounted ? 1 : 0,
     transform: mounted
@@ -28,14 +72,15 @@ export const Hero = () => {
       : "translateY(24px) scale(0.98)",
     transition: `opacity 0.9s ease ${delay}s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) ${delay}s`,
   });
+
   return (
     <>
       <section
-        className="hero-section relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-0 text-center z-10 xl:min-h-[calc(100vh-56px)] xl:px-6"
+        className="hero-section relative z-10 flex min-h-screen flex-col items-center justify-center overflow-hidden px-0 text-center xl:min-h-[calc(100vh-56px)] xl:px-6"
         style={heroBackground}
       >
-        <div className="absolute inset-0 pointer-events-none z-20">
-          <div className="absolute hidden xl:block ">
+        <div className="pointer-events-none absolute inset-0 z-20">
+          <div className="absolute hidden xl:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="850"
@@ -57,9 +102,9 @@ export const Hero = () => {
                   width="1235.79"
                   height="1254.94"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feBlend
                     mode="normal"
                     in="SourceGraphic"
@@ -79,13 +124,14 @@ export const Hero = () => {
                   y2="541.169"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stop-color="#FFD700" />
-                  <stop offset="1" stop-color="#998100" />
+                  <stop stopColor="#FFD700" />
+                  <stop offset="1" stopColor="#998100" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
-          <div className="absolute  block xl:hidden">
+
+          <div className="absolute block xl:hidden">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="306"
@@ -107,9 +153,9 @@ export const Hero = () => {
                   width="444.084"
                   height="458.857"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feBlend
                     mode="normal"
                     in="SourceGraphic"
@@ -129,13 +175,14 @@ export const Hero = () => {
                   y2="194.394"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stop-color="#FFD700" />
-                  <stop offset="1" stop-color="#998100" />
+                  <stop stopColor="#FFD700" />
+                  <stop offset="1" stopColor="#998100" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
-          <div className="absolute right-0 rounded-full blur-3xl hidden xl:block">
+
+          <div className="absolute right-0 hidden rounded-full blur-3xl xl:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="870"
@@ -157,9 +204,9 @@ export const Hero = () => {
                   width="1247.56"
                   height="1268.09"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feBlend
                     mode="normal"
                     in="SourceGraphic"
@@ -179,13 +226,14 @@ export const Hero = () => {
                   y2="344.304"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stop-color="#FFD700" />
-                  <stop offset="1" stop-color="#998100" />
+                  <stop stopColor="#FFD700" />
+                  <stop offset="1" stopColor="#998100" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
-          <div className="absolute right-0 rounded-full blur-3xl block xl:hidden">
+
+          <div className="absolute right-0 block rounded-full blur-3xl xl:hidden">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="293"
@@ -207,9 +255,9 @@ export const Hero = () => {
                   width="450.815"
                   height="456.891"
                   filterUnits="userSpaceOnUse"
-                  color-interpolation-filters="sRGB"
+                  colorInterpolationFilters="sRGB"
                 >
-                  <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                  <feFlood floodOpacity="0" result="BackgroundImageFix" />
                   <feBlend
                     mode="normal"
                     in="SourceGraphic"
@@ -229,35 +277,39 @@ export const Hero = () => {
                   y2="149.106"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stop-color="#FFD700" />
-                  <stop offset="1" stop-color="#998100" />
+                  <stop stopColor="#FFD700" />
+                  <stop offset="1" stopColor="#998100" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
         </div>
-        <div className="div">
+
+        <div>
           <video
-            src={videoxl}
+            src={desktopVideoSrc}
             autoPlay
             loop
             muted
-            className="absolute inset-0 mx-auto h-full object-cover opacity-20 z-0 hidden xl:block"
+            playsInline
+            className="absolute inset-0 z-0 mx-auto hidden h-full object-cover opacity-20 xl:block"
           />
+
           <video
-            src={video}
+            src={mobileVideoSrc}
             autoPlay
             loop
             muted
-            className="absolute inset-0 mx-auto h-full object-cover opacity-20 z-0 block xl:hidden"
+            playsInline
+            className="absolute inset-0 z-0 mx-auto block h-full object-cover opacity-20 xl:hidden"
           />
         </div>
 
         {/* HERO CONTENT */}
-        <div className="relative z-30 flex w-full flex-col items-center text-center px-4 pt-[95px] sm:pt-[110px] md:pt-[120px] xl:pt-0">
+        <div className="relative z-30 flex w-full flex-col items-center px-4 pt-[95px] text-center sm:pt-[110px] md:pt-[120px] xl:pt-0">
           {/* Logo */}
           <div
-            className="group mb-7 rounded-lg bg-[#020202] p-3 shadow-[0_0_40px_0_rgba(255,215,0,0.60)] transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_55px_0_rgba(255,215,0,0.70)] sm:p-4 mt-22 xl:mb-6"
+            className="group mb-7 mt-22 rounded-lg bg-[#020202] p-3 shadow-[0_0_40px_0_rgba(255,215,0,0.60)] transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_55px_0_rgba(255,215,0,0.70)] sm:p-4 xl:mb-6"
             style={fadeUp(0.15)}
           >
             <img
@@ -269,39 +321,37 @@ export const Hero = () => {
 
           {/* Small Title */}
           <p
-            className="text-[#FFD700] font-cinzel mb-4 xl-mb-0 text-[20px] font-normal uppercase leading-[110%] tracking-[2px] transition-all duration-500 sm:text-[44px] md:text-[56px] xl:text-[38px] xl:leading-[120%] xl:tracking-[1.92px]"
+            className="mb-4 text-[20px] font-normal uppercase leading-[110%] tracking-[2px] text-[#FFD700] transition-all duration-500 sm:text-[44px] md:text-[56px] xl-mb-0 xl:text-[38px] xl:leading-[120%] xl:tracking-[1.92px]"
             style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.3) }}
           >
-            WE ARE THE
+            {mainTitle}
           </p>
 
           {/* Main Heading */}
           <h1
-            className="text-[#FFD700] font-cinzel text-[32px] font-bold uppercase leading-[110%] tracking-[1px] drop-shadow-[0_0_18px_rgba(255,215,0,0.18)] transition-all duration-500 sm:text-[44px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
+            className="text-[32px] font-bold uppercase leading-[110%] tracking-[1px] text-[#FFD700] drop-shadow-[0_0_18px_rgba(255,215,0,0.18)] transition-all duration-500 sm:text-[44px] md:text-[84px] xl:text-[96px] xl:leading-[120%] xl:tracking-[1.92px]"
             style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.45) }}
           >
-            INHERITORS
+            {title}
           </h1>
 
           {/* Subheading */}
           <p
-            className="my-5 max-w-[420px] text-[#D4AF37] font-cinzel text-[19px] font-normal uppercase leading-[130%] tracking-[1px] transition-all duration-500 sm:text-[24px] md:text-[30px] xl:my-6 xl:max-w-none xl:text-[32px] xl:leading-[120%]"
+            className="my-5 max-w-[420px] text-[19px] font-normal uppercase leading-[130%] tracking-[1px] text-[#D4AF37] transition-all duration-500 sm:text-[24px] md:text-[30px] xl:my-6 xl:max-w-none xl:text-[32px] xl:leading-[120%]"
             style={{ fontFamily: "'Cinzel', serif", ...fadeUp(0.6) }}
           >
-            Of the Earth and All Within It
+            {subtitle}
           </p>
 
           {/* Description */}
           <p
-            className="mx-auto mb-7 max-w-[430px] text-[#FFFAF0] font-lora text-base font-normal leading-[150%] transition-all duration-500 sm:text-lg md:max-w-[620px] xl:mb-12 xl:w-[35%] xl:max-w-none xl:text-lg"
+            className="mx-auto mb-7 max-w-[430px] text-base font-normal leading-[150%] text-[#FFFAF0] transition-all duration-500 sm:text-lg md:max-w-[620px] xl:mb-12 xl:w-[35%] xl:max-w-none xl:text-lg"
             style={{
               ...fadeUp(0.75),
               fontFamily: "'Lora', serif",
             }}
           >
-            Royal Exchange Publishing stands as a creative platform for authors
-            who carry the ancestral memory of this land. We guide you to build
-            your legacy.
+            {description}
           </p>
 
           {/* Buttons */}
@@ -309,20 +359,26 @@ export const Hero = () => {
             className="button-container flex w-full flex-col items-center justify-center gap-4 sm:flex-row xl:flex-row"
             style={fadeUp(0.9)}
           >
-            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#FFD700] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
-              <span className="relative z-10">ENTER THE KINGDOM</span>
+            <a
+              href={buttonLink}
+              className="group relative w-[235px] overflow-hidden rounded-lg bg-[#FFD700] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]"
+            >
+              <span className="relative z-10">{buttonText}</span>
               <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-            </button>
+            </a>
 
-            <button className="group relative w-[235px] overflow-hidden rounded-lg bg-[#c0185a] px-7 py-3 text-white font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#c0185a40] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(192,24,90,0.36)] md:w-auto md:text-base xl:text-[0.72rem]">
-              <span className="relative z-10">EXPLORE OUR WORKS</span>
+            <a
+              href={button2Link}
+              className="group relative w-[235px] overflow-hidden rounded-lg bg-[#c0185a] px-7 py-3 text-white font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#c0185a40] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(192,24,90,0.36)] md:w-auto md:text-base xl:text-[0.72rem]"
+            >
+              <span className="relative z-10">{button2Text}</span>
               <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover:left-full" />
-            </button>
+            </a>
           </div>
         </div>
       </section>
 
-      <div className="h-24 bg-[linear-gradient(180deg,#0D0803_0%,#4A0E4E_100%)]"></div>
+      <div className="h-24 bg-[linear-gradient(180deg,#0D0803_0%,#4A0E4E_100%)]" />
     </>
   );
 };

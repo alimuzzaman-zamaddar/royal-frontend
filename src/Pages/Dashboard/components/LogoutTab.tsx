@@ -1,29 +1,41 @@
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../../Provider/AuthProvider";
+import { useLogoutUserMutation } from "../../../redux/Slices/authApi";
 
 export const LogoutTab = () => {
   const navigate = useNavigate();
+  const { logoutAction } = useAuth();
 
-  const handleLogout = () => {
-    /*
-      Add your real logout logic here if needed.
+  const [logoutUser, { isLoading }] = useLogoutUserMutation();
 
-      Example:
+  const handleLogout = async () => {
+    try {
+      const response = await logoutUser().unwrap();
+
+      console.log("Logout response:", response);
+
+      logoutAction();
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      sessionStorage.clear();
-      dispatch(logout());
-    */
 
-    console.log("User logged out");
+      toast.success(response.message || "Logged out successfully.");
 
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+      navigate("/auth/login");
+    } catch (error) {
+      const err = error as {
+        data?: {
+          message?: string;
+        };
+      };
 
-    toast.success("Logged out successfully.");
+      const message = err.data?.message || "Logout failed.";
 
-    navigate("/auth/login");
+      toast.error(message);
+    }
   };
 
   return (
@@ -45,10 +57,11 @@ export const LogoutTab = () => {
       <button
         type="button"
         onClick={handleLogout}
-        className="mt-7 h-10 cursor-pointer rounded-md bg-[#FFD700] px-6 text-sm font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
+        disabled={isLoading}
+        className="mt-7 h-10 cursor-pointer rounded-md bg-[#FFD700] px-6 text-sm font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
         style={{ fontFamily: "'Lora', serif" }}
       >
-        Yes, Logout
+        {isLoading ? "Logging out..." : "Yes, Logout"}
       </button>
     </div>
   );

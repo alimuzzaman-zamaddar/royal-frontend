@@ -4,6 +4,10 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useLoginUserMutation } from "../../redux/Slices/authApi";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Provider/AuthProvider";
+import toast from "react-hot-toast";
 
 type LoginFormValues = {
   email: string;
@@ -15,6 +19,10 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
+const { login } = useAuth();
+const [loginUser] = useLoginUserMutation();
 
   const {
     register,
@@ -30,48 +38,59 @@ export const Login = () => {
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setApiError("");
-    setSuccessMessage("");
+const onSubmit = async (data: LoginFormValues) => {
+  setApiError("");
+  setSuccessMessage("");
 
-    try {
-      /*
-        Ready for API call.
-        Replace this block with your real login API.
+  try {
+    const response = await loginUser({
+      email: data.email,
+      password: data.password,
+    }).unwrap();
 
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: data.email,
-            password: data.password,
-          }),
-        });
+    console.log("Login response:", response);
 
-        const result = await response.json();
+    const token =
+      response.data?.token ||
+      response.data?.access_token ||
+      response.token ||
+      response.access_token ||
+      response.authorization?.token;
 
-        if (!response.ok) {
-          throw new Error(result.message || "Login failed");
-        }
+    const user =
+      response.data?.user ||
+      response.user ||
+      {};
 
-        localStorage.setItem("token", result.authorization.token);
-      */
-
-      console.log("Login payload:", data);
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      setSuccessMessage("Logged in successfully.");
-      reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      setApiError(message);
+    if (!token) {
+      throw new Error("Login token not found in API response.");
     }
-  };
+
+    login(token, user);
+
+    toast.success(response.message || "Logged in successfully.");
+    setSuccessMessage(response.message || "Logged in successfully.");
+
+    reset();
+
+    navigate("/dashboard");
+  } catch (error) {
+    const err = error as {
+      data?: {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+    };
+
+    const message =
+      err.data?.message ||
+      Object.values(err.data?.errors || {})?.[0]?.[0] ||
+      "Login failed.";
+
+    setApiError(message);
+    toast.error(message);
+  }
+};
 
   const handleGoogleLogin = () => {
     /*
@@ -209,7 +228,7 @@ export const Login = () => {
             </label>
 
             <a
-              href="/forgot-password"
+              href="/auth/forgot-password"
               className="text-sm text-[#FFD700] transition-colors hover:text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
             >

@@ -4,6 +4,9 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useRegisterUserMutation } from "../../redux/Slices/authApi";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 type SignupFormValues = {
   fullName: string;
@@ -17,6 +20,9 @@ export const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
+const [registerUser] = useRegisterUserMutation();
 
   const {
     register,
@@ -36,53 +42,48 @@ export const Signup = () => {
 
   const password = watch("password");
 
-  const onSubmit = async (data: SignupFormValues) => {
-    setApiError("");
-    setSuccessMessage("");
+const onSubmit = async (data: SignupFormValues) => {
+  setApiError("");
+  setSuccessMessage("");
 
-    try {
-      /*
-        Ready for API call.
-        Replace this block with your real signup API.
+  try {
+    const response = await registerUser({
+      name: data.fullName,
+      email: data.email,
+      password: data.password,
+      password_confirmation: data.confirmPassword,
+    }).unwrap();
 
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/signup`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fullName: data.fullName,
-            email: data.email,
-            password: data.password,
-          }),
-        });
+    console.log("Register response:", response);
 
-        const result = await response.json();
+    toast.success(response.message || "OTP sent successfully.");
+    setSuccessMessage(response.message || "OTP sent successfully.");
 
-        if (!response.ok) {
-          throw new Error(result.message || "Signup failed");
-        }
-
-        localStorage.setItem("token", result.authorization.token);
-      */
-
-      console.log("Signup payload:", {
-        fullName: data.fullName,
+    navigate("/auth/signup-otp", {
+      state: {
         email: data.email,
-        password: data.password,
-      });
+        otp: response.data?.otp,
+      },
+    });
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+    reset();
+  } catch (error) {
+    const err = error as {
+      data?: {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+    };
 
-      setSuccessMessage("Account created successfully.");
-      reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      setApiError(message);
-    }
-  };
+    const message =
+      err.data?.message ||
+      Object.values(err.data?.errors || {})?.[0]?.[0] ||
+      "Registration failed.";
+
+    setApiError(message);
+    toast.error(message);
+  }
+};
 
   const handleGoogleSignup = () => {
     /*

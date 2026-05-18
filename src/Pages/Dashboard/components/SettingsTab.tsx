@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useChangePasswordMutation } from "../../../redux/Slices/authApi";
 
 type SettingsFormValues = {
   currentPassword: string;
@@ -15,6 +16,9 @@ export const SettingsTab = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [changePassword, { isLoading: isChangingPassword }] =
+    useChangePasswordMutation();
 
   const {
     register,
@@ -38,32 +42,33 @@ export const SettingsTab = () => {
   };
 
   const onSubmit = async (data: SettingsFormValues) => {
-    console.log("Update password data:", data);
+    try {
+      const response = await changePassword({
+        current_password: data.currentPassword,
+        new_password: data.newPassword,
+        new_password_confirmation: data.confirmPassword,
+      }).unwrap();
 
-    /*
-      Ready for API call.
+      console.log("Change password response:", response);
 
-      Example:
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/change-password`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      toast.success(response.message || "Password updated successfully.");
+      reset();
+      setShowUpdateForm(false);
+    } catch (error) {
+      const err = error as {
+        data?: {
+          message?: string;
+          errors?: Record<string, string[]>;
+        };
+      };
 
-      const result = await response.json();
+      const message =
+        err.data?.message ||
+        Object.values(err.data?.errors || {})?.[0]?.[0] ||
+        "Password update failed.";
 
-      if (!response.ok) {
-        throw new Error(result.message || "Password update failed");
-      }
-    */
-
-    await new Promise((resolve) => setTimeout(resolve, 700));
-
-    toast.success("Password updated successfully.");
-    reset();
-    setShowUpdateForm(false);
+      toast.error(message);
+    }
   };
 
   return (
@@ -141,11 +146,13 @@ export const SettingsTab = () => {
       ) : (
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isChangingPassword}
           className="mt-10 h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-base font-normal text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
           style={{ fontFamily: "'Lora', serif" }}
         >
-          {isSubmitting ? "Updating..." : "Update Password"}
+          {isSubmitting || isChangingPassword
+            ? "Updating..."
+            : "Update Password"}
         </button>
       )}
     </form>

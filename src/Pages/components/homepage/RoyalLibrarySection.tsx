@@ -1,14 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/immutability */
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+} from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { FaTimes, FaTrashAlt, FaUpload, FaFileAlt, FaCheckCircle } from "react-icons/fa";
+import {
+  FaTimes,
+  FaTrashAlt,
+  FaUpload,
+  FaFileAlt,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 import img1 from "../../../assets/Ebook cover.jpeg";
 import img2 from "../../../assets/middlecard.jpeg";
 import img3 from "../../../assets/Frame 33 (2).png";
-import logomodal from "../../../assets/image.png"
+import logomodal from "../../../assets/image.png";
 import { Book2Svg, BookSvg } from "../../../lib/Svg";
 
 type SubmitWorkFormValues = {
@@ -23,62 +36,64 @@ type UploadedFileItem = {
   file: File;
 };
 
-const libraryData = [
-  {
-    image: img1,
-    title: "NO SENSE OF SECURITY",
-    subtitle: "by Julius Spenser",
-    description:
-      "A powerful narrative exploring human vulnerability and ancestral truth.",
-    buttonText: "GET YOUR COPY",
-    buttonBg: "#FFD700",
-    buttonTextColor: "#080500",
-    status: "AVAILABLE NOW",
-    statusBg: "#FFD700",
-    statusTextColor: "#080500",
+type LibraryApiItem = {
+  id: number;
+  image: string;
+  tag: string | null;
+  title: string;
+  writer_name: string | null;
+  short_description: string;
+  description: string | null;
+  button_text: string;
+  button_link: string;
+  color_code: string;
+};
 
-    cardBorder: "1px solid rgba(255, 215, 0, 0.30)",
-    cardBg:
-      "linear-gradient(180deg, rgba(255, 215, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 100%)",
-  },
-  {
-    image: img2,
-    title: "THE YACHT KLUB",
-    subtitle: "by Julius Spenser",
-    description:
-      "The next chapter in the Royal Exchange legacy. A journey into power, purpose, and inheritance.",
-    buttonText: "NOTIFY ME",
-    buttonBg: "transparent",
-    border: "1px solid #0F52BA",
-    buttonTextColor: "#0F52BA",
-    status: "COMING SOON",
-    statusBg: "#0F52BA",
-    statusTextColor: "#ffffff",
+type LibrarySectionData = {
+  title: string;
+  subtitle: string;
+  items: LibraryApiItem[];
+};
 
-    cardBorder: "1px solid rgba(15, 82, 186, 0.30)",
-    cardBg:
-      "linear-gradient(180deg, rgba(15, 82, 186, 0.10) 0%, rgba(0, 0, 0, 0.00) 100%)",
-  },
-  {
-    image: img3,
-    title: "YOUR STORY DESERVES A THRONE",
-    subtitle: "",
-    description:
-      "Are you an author with a message that honors our lineage? We are accepting manuscripts.",
-    buttonText: "SUBMIT YOUR WORK",
-    buttonBg: "#E0115F",
-    buttonTextColor: "#ffffff",
-    status: null,
-    statusBg: "#E0115F",
-    statusTextColor: "#ffffff",
+type RoyalLibrarySectionProps = {
+  library?: LibrarySectionData;
+};
 
-    cardBorder: "1px solid rgba(224, 17, 95, 0.30)",
-    cardBg:
-      "linear-gradient(180deg, rgba(224, 17, 95, 0.10) 0%, rgba(0, 0, 0, 0.00) 100%)",
-  },
-];
+const fallbackImages = [img1, img2, img3];
 
-export const RoyalLibrarySection = () => {
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+const addHexOpacity = (hex: string, opacityHex: string) => {
+  if (!hex) return `#000000${opacityHex}`;
+
+  const cleanHex = hex.trim();
+
+  if (cleanHex.length === 7) {
+    return `${cleanHex}${opacityHex}`;
+  }
+
+  return cleanHex;
+};
+
+const formatTag = (tag?: string | null) => {
+  if (!tag) return null;
+
+  return tag.replace(/_/g, " ").toUpperCase();
+};
+
+const getButtonTextColor = (colorCode: string) => {
+  return colorCode.toLowerCase() === "#ffd700" ? "#080500" : "#ffffff";
+};
+
+export const RoyalLibrarySection = ({ library }: RoyalLibrarySectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -151,9 +166,32 @@ export const RoyalLibrarySection = () => {
     }, 300);
   };
 
+  const handleLibraryButtonClick = (item: LibraryApiItem) => {
+    if (item.button_text === "SUBMIT YOUR WORK") {
+      openSubmitWorkModal();
+      return;
+    }
+
+    if (item.button_text === "NOTIFY ME") {
+      const section = document.getElementById("notify-me");
+
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+
+      return;
+    }
+
+    if (item.button_link && item.button_link !== "#") {
+      window.location.href = item.button_link;
+    }
+  };
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
+
+  const libraryItems = library?.items || [];
 
   return (
     <>
@@ -178,7 +216,7 @@ export const RoyalLibrarySection = () => {
               <Book2Svg />
             </span>
 
-            THE ROYAL LIBRARY
+            {library?.title || "THE ROYAL LIBRARY"}
           </h2>
 
           <p
@@ -188,106 +226,130 @@ export const RoyalLibrarySection = () => {
               transitionDelay: isVisible ? "80ms" : "0ms",
             }}
           >
-            Words that carry the weight of legacy
+            {library?.subtitle || "Words that carry the weight of legacy"}
           </p>
 
-          {/* Card Container */}
           <div className="flex flex-col items-center justify-center gap-6 sm:gap-8 lg:flex-row lg:flex-wrap xl:items-stretch xl:gap-10">
-            {libraryData.map((item, index) => (
-              <div
-                key={index}
-                className={`group flex w-full max-w-[413px] flex-col overflow-hidden rounded-xl p-5 shadow-lg transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)] xl:min-h-[760px] xl:p-8 ${revealClass}`}
-                style={{
-                  transitionDelay: isVisible ? `${240 + index * 120}ms` : "0ms",
-                  borderRadius: "16px",
-                  border: item.cardBorder,
-                  background: item.cardBg,
-                }}
-              >
-                <div className="relative overflow-hidden rounded-xl">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="h-[460px] w-full rounded-t-xl object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] xl:h-[510px]"
-                  />
+            {libraryItems.map((item, index) => {
+              const colorCode = item.color_code || "#FFD700";
+              const status = formatTag(item.tag);
+              const isNotifyButton = item.button_text === "NOTIFY ME";
+              const imageSrc =
+                getCmsAssetUrl(item.image) || fallbackImages[index] || img1;
 
-                  {index === libraryData.length - 1 && (
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[linear-gradient(174deg,rgba(224,17,95,0.20)_4.45%,rgba(224,17,95,0.05)_95.55%)]" />
-                  )}
-                </div>
+              const cardBorder = `1px solid ${addHexOpacity(colorCode, "4D")}`;
+              const cardBg = `linear-gradient(180deg, ${addHexOpacity(
+                colorCode,
+                "1A",
+              )} 0%, #00000000 100%)`;
 
-                {/* Bottom aligned content on XL */}
-                <div className="mt-auto flex flex-1 flex-col items-start p-4 text-left xl:min-h-[250px] xl:justify-end">
-                  {item.status && (
-                    <button
-                      type="button"
-                      className="mb-4 rounded-full px-4 py-1 text-xs font-semibold shadow-md transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110"
-                      style={{
-                        fontFamily: "'Cinzel', serif",
-                        backgroundColor: item.statusBg,
-                        color: item.statusTextColor,
-                      }}
-                    >
-                      {item.status}
-                    </button>
-                  )}
+              return (
+                <div
+                  key={item.id}
+                  className={`group flex w-full max-w-[413px] flex-col overflow-hidden rounded-xl p-5 shadow-lg transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)] xl:min-h-[760px] xl:p-8 ${revealClass}`}
+                  style={{
+                    transitionDelay: isVisible
+                      ? `${240 + index * 120}ms`
+                      : "0ms",
+                    borderRadius: "16px",
+                    border: cardBorder,
+                    background: cardBg,
+                  }}
+                >
+                  <div className="relative overflow-hidden rounded-xl">
+                    <img
+                      src={imageSrc}
+                      alt={item.title}
+                      className="h-[460px] w-full rounded-t-xl object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] xl:h-[510px]"
+                    />
 
-                  <p
-                    className="text-[#FFFAF0] text-[22px] font-normal leading-[140%] transition-colors duration-300 group-hover:text-[#FFD700] sm:text-2xl sm:leading-[150%]"
-                    style={{ fontFamily: "'Cinzel', serif" }}
-                  >
-                    {item.title}
-                  </p>
+                    {index === libraryItems.length - 1 && (
+                      <div
+                        className="pointer-events-none absolute inset-0 rounded-2xl"
+                        style={{
+                          background: `linear-gradient(174deg, ${addHexOpacity(
+                            colorCode,
+                            "33",
+                          )} 4.45%, ${addHexOpacity(
+                            colorCode,
+                            "0D",
+                          )} 95.55%)`,
+                        }}
+                      />
+                    )}
+                  </div>
 
-                  {item.subtitle && (
+                  <div className="mt-auto flex flex-1 flex-col items-start p-4 text-left xl:min-h-[250px] xl:justify-end">
+                    {status && (
+                      <button
+                        type="button"
+                        className="mb-4 rounded-full px-4 py-1 text-xs font-semibold shadow-md transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110"
+                        style={{
+                          fontFamily: "'Cinzel', serif",
+                          backgroundColor: colorCode,
+                          color: getButtonTextColor(colorCode),
+                        }}
+                      >
+                        {status}
+                      </button>
+                    )}
+
                     <p
-                      className="mt-1 text-[#D4AF37] font-lora text-base font-normal leading-[150%] transition-colors duration-300 group-hover:text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off]"
+                      className="text-[#FFFAF0] text-[22px] font-normal leading-[140%] transition-colors duration-300 group-hover:text-[#FFD700] sm:text-2xl sm:leading-[150%]"
+                      style={{ fontFamily: "'Cinzel', serif" }}
+                    >
+                      {item.title}
+                    </p>
+
+                    {item.writer_name && (
+                      <p
+                        className="mt-1 text-[#D4AF37] font-lora text-base font-normal leading-[150%] transition-colors duration-300 group-hover:text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off]"
+                        style={{
+                          fontFamily: "'Lora', serif",
+                          transitionDelay: isVisible ? "160ms" : "0ms",
+                        }}
+                      >
+                        by {item.writer_name}
+                      </p>
+                    )}
+
+                    <p
+                      className="mt-2 text-[#FFFAF0] font-lora text-sm font-normal leading-[150%] transition-colors duration-300 group-hover:text-[#f8ead8] [font-feature-settings:'liga'_off,'clig'_off]"
                       style={{
                         fontFamily: "'Lora', serif",
-                        transitionDelay: isVisible ? "160ms" : "0ms",
+                        transitionDelay: isVisible ? "240ms" : "0ms",
                       }}
                     >
-                      {item.subtitle}
+                      {item.short_description}
                     </p>
-                  )}
 
-                  <p
-                    className="mt-2 text-[#FFFAF0] font-lora text-sm font-normal leading-[150%] transition-colors duration-300 group-hover:text-[#f8ead8] [font-feature-settings:'liga'_off,'clig'_off]"
-                    style={{
-                      fontFamily: "'Lora', serif",
-                      transitionDelay: isVisible ? "240ms" : "0ms",
-                    }}
-                  >
-                    {item.description}
-                  </p>
-
-                  <div className="w-full pt-4">
-                    <button
-                      type="button"
- onClick={() => {
-  if (item.buttonText === "SUBMIT YOUR WORK") {
-    openSubmitWorkModal();
-  } else if (item.buttonText === "NOTIFY ME") {
-    const section = document.getElementById("notify-me");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-}}
-                      className="relative w-full cursor-pointer overflow-hidden rounded-md px-4 py-3 text-xs font-semibold shadow-md transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110 hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
-                      style={{
-                        backgroundColor: item.buttonBg,
-                        color: item.buttonTextColor,
-                        border: item.border || "none",
-                      }}
-                    >
-                      <span className="relative z-10">{item.buttonText}</span>
-                      <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover:left-full" />
-                    </button>
+                    <div className="w-full pt-4">
+                      <button
+                        type="button"
+                        onClick={() => handleLibraryButtonClick(item)}
+                        className="relative w-full cursor-pointer overflow-hidden rounded-md px-4 py-3 text-xs font-semibold shadow-md transition-all duration-300 hover:-translate-y-[1px] hover:brightness-110 hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
+                        style={{
+                          backgroundColor: isNotifyButton
+                            ? "transparent"
+                            : colorCode,
+                          color: isNotifyButton
+                            ? colorCode
+                            : getButtonTextColor(colorCode),
+                          border: isNotifyButton
+                            ? `1px solid ${colorCode}`
+                            : "none",
+                        }}
+                      >
+                        <span className="relative z-10">
+                          {item.button_text}
+                        </span>
+                        <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover:left-full" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -353,7 +415,10 @@ const SubmitWorkModal = ({
       }
 
       validFiles.push({
-        id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+        id:
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? `${file.name}-${file.lastModified}-${crypto.randomUUID()}`
+            : `${file.name}-${file.lastModified}-${Date.now()}`,
         file,
       });
     }
@@ -497,7 +562,6 @@ const SubmitWorkModal = ({
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-3">
-          {/* First Name */}
           <div>
             <label
               htmlFor="firstName"
@@ -532,7 +596,6 @@ const SubmitWorkModal = ({
             )}
           </div>
 
-          {/* Email */}
           <div className="mt-3">
             <label
               htmlFor="submitWorkEmail"
@@ -567,7 +630,6 @@ const SubmitWorkModal = ({
             )}
           </div>
 
-          {/* Book Title */}
           <div className="mt-3">
             <label
               htmlFor="bookTitle"
@@ -600,7 +662,6 @@ const SubmitWorkModal = ({
             )}
           </div>
 
-          {/* About Manuscript */}
           <div className="mt-3">
             <label
               htmlFor="aboutManuscript"
@@ -634,7 +695,6 @@ const SubmitWorkModal = ({
             )}
           </div>
 
-          {/* Upload File */}
           <div className="mt-3 rounded-md border border-[#B8860B]/45 px-3 py-3">
             <p
               className="mb-2 text-xs font-semibold text-[#FFFAF0]"

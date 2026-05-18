@@ -16,6 +16,12 @@ import { MyOrders } from "./Dashboard/components/MyOrders";
 import { OrderHistoryTab } from "./Dashboard/components/OrderHistoryTab";
 import { SettingsTab } from "./Dashboard/components/SettingsTab";
 import { LogoutTab } from "./Dashboard/components/LogoutTab";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "../redux/Slices/authApi";
+import { Loader } from "../lib/Loader";
+import toast from "react-hot-toast";
 
 type TabKey = "personal" | "orders" | "history" | "settings" | "logout";
 
@@ -55,106 +61,194 @@ const dashboardTabs = [
   },
 ] as const;
 
+const splitFullName = (fullName?: string | null) => {
+  if (!fullName) {
+    return {
+      firstName: "",
+      lastName: "",
+    };
+  }
+
+  const parts = fullName.trim().split(" ");
+  const firstName = parts[0] || "";
+  const lastName = parts.slice(1).join(" ");
+
+  return {
+    firstName,
+    lastName,
+  };
+};
+
 export const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("personal");
   const [isSaved, setIsSaved] = useState(false);
 
+  const {
+    data: profileResponse,
+    isLoading: isProfileLoading,
+    refetch: refetchProfile,
+  } = useGetProfileQuery();
+
+  const [updateProfile, { isLoading: isUpdatingProfile }] =
+    useUpdateProfileMutation();
+
+  const profile = profileResponse?.data;
+  console.log(profile, "from prifile");
+
   // Replace this with real user profile image from API when available
-const userProfileImage = "";
+  const userProfileImage = "";
 
-const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-const [profileImagePreview, setProfileImagePreview] = useState(
-  userProfileImage || avatarImg,
-);
+  const [profileImagePreview, setProfileImagePreview] = useState(
+    userProfileImage || avatarImg,
+  );
 
-// const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(
-//   null,
-// );
+  const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(
+    null,
+  );
 
-useEffect(() => {
-  return () => {
-    if (profileImagePreview.startsWith("blob:")) {
-      URL.revokeObjectURL(profileImagePreview);
-    }
+  useEffect(() => {
+    return () => {
+      if (profileImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(profileImagePreview);
+      }
+    };
+  }, [profileImagePreview]);
+
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
   };
-}, [profileImagePreview]);
 
-const handleProfileImageClick = () => {
-  fileInputRef.current?.click();
-};
+  const handleProfileImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
 
-const handleProfileImageChange = (
-  event: React.ChangeEvent<HTMLInputElement>,
-) => {
-  const file = event.target.files?.[0];
+    if (!file) return;
 
-  if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      console.log("Please upload a valid image file.");
+      return;
+    }
 
-  if (!file.type.startsWith("image/")) {
-    console.log("Please upload a valid image file.");
-    return;
-  }
+    const previewUrl = URL.createObjectURL(file);
 
-  const previewUrl = URL.createObjectURL(file);
-
-  // setSelectedProfileFile(file);
-  setProfileImagePreview(previewUrl);
-};
+    setSelectedProfileFile(file);
+    setProfileImagePreview(previewUrl);
+  };
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormValues>({
     mode: "onBlur",
     defaultValues: {
-      firstName: "John",
-      lastName: "Dey",
-      email: "your@email.com",
-      phone: "+1 5566 55552",
-      gender: "Male",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      gender: "",
     },
   });
+
+  useEffect(() => {
+    if (!profile) return;
+
+    const { firstName, lastName } = splitFullName(profile.name);
+
+    reset({
+      firstName,
+      lastName,
+      email: profile.email || "",
+      phone: profile.phone || "",
+      gender: profile.gender || "",
+    });
+
+    setProfileImagePreview(
+      profile.avatar_path
+        ? import.meta.env.VITE_API_URL_IMAGE + profile.avatar_path
+        : avatarImg,
+    );
+  }, [profile, reset]);
 
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSaved(false);
 
-    console.log("Profile updated:", data);
+    try {
+      const formData = new FormData();
 
-    await new Promise((resolve) => setTimeout(resolve, 700));
+      formData.append("name", `${data.firstName} ${data.lastName}`.trim());
+      formData.append("phone", data.phone);
+      formData.append("gender", data.gender);
 
-    setIsSaved(true);
+      if (selectedProfileFile) {
+        formData.append("avatar_path", selectedProfileFile);
+      }
+
+      const response = await updateProfile(formData).unwrap();
+
+      console.log("Profile update response:", response);
+
+      toast.success(response.message || "Profile updated successfully.");
+      setIsSaved(true);
+
+      await refetchProfile();
+    } catch (error) {
+      const err = error as {
+        data?: {
+          message?: string;
+          errors?: Record<string, string[]>;
+        };
+      };
+
+      const message =
+        err.data?.message ||
+        Object.values(err.data?.errors || {})?.[0]?.[0] ||
+        "Profile update failed.";
+
+      toast.error(message);
+    }
   };
+
+  if (activeTab === "personal" && isProfileLoading) {
+    return <Loader />;
+  }
 
   const renderTabContent = () => {
     if (activeTab === "personal") {
       return (
-        <form className="border border-[#FFD700]/30 p-6 rounded-xl" onSubmit={handleSubmit(onSubmit)} noValidate>
-<div className="relative mb-9 h-[92px] w-[92px]">
-  <img
-    src={profileImagePreview}
-    alt="User avatar"
-    className="h-[92px] w-[92px] rounded-full object-cover"
-  />
+        <form
+          className="border border-[#FFD700]/30 p-6 rounded-xl"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
+          <div className="relative mb-9 h-[92px] w-[92px]">
+            <img
+              src={profileImagePreview}
+              alt="User avatar"
+              className="h-[92px] w-[92px] rounded-full object-cover"
+            />
 
-  <input
-    ref={fileInputRef}
-    type="file"
-    accept="image/*"
-    onChange={handleProfileImageChange}
-    className="hidden"
-  />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleProfileImageChange}
+              className="hidden"
+            />
 
-  <button
-    type="button"
-    onClick={handleProfileImageClick}
-    className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[#FFFAF0] bg-[#003D21] text-[#FFFAF0] transition-all duration-300 hover:scale-105 hover:bg-[#005C32]"
-    aria-label="Edit profile image"
-  >
-    <FaPencilAlt className="text-sm" />
-  </button>
-</div>
+            <button
+              type="button"
+              onClick={handleProfileImageClick}
+              className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[#FFFAF0] bg-[#003D21] text-[#FFFAF0] transition-all duration-300 hover:scale-105 hover:bg-[#005C32]"
+              aria-label="Edit profile image"
+            >
+              <FaPencilAlt className="text-sm" />
+            </button>
+          </div>
 
           {/* Form Grid */}
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
@@ -183,9 +277,7 @@ const handleProfileImageChange = (
                   },
                 })}
                 className={`h-12 w-full rounded-md border bg-[#6A0E69] px-4 text-base text-[#FFFAF0] outline-none transition-all duration-300 placeholder:text-[#FFFAF0]/70 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
-                  errors.firstName
-                    ? "border-[#E0115F]"
-                    : "border-transparent"
+                  errors.firstName ? "border-[#E0115F]" : "border-transparent"
                 }`}
                 style={{ fontFamily: "'Lora', serif" }}
               />
@@ -222,9 +314,7 @@ const handleProfileImageChange = (
                   },
                 })}
                 className={`h-12 w-full rounded-md border bg-[#6A0E69] px-4 text-base text-[#FFFAF0] outline-none transition-all duration-300 placeholder:text-[#FFFAF0]/70 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
-                  errors.lastName
-                    ? "border-[#E0115F]"
-                    : "border-transparent"
+                  errors.lastName ? "border-[#E0115F]" : "border-transparent"
                 }`}
                 style={{ fontFamily: "'Lora', serif" }}
               />
@@ -249,16 +339,9 @@ const handleProfileImageChange = (
               <input
                 id="email"
                 type="email"
-                {...register("email", {
-                  required: "Email address is required",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-                className={`h-12 w-full rounded-md border bg-[#6A0E69] px-4 text-base text-[#FFFAF0] outline-none transition-all duration-300 placeholder:text-[#FFFAF0]/70 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
-                  errors.email ? "border-[#E0115F]" : "border-transparent"
-                }`}
+                readOnly
+                {...register("email")}
+                className="h-12 w-full cursor-not-allowed rounded-md border border-transparent bg-[#6A0E69]/70 px-4 text-base text-[#FFFAF0]/80 outline-none transition-all duration-300 placeholder:text-[#FFFAF0]/70"
                 style={{ fontFamily: "'Lora', serif" }}
               />
 
@@ -346,11 +429,11 @@ const handleProfileImageChange = (
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUpdatingProfile}
             className="mt-8 h-12 rounded-lg bg-[#FFD700] px-9 text-base font-normal text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            {isSubmitting ? "Saving..." : "Save Change"}
+            {isSubmitting || isUpdatingProfile ? "Saving..." : "Save Change"}
           </button>
 
           {isSaved && (
@@ -374,7 +457,7 @@ const handleProfileImageChange = (
     }
 
     if (activeTab === "settings") {
-      return <SettingsTab/>;
+      return <SettingsTab />;
     }
 
     return <LogoutTab />;
@@ -411,9 +494,7 @@ const handleProfileImageChange = (
         </aside>
 
         {/* Content */}
-        <main className="w-full">
-          {renderTabContent()}
-        </main>
+        <main className="w-full">{renderTabContent()}</main>
       </div>
     </section>
   );

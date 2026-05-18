@@ -1,5 +1,18 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
+type SubFooterSectionData = {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  button_text?: string;
+  button_link?: string;
+};
+
+type EarthIsOursSectionProps = {
+  subFooter?: SubFooterSectionData;
+};
 
 const earthSectionData = {
   title: "THE EARTH IS OURS",
@@ -8,10 +21,13 @@ const earthSectionData = {
   subDescription:
     "Join the Royal Exchange. Reclaim your narrative. Wear your crown. Publish your legacy.",
   buttonText: "BEGIN YOUR REIGN",
+  buttonLink: "#",
   quote: "Just focus on Creating. We handle the rest.",
 };
 
-export const EarthIsOursSection = () => {
+export const EarthIsOursSection = ({
+  subFooter,
+}: EarthIsOursSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -45,6 +61,12 @@ export const EarthIsOursSection = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const title = subFooter?.title || earthSectionData.title;
+  const description = subFooter?.description || earthSectionData.description;
+  const quote = subFooter?.subtitle || earthSectionData.quote;
+  const buttonText = subFooter?.button_text || earthSectionData.buttonText;
+  // const buttonLink = subFooter?.button_link || earthSectionData.buttonLink;
 
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
@@ -83,7 +105,7 @@ export const EarthIsOursSection = () => {
             transitionDelay: isVisible ? "180ms" : "0ms",
           }}
         >
-          {earthSectionData.title}
+          {title}
         </h2>
 
         <div className="mx-auto mt-9 space-y-4">
@@ -94,30 +116,21 @@ export const EarthIsOursSection = () => {
               transitionDelay: isVisible ? "300ms" : "0ms",
             }}
           >
-            {earthSectionData.description}
-          </p>
-
-          <p
-            className={`text-sm font-normal leading-[170%] text-[#FFFAF0] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-base ${revealClass}`}
-            style={{
-              fontFamily: "'Lora', serif",
-              transitionDelay: isVisible ? "420ms" : "0ms",
-            }}
-          >
-            {earthSectionData.subDescription}
+            {description}
           </p>
         </div>
 
-        <button
-          className={`group relative mt-8 overflow-hidden rounded-md bg-[#FFD700] px-7 py-3 text-xs font-bold uppercase tracking-[2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.03] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.30)] sm:px-8 sm:py-3.5 sm:text-sm ${revealClass}`}
+        <Link
+          to="/services#process"
+          className={`group relative mt-8 inline-block overflow-hidden rounded-md bg-[#FFD700] px-7 py-3 text-xs font-bold uppercase tracking-[2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.03] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.30)] sm:px-8 sm:py-3.5 sm:text-sm ${revealClass}`}
           style={{
             fontFamily: "'Montserrat', sans-serif",
             transitionDelay: isVisible ? "540ms" : "0ms",
           }}
         >
-          <span className="relative z-10">{earthSectionData.buttonText}</span>
+          <span className="relative z-10">{buttonText}</span>
           <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-        </button>
+        </Link>
 
         <p
           className={`mt-8 text-sm italic leading-[150%] text-[#FFD700] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[#FFFAF0] sm:text-base ${revealClass}`}
@@ -126,7 +139,7 @@ export const EarthIsOursSection = () => {
             transitionDelay: isVisible ? "660ms" : "0ms",
           }}
         >
-          "{earthSectionData.quote}"
+          "{quote}"
         </p>
 
         {/* Bottom Gold Line */}

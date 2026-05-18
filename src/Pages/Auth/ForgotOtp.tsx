@@ -2,6 +2,12 @@
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useResetResendOtpMutation,
+  useVerifyResetOtpMutation,
+} from "../../redux/Slices/authApi";
+import toast from "react-hot-toast";
 
 type OtpFormValues = {
   otp: string;
@@ -11,6 +17,16 @@ export const ForgotOtp = () => {
   const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const email = location.state?.email as string | undefined;
+
+  const [verifyResetOtp] = useVerifyResetOtpMutation();
+
+  const [resetResendOtp, { isLoading: isResendingOtp }] =
+    useResetResendOtpMutation();
 
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -83,45 +99,96 @@ export const ForgotOtp = () => {
 
     const otp = otpValues.join("");
 
+    if (!email) {
+      setApiError("Email is missing. Please try forgot password again.");
+      toast.error("Email is missing. Please try forgot password again.");
+      return;
+    }
+
     if (otp.length !== 6) {
       setApiError("Please enter the 6-digit OTP.");
+      toast.error("Please enter the 6-digit OTP.");
       return;
     }
 
     try {
-      /*
-        Ready for API call.
+      const response = await verifyResetOtp({
+        email,
+        otp,
+      }).unwrap();
 
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/verify-otp`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            otp,
-          }),
-        });
+      console.log("Verify reset OTP response:", response);
 
-        const result = await response.json();
+      toast.success(response.message || "OTP verified successfully.");
+      setSuccessMessage(response.message || "OTP verified successfully.");
 
-        if (!response.ok) {
-          throw new Error(result.message || "OTP verification failed");
-        }
-      */
-
-      console.log("OTP payload:", { otp });
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      setSuccessMessage("OTP verified successfully.");
+      navigate("/auth/reset-password", {
+        state: {
+          email,
+          otp,
+        },
+      });
     } catch (error) {
+      const err = error as {
+        data?: {
+          message?: string;
+          errors?: Record<string, string[]>;
+        };
+      };
+
       const message =
-        error instanceof Error ? error.message : "Something went wrong.";
+        err.data?.message ||
+        Object.values(err.data?.errors || {})?.[0]?.[0] ||
+        "OTP verification failed.";
+
       setApiError(message);
+      toast.error(message);
     }
   };
+  const handleResendOtp = async () => {
+    setApiError("");
+    setSuccessMessage("");
 
+    if (!email) {
+      setApiError("Email is missing. Please try forgot password again.");
+      toast.error("Email is missing. Please try forgot password again.");
+      return;
+    }
+
+    try {
+      const response = await resetResendOtp({
+        email,
+      }).unwrap();
+
+      console.log("Reset resend OTP response:", response);
+
+      toast.success(response.message || "OTP resent successfully.");
+      setSuccessMessage(response.message || "OTP resent successfully.");
+
+      setOtpValues(["", "", "", "", "", ""]);
+      setValue("otp", "", {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+
+      inputRefs.current[0]?.focus();
+    } catch (error) {
+      const err = error as {
+        data?: {
+          message?: string;
+          errors?: Record<string, string[]>;
+        };
+      };
+
+      const message =
+        err.data?.message ||
+        Object.values(err.data?.errors || {})?.[0]?.[0] ||
+        "Failed to resend OTP.";
+
+      setApiError(message);
+      toast.error(message);
+    }
+  };
   return (
     <section className="flex min-h-screen w-full items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
       <div className="w-full max-w-[640px] rounded-[20px] border border-[#FFD700]/30 bg-[rgba(75,15,78,0.40)] px-5 py-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xs sm:px-8 md:px-10 lg:px-12">
@@ -180,9 +247,7 @@ export const ForgotOtp = () => {
           </div>
 
           {errors.otp && (
-            <p className="mt-2 text-sm text-[#FFD700]">
-              {errors.otp.message}
-            </p>
+            <p className="mt-2 text-sm text-[#FFD700]">{errors.otp.message}</p>
           )}
 
           {apiError && (
@@ -210,6 +275,21 @@ export const ForgotOtp = () => {
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
         </form>
+
+        <p
+          className="mt-6 text-center text-base text-[#BFA7C0]"
+          style={{ fontFamily: "'Lora', serif" }}
+        >
+          Didn&apos;t receive the OTP?{" "}
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={isResendingOtp}
+            className="cursor-pointer font-semibold text-[#FFD700] transition-colors hover:text-[#FFFAF0] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isResendingOtp ? "Resending..." : "Resend OTP"}
+          </button>
+        </p>
       </div>
     </section>
   );

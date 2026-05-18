@@ -3,6 +3,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useResetPasswordMutation } from "../../redux/Slices/authApi";
+import { useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 type ResetPasswordFormValues = {
   password: string;
@@ -14,6 +17,14 @@ export const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const navigate = useNavigate();
+const location = useLocation();
+
+const email = location.state?.email as string | undefined;
+const otp = location.state?.otp as string | undefined;
+
+const [resetPasswordApi] = useResetPasswordMutation();
 
   const {
     register,
@@ -31,51 +42,50 @@ export const ResetPassword = () => {
 
   const password = watch("password");
 
-  const onSubmit = async (data: ResetPasswordFormValues) => {
-    setApiError("");
-    setSuccessMessage("");
+const onSubmit = async (data: ResetPasswordFormValues) => {
+  setApiError("");
+  setSuccessMessage("");
 
-    try {
-      /*
-        Ready for API call.
-        Replace this block with your real reset-password API.
+  if (!email || !otp) {
+    const message = "Email or OTP is missing. Please try forgot password again.";
+    setApiError(message);
+    toast.error(message);
+    return;
+  }
 
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            password: data.password,
-            confirmPassword: data.confirmPassword,
-            // token: resetToken,
-          }),
-        });
+  try {
+    const response = await resetPasswordApi({
+      email,
+      otp,
+      new_password: data.password,
+      new_password_confirmation: data.confirmPassword,
+    }).unwrap();
 
-        const result = await response.json();
+    console.log("Reset password response:", response);
 
-        if (!response.ok) {
-          throw new Error(result.message || "Password reset failed");
-        }
-      */
+    toast.success(response.message || "Password reset successfully.");
+    setSuccessMessage(response.message || "Password reset successfully.");
 
-      console.log("Reset password payload:", {
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      });
+    reset();
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+    navigate("/auth/login");
+  } catch (error) {
+    const err = error as {
+      data?: {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+    };
 
-      setSuccessMessage("Password reset successfully.");
-      reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      setApiError(message);
-    }
-  };
+    const message =
+      err.data?.message ||
+      Object.values(err.data?.errors || {})?.[0]?.[0] ||
+      "Password reset failed.";
 
+    setApiError(message);
+    toast.error(message);
+  }
+};
   return (
     <section className="flex min-h-screen w-full items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
       <div className="w-full max-w-[640px] rounded-[20px] border border-[#FFD700]/30 bg-[rgba(75,15,78,0.40)] px-5 py-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xs sm:px-8 md:px-10 lg:px-12">

@@ -2,7 +2,31 @@
 import { useEffect, useRef, useState } from "react";
 import img from "../../../assets/photo_2026-05-04_11-01-16.jpg";
 
-export const LineageSection = () => {
+type LineageSectionData = {
+  main_title?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  button_text?: string;
+  button_link?: string;
+};
+
+type LineageSectionProps = {
+  lineage?: LineageSectionData;
+};
+
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+export const LineageSection = ({ lineage }: LineageSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -37,6 +61,17 @@ export const LineageSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  const mainTitle = lineage?.main_title || "Our Ancestral Lineage";
+  const title = lineage?.title || "The Original Inhabitants of This Earth";
+  const subtitle =
+    lineage?.subtitle || "We do not seek permission to occupy what is already ours.";
+  const description =
+    lineage?.description ||
+    "We are the descendants of the first nations, the builders of ancient civilizations, the keepers of sacred knowledge. Our lineage stretches back to the shores of Atlantis and the mound builders of this sacred land.\n\nRoyal Exchange Publishing exists to reclaim that narrative — to publish the voices of those who carry this memory forward. Every book we publish, every garment we design, is a declaration of who we are and what we own.";
+  const imageSrc = getCmsAssetUrl(lineage?.image) || img;
+  const buttonText = lineage?.button_text || "READ OUR STORY";
+  const buttonLink = lineage?.button_link || "#";
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
@@ -54,31 +89,26 @@ export const LineageSection = () => {
             className={`lineage-label transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
           >
-            Our Ancestral Lineage
+            {mainTitle}
           </p>
 
           <h2
             className={`lineage-heading transition-all duration-[900ms] mt-4 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "170ms" : "0ms" }}
           >
-            The Original Inhabitants <br />
-            Of This Earth
+            {title}
           </h2>
 
           <p
             className={`lineage-description transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "260ms" : "0ms" }}
           >
-            We are the descendants of the first nations, the builders of ancient
-            civilizations, the keepers of sacred knowledge. Our lineage stretches
-            back to the shores of Atlantis and the mound builders of this sacred
-            land.
-            <br />
-            <br />
-            Royal Exchange Publishing exists to reclaim that narrative — to
-            publish the voices of those who carry this memory forward. Every
-            book we publish, every garment we design, is a declaration of who we
-            are and what we own.
+            {description.split("\n").map((line, index) => (
+              <span key={index}>
+                {line}
+                {index !== description.split("\n").length - 1 && <br />}
+              </span>
+            ))}
           </p>
 
           <div
@@ -86,15 +116,16 @@ export const LineageSection = () => {
             style={{ transitionDelay: isVisible ? "350ms" : "0ms" }}
           >
             <p className="lineage-quote transition-colors duration-300 hover:text-[#FFFAF0]">
-              We do not seek permission to occupy what is already ours.
+              {subtitle}
             </p>
           </div>
 
-          <button
+          <a
+            href={buttonLink}
             className={`lineage-button group transition-all duration-[950ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:bg-[#FFD700]/10 hover:shadow-[0_8px_28px_rgba(255,215,0,0.18)] ${revealClass}`}
             style={{ transitionDelay: isVisible ? "440ms" : "0ms" }}
           >
-            READ OUR STORY
+            {buttonText}
             <span
               aria-hidden="true"
               className="transition-transform duration-300 group-hover:translate-x-1"
@@ -115,7 +146,7 @@ export const LineageSection = () => {
                 />
               </svg>
             </span>
-          </button>
+          </a>
         </div>
 
         {/* RIGHT IMAGE */}
@@ -126,15 +157,13 @@ export const LineageSection = () => {
           <div className="lineage-image-wrapper group">
             <div className="overflow-hidden rounded-2xl">
               <img
-                src={img}
-                alt="Lineage"
+                src={imageSrc}
+                alt={title}
                 className="lineage-image transition-transform duration-700 ease-out group-hover:scale-[1.035]"
               />
             </div>
 
-            <p className="lineage-caption ">
-              The Royal Exchange Lineage
-            </p>
+            <p className="lineage-caption">The Royal Exchange Lineage</p>
           </div>
         </div>
       </div>

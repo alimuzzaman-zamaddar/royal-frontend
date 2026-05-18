@@ -2,6 +2,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import logo from "../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useForgotPasswordMutation } from "../../redux/Slices/authApi";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 type ForgotPasswordFormValues = {
   email: string;
@@ -10,6 +13,8 @@ type ForgotPasswordFormValues = {
 export const ForgotPassword = () => {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
+const [forgotPassword] = useForgotPasswordMutation();
 
   const {
     register,
@@ -23,45 +28,44 @@ export const ForgotPassword = () => {
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordFormValues) => {
-    setApiError("");
-    setSuccessMessage("");
+const onSubmit = async (data: ForgotPasswordFormValues) => {
+  setApiError("");
+  setSuccessMessage("");
 
-    try {
-      /*
-        Ready for API call.
-        Replace this block with your real forgot-password API.
+  try {
+    const response = await forgotPassword({
+      email: data.email,
+    }).unwrap();
 
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: data.email,
-          }),
-        });
+    console.log("Forgot password response:", response);
 
-        const result = await response.json();
+    toast.success(response.message || "Password reset instructions sent.");
+    setSuccessMessage(response.message || "Password reset instructions sent.");
 
-        if (!response.ok) {
-          throw new Error(result.message || "Failed to send reset instructions");
-        }
-      */
+    navigate("/auth/forgot-otp", {
+      state: {
+        email: data.email,
+      },
+    });
 
-      console.log("Forgot password payload:", data);
+    reset();
+  } catch (error) {
+    const err = error as {
+      data?: {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+    };
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+    const message =
+      err.data?.message ||
+      Object.values(err.data?.errors || {})?.[0]?.[0] ||
+      "Failed to send password reset instructions.";
 
-      setSuccessMessage("Password reset instructions have been sent.");
-      reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      setApiError(message);
-    }
-  };
+    setApiError(message);
+    toast.error(message);
+  }
+};
 
   return (
     <section className="flex min-h-screen w-full items-center justify-center px-4 py-10 sm:px-6 lg:px-8">

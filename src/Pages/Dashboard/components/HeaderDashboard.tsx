@@ -4,12 +4,34 @@ import img from "../../../assets/mainlogo.png";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
 import { Link } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartCount } from "../../../lib/cartStorage";
+import { useGetProfileQuery } from "../../../redux/Slices/authApi";
+import { useAuth } from "../../../Provider/AuthProvider";
 
 export const HeaderDashboard = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
+  const { isAuthenticated } = useAuth();
+
+  const { data: profileResponse } = useGetProfileQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+
+  const profile = profileResponse?.data;
+  const defaultAvatar = img;
+
+  const getProfileImage = (avatarPath?: string | null) => {
+    if (!avatarPath) return defaultAvatar;
+
+    if (avatarPath.startsWith("http")) {
+      return avatarPath;
+    }
+
+    const baseUrl = import.meta.env.VITE_API_URL_IMAGE?.replace(/\/api\/?$/, "");
+
+    return `${baseUrl}${avatarPath}`;
+  };
   useEffect(() => {
     const updateCartCount = () => {
       setCartCount(getCartCount());
@@ -150,16 +172,30 @@ export const HeaderDashboard = () => {
               </span>
             )}
           </Link>
-          <Link
-            to="/auth/signup"
-            className="group xl:block hidden relative overflow-hidden rounded-lg bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
-            style={{
-              fontFamily: "'Lora', serif",
-            }}
-          >
-            <span className="relative z-10">SIGN UP</span>
-            <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-          </Link>
+          {isAuthenticated && profile ? (
+            <Link
+              to="/dashboard"
+              className="hidden xl:flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#FFD700]/50 transition-all duration-300 hover:scale-105 hover:border-[#FFD700] hover:shadow-[0_0_18px_rgba(255,215,0,0.35)]"
+              aria-label="Go to dashboard"
+            >
+              <img
+                src={getProfileImage(profile.avatar_path)}
+                alt={profile.name || "User profile"}
+                className="h-full w-full object-cover"
+              />
+            </Link>
+          ) : (
+            <Link
+              to="/auth/signup"
+              className="group xl:block hidden relative overflow-hidden rounded-lg bg-[#FFD700] px-2 py-2 text-center font-montserrat text-sm font-medium leading-6 text-[#101828] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] xl:px-5 xl:text-base cursor-pointer"
+              style={{
+                fontFamily: "'Lora', serif",
+              }}
+            >
+              <span className="relative z-10">SIGN UP</span>
+              <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
+            </Link>
+          )}
 
           {/* Mobile Hamburger */}
           <button
@@ -240,22 +276,52 @@ export const HeaderDashboard = () => {
           ))}
         </nav>
 
-        {/* Drawer Button */}
-        <div className="">
-          <Link
-            to="/auth/signup"
-            className={`group relative mt-8 block w-full overflow-hidden rounded-lg bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
-              isMenuOpen
-                ? "translate-y-0 opacity-100 delay-300"
-                : "translate-y-3 opacity-0"
-            }`}
-            style={{
-              fontFamily: "'Lora', serif",
-            }}
-          >
-            <span className="relative z-10">SIGN UP</span>
-            <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-          </Link>
+        <div>
+          {isAuthenticated && profile ? (
+            <Link
+              to="/dashboard"
+              onClick={() => setIsMenuOpen(false)}
+              className={`mt-8 flex w-full cursor-pointer items-center gap-3 rounded-lg border border-[#FFD700]/35 bg-[#5A105D] px-3 py-3 transition-all duration-500 hover:-translate-y-[1px] hover:border-[#FFD700] hover:bg-[#791579] ${
+                isMenuOpen
+                  ? "translate-y-0 opacity-100 delay-300"
+                  : "translate-y-3 opacity-0"
+              }`}
+              style={{
+                fontFamily: "'Lora', serif",
+              }}
+            >
+              <img
+                src={getProfileImage(profile.avatar_path)}
+                alt={profile.name || "User profile"}
+                className="h-10 w-10 rounded-full object-cover border border-[#FFD700]/40"
+              />
+
+              <div className="min-w-0 text-left">
+                <p className="truncate text-sm font-semibold text-[#FFFAF0]">
+                  {profile.name || "My Profile"}
+                </p>
+                <p className="truncate text-xs text-[#FFD700]">
+                  View Dashboard
+                </p>
+              </div>
+            </Link>
+          ) : (
+            <Link
+              to="/auth/signup"
+              onClick={() => setIsMenuOpen(false)}
+              className={`group relative mt-8 block w-full overflow-hidden rounded-lg bg-[#FFD700] px-3 py-3 text-center text-[#080500] font-montserrat text-sm font-semibold uppercase tracking-[1px] transition-all duration-500 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.28)] cursor-pointer ${
+                isMenuOpen
+                  ? "translate-y-0 opacity-100 delay-300"
+                  : "translate-y-3 opacity-0"
+              }`}
+              style={{
+                fontFamily: "'Lora', serif",
+              }}
+            >
+              <span className="relative z-10">SIGN UP</span>
+              <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
+            </Link>
+          )}
         </div>
       </aside>
     </>
