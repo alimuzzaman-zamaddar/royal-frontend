@@ -1,22 +1,19 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
 
-const archiveStatementData = {
-  paragraphs: [
-    <>
-      Today, we are <em>the correction.</em> A portal for authors whose words
-      carry codes that activate, heal, and elevate.
-    </>,
-    <>
-      We do not publish books. We <strong>crown stories</strong> — placing them
-      where they cannot be erased, where readers searching for direction find
-      it, and where your name becomes part of a living archive.
-    </>,
-  ],
-  quote: "The Lineage does not beg. It recognizes.",
+type LineageMainSection = {
+  title: string;
+  subtitle: string;
+  description: string;
 };
 
-export const ArchiveStatementSection = () => {
+type ArchiveStatementSectionProps = {
+  mainSection?: LineageMainSection;
+};
+
+export const ArchiveStatementSection = ({
+  mainSection,
+}: ArchiveStatementSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -51,6 +48,10 @@ export const ArchiveStatementSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!mainSection) {
+    return null;
+  }
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
@@ -58,6 +59,10 @@ export const ArchiveStatementSection = () => {
   const lineClass = isVisible
     ? "scale-x-100 opacity-100"
     : "scale-x-0 opacity-0";
+
+  const paragraphs = [mainSection.subtitle, mainSection.description].filter(
+    Boolean,
+  );
 
   return (
     <section
@@ -72,7 +77,7 @@ export const ArchiveStatementSection = () => {
           className={`rounded-[18px] border border-[#FFD700]/30 bg-[radial-gradient(circle_at_center,rgba(84,11,87,0.55)_0%,rgba(26,3,25,0.88)_58%,rgba(2,2,2,0.96)_100%)] px-5 py-10 text-center shadow-[0_18px_60px_rgba(255,215,0,0.07)] transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-12 md:px-12 xl:px-20 xl:py-14 ${revealClass}`}
         >
           <div className="mx-auto max-w-[1260px] space-y-10 sm:space-y-12">
-            {archiveStatementData.paragraphs.map((paragraph, index) => (
+            {paragraphs.map((paragraph, index) => (
               <p
                 key={index}
                 className={`font-lora text-base font-normal leading-[165%] text-[#FFFAF0] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-lg md:text-xl xl:text-[22px] [&_em]:font-semibold [&_em]:italic [&_strong]:font-bold ${revealClass}`}
@@ -101,7 +106,7 @@ export const ArchiveStatementSection = () => {
               transitionDelay: isVisible ? "580ms" : "0ms",
             }}
           >
-            {archiveStatementData.quote}
+            {mainSection.title}
           </p>
         </div>
       </div>

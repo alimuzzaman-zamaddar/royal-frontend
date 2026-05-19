@@ -11,8 +11,6 @@ const AuthLayout = () => {
           backgroundImage: `url(${authBg})`,
         }}
       />
-
-      {/* Overlay */}
       <div
         className="absolute inset-0 z-10"
         style={{
@@ -20,11 +18,7 @@ const AuthLayout = () => {
             "linear-gradient(180deg, rgba(7, 6, 3, 0.40) 106.85%, rgba(2, 2, 2, 0.20) 206.85%)",
         }}
       />
-
-      {/* Optional Dark Layer for better form readability */}
       <div className="absolute inset-0 z-20 bg-black/20" />
-
-      {/* Auth Content */}
       <main className="relative z-30 min-h-screen">
         <Outlet />
       </main>

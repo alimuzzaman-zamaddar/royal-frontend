@@ -11,41 +11,26 @@ type ContactServicesFormValues = {
   interests: string[];
 };
 
-const royalServicesProcessData = {
-  title: "HOW TO ENGAGE",
-  subtitle: "Every service begins with a conversation.",
-  description:
-    "No packages forced on you. No upsells disguised as necessities. We listen to where you are, diagnose what you actually need, and build a scope that serves your book — and your budget.",
-  steps: [
-    {
-      id: 1,
-      step: "Step",
-      number: "1",
-      description:
-        "Email services@royalexchange230.com with your project description",
-    },
-    {
-      id: 2,
-      step: "Step",
-      number: "2",
-      description:
-        "We respond within 48 hours with questions, recommendations, and a custom quote",
-    },
-    {
-      id: 3,
-      step: "Step",
-      number: "3",
-      description:
-        "Upon agreement, work begins with clear timelines and direct communication",
-    },
-  ],
-  cta: {
-    title: "Not sure what you need?",
-    description:
-      "Email us anyway. We'll tell you honestly — even if that means sending you elsewhere. The Lineage protects its integrity before it protects its revenue.",
-    buttonText: "Contact Services",
-    email: "royalexchange230.com",
-  },
+type ServicesEngageSection = {
+  title: string;
+  subtitle: string;
+  description: string;
+  items: {
+    title: string;
+  }[];
+};
+
+type ServicesSubFooterSection = {
+  title: string;
+  subtitle: string;
+  description: string;
+  button_text: string;
+  button_link: string;
+};
+
+type RoyalServicesProcessSectionProps = {
+  engageSection?: ServicesEngageSection;
+  subFooterSection?: ServicesSubFooterSection;
 };
 
 const interestOptions = [
@@ -55,7 +40,10 @@ const interestOptions = [
   "Everything",
 ];
 
-export const RoyalServicesProcessSection = () => {
+export const RoyalServicesProcessSection = ({
+  engageSection,
+  subFooterSection,
+}: RoyalServicesProcessSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -112,6 +100,10 @@ export const RoyalServicesProcessSection = () => {
     };
   }, [isPopupMounted]);
 
+  if (!engageSection && !subFooterSection) {
+    return null;
+  }
+
   const openPopup = () => {
     setIsPopupMounted(true);
 
@@ -140,107 +132,113 @@ export const RoyalServicesProcessSection = () => {
       >
         <div className="mx-auto max-w-370">
           {/* Heading */}
-          <div
-            className={`mx-auto max-w-305 transition-all duration-850 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
-            style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
-          >
-            <h2
-              className="text-[42px] font-normal uppercase leading-[115%] tracking-[2px] text-[#FFD700] sm:text-[58px] md:text-[72px]"
-              style={{ fontFamily: "'Cinzel', serif" }}
+          {engageSection && (
+            <div
+              className={`mx-auto max-w-305 transition-all duration-850 ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
+              style={{ transitionDelay: isVisible ? "80ms" : "0ms" }}
             >
-              {royalServicesProcessData.title}
-            </h2>
-
-            <p
-              className="mt-8 text-lg font-normal leading-[150%] text-[#FFFAF0] sm:text-xl md:text-2xl"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {royalServicesProcessData.subtitle}
-            </p>
-
-            <p
-              className="mx-auto mt-8 max-w-[1180px] text-base font-normal leading-[160%] text-[#FFFAF0] sm:text-xl md:text-2xl"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {royalServicesProcessData.description}
-            </p>
-          </div>
-
-          {/* Steps */}
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3 xl:mt-14 xl:gap-8">
-            {royalServicesProcessData.steps.map((item, index) => (
-              <div
-                key={item.id}
-                className={`group flex min-h-[142px] flex-col items-center justify-center rounded-xl bg-[#250027] px-6 py-7 text-center shadow-[0_12px_34px_rgba(0,0,0,0.18)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:shadow-[0_18px_48px_rgba(255,215,0,0.12)] ${revealClass}`}
-                style={{
-                  transitionDelay: isVisible
-                    ? `${220 + index * 110}ms`
-                    : "0ms",
-                }}
+              <h2
+                className="text-[42px] font-normal uppercase leading-[115%] tracking-[2px] text-[#FFD700] sm:text-[58px] md:text-[72px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
               >
-                <h3
-                  className="mb-6 flex items-center justify-center gap-2 text-[22px] font-semibold leading-[120%] text-[#FFD700] transition-colors duration-300 group-hover:text-[#FFFAF0]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  {item.step}
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#FFD700] text-sm leading-none">
-                    {item.number}
-                  </span>
-                </h3>
-
-                <p
-                  className="max-w-[360px] text-sm font-normal leading-[150%] text-[#FFFAF0] transition-colors duration-300 group-hover:text-[#f8ead8] sm:text-base"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Box */}
-          <div
-            className={`mt-12 rounded-[14px] border border-[#D4AF37]/40 px-5 py-8 transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 md:py-9 xl:mt-14 ${revealClass}`}
-            style={{ transitionDelay: isVisible ? "560ms" : "0ms" }}
-          >
-            <h3
-              className="text-[28px] font-normal uppercase leading-[120%] tracking-[1.5px] text-[#FFD700] sm:text-[34px] md:text-[40px]"
-              style={{ fontFamily: "'Cinzel', serif" }}
-            >
-              {royalServicesProcessData.cta.title}
-            </h3>
-
-            <p
-              className="mx-auto mt-5 max-w-[1050px] text-sm font-normal leading-[160%] text-[#FFFAF0] sm:text-base md:text-lg"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {royalServicesProcessData.cta.description}
-            </p>
-
-            <button
-              type="button"
-              onClick={openPopup}
-              className="group relative mt-6 cursor-pointer overflow-hidden rounded-md bg-[#FFD700] px-8 py-3 text-sm font-bold uppercase tracking-[3px] text-[#080500] shadow-[0_8px_28px_rgba(255,215,0,0.20)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#f5d87a] hover:shadow-[0_12px_36px_rgba(255,215,0,0.30)] sm:px-10 sm:text-base"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              <span className="relative z-10">
-                {royalServicesProcessData.cta.buttonText}
-              </span>
-
-              <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-            </button>
-
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <FaCrown className="text-base text-[#FFFAF0]" />
+                {engageSection.title}
+              </h2>
 
               <p
-                className="text-sm font-normal leading-[150%] text-[#FFFAF0] sm:text-base"
+                className="mt-8 text-lg font-normal leading-[150%] text-[#FFFAF0] sm:text-xl md:text-2xl"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                {royalServicesProcessData.cta.email}
+                {engageSection.subtitle}
+              </p>
+
+              <p
+                className="mx-auto mt-8 max-w-[1180px] text-base font-normal leading-[160%] text-[#FFFAF0] sm:text-xl md:text-2xl"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                {engageSection.description}
               </p>
             </div>
-          </div>
+          )}
+
+          {/* Steps */}
+          {engageSection?.items?.length ? (
+            <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3 xl:mt-14 xl:gap-8">
+              {engageSection.items.map((item, index) => (
+                <div
+                  key={`${item.title}-${index}`}
+                  className={`group flex min-h-[142px] flex-col items-center justify-center rounded-xl bg-[#250027] px-6 py-7 text-center shadow-[0_12px_34px_rgba(0,0,0,0.18)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:shadow-[0_18px_48px_rgba(255,215,0,0.12)] ${revealClass}`}
+                  style={{
+                    transitionDelay: isVisible
+                      ? `${220 + index * 110}ms`
+                      : "0ms",
+                  }}
+                >
+                  <h3
+                    className="mb-6 flex items-center justify-center gap-2 text-[22px] font-semibold leading-[120%] text-[#FFD700] transition-colors duration-300 group-hover:text-[#FFFAF0]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    Step
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#FFD700] text-sm leading-none">
+                      {index + 1}
+                    </span>
+                  </h3>
+
+                  <p
+                    className="max-w-[360px] text-sm font-normal leading-[150%] text-[#FFFAF0] transition-colors duration-300 group-hover:text-[#f8ead8] sm:text-base"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    {item.title}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {/* CTA Box */}
+          {subFooterSection && (
+            <div
+              className={`mt-12 rounded-[14px] border border-[#D4AF37]/40 px-5 py-8 transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 md:py-9 xl:mt-14 ${revealClass}`}
+              style={{ transitionDelay: isVisible ? "560ms" : "0ms" }}
+            >
+              <h3
+                className="text-[28px] font-normal uppercase leading-[120%] tracking-[1.5px] text-[#FFD700] sm:text-[34px] md:text-[40px]"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                {subFooterSection.title}
+              </h3>
+
+              <p
+                className="mx-auto mt-5 max-w-[1050px] text-sm font-normal leading-[160%] text-[#FFFAF0] sm:text-base md:text-lg"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                {subFooterSection.description}
+              </p>
+
+              <button
+                type="button"
+                onClick={openPopup}
+                className="group relative mt-6 cursor-pointer overflow-hidden rounded-md bg-[#FFD700] px-8 py-3 text-sm font-bold uppercase tracking-[3px] text-[#080500] shadow-[0_8px_28px_rgba(255,215,0,0.20)] transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#f5d87a] hover:shadow-[0_12px_36px_rgba(255,215,0,0.30)] sm:px-10 sm:text-base"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                <span className="relative z-10">
+                  {subFooterSection.button_text}
+                </span>
+
+                <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
+              </button>
+
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <FaCrown className="text-base text-[#FFFAF0]" />
+
+                <p
+                  className="text-sm font-normal leading-[150%] text-[#FFFAF0] sm:text-base"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {subFooterSection.subtitle}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

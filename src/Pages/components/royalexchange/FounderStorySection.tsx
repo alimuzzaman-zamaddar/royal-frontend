@@ -1,24 +1,26 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
-import founderImg from "../../../assets/lineage/woner.png";
 
-const founderStoryData = {
-  image: founderImg,
-  imageAlt: "Julius Spenser",
-  paragraphs: [
-    "I Am Julius Spenser — Author, Founder, And Owner Of Royal Exchange Publishing And Royal Exchange Clothing. I Come From The Gritty Streets Of Highland Park, Michigan, Where The Odds Were Stacked, The Statistics Were Lethal, And The Dream Was Supposed To Die Young. It Didn't.",
-
-    "Royal Exchange Was Not Built In A Boardroom. It Was Forged In The Fire Of Survival, Sharpened By Ancestral Memory, And Delivered Through A Mind That Refuses To Operate On Anything Less Than High Frequency. This Brand Speaks From Heaven, Into The World, Through The Soul Of A Bonafide King Or Queen Who Gets Things Done — Not By Permission, But By Purpose. Royal Exchange Is An Experience.",
-
-    "It Is The Celebration Of The Best Of Who You Were Created To Be. It Is The Refusal To Let Your Environment Define Your Elevation. It Is The Knowing That Your Story, Your Voice, And Your Vision Are Not Accidents — They Are Assignments.",
-
-    "Through Royal Exchange Publishing, We Crown Authors Who Carry Codes The World Needs. Editing, Design, Sponsorship, Amplification — Every Service Built To Place Your Book Where It Belongs: On A Throne, Not A Shelf.",
-
-    "Through Royal Exchange Clothing, We Wear The Frequency. Deep Navy, Emerald, Gold, Black, Grey, Teal, Orange — Every Piece Designed To Remind You That You Were Born To Vibrate Higher, Look Sharper, And Move Like Legacy Depends On It. This Is Not About Fashion. This Is Not About Books. This Is About Affecting A Generation Hungry For New, Next, Now.",
-  ],
+type RoyalExchangeAboutSection = {
+  description: string;
+  image: string;
 };
 
-export const FounderStorySection = () => {
+type FounderStorySectionProps = {
+  about?: RoyalExchangeAboutSection;
+};
+
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+export const FounderStorySection = ({ about }: FounderStorySectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -53,6 +55,17 @@ export const FounderStorySection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!about) {
+    return null;
+  }
+
+  const paragraphs = about.description
+    .split("\n")
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  const imageSrc = getCmsAssetUrl(about.image);
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
@@ -71,7 +84,7 @@ export const FounderStorySection = () => {
           }}
         >
           <div className="space-y-7">
-            {founderStoryData.paragraphs.map((paragraph, index) => (
+            {paragraphs.map((paragraph, index) => (
               <p
                 key={index}
                 className="font-lora text-base font-normal leading-[130%] text-[#FFFAF0] sm:text-lg lg:text-[18px]"
@@ -104,8 +117,8 @@ export const FounderStorySection = () => {
 
           <div className="group relative overflow-hidden rounded-[18px] shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
             <img
-              src={founderStoryData.image}
-              alt={founderStoryData.imageAlt}
+              src={imageSrc}
+              alt="Royal Exchange founder"
               className="h-[420px] w-full rounded-[18px] object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] sm:h-[520px] lg:h-[560px] xl:h-[590px]"
             />
 

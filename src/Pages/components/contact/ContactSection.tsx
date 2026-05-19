@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { useSubmitContactMutation } from "../../../redux/Slices/contactApi";
+
 
 type ContactFormValues = {
   fullName: string;
@@ -9,31 +12,37 @@ type ContactFormValues = {
   message: string;
 };
 
-const contactInfo = [
-  {
-    id: 1,
-    icon: FaEnvelope,
-    title: "Email",
-    value: "royalexchange230@gmail.com",
-  },
-  {
-    id: 2,
-    icon: FaPhoneAlt,
-    title: "Phone",
-    value: "+1 (555) 123-4567",
-  },
-  {
-    id: 3,
-    icon: FaMapMarkerAlt,
-    title: "Office",
-    value: "123 Community Drive, Food City, FC 12345",
-  },
-];
+type ContactInfoItem = {
+  title: string;
+  icon: string;
+  subtitle: string;
+};
 
-export const ContactSection = () => {
+type ContactSectionData = {
+  title: string;
+  items: ContactInfoItem[];
+};
+
+type ContactSectionProps = {
+  contactSection?: ContactSectionData;
+};
+
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+export const ContactSection = ({ contactSection }: ContactSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const [submitContact] = useSubmitContactMutation();
 
   const {
     register,
@@ -80,15 +89,31 @@ export const ContactSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!contactSection || !contactSection.items?.length) {
+    return null;
+  }
+
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitted(false);
 
-    console.log("Contact form submitted:", data);
+    try {
+      const response = await submitContact({
+        name: data.fullName,
+        email: data.email,
+        message: data.message,
+      }).unwrap();
 
-    await new Promise((resolve) => setTimeout(resolve, 700));
+      toast.success(response?.message || "Your message has been sent.");
+      setIsSubmitted(true);
+      reset();
+    } catch (error: any) {
+      const errorMessage =
+        error?.data?.message ||
+        error?.data?.error ||
+        "Failed to send message. Please try again.";
 
-    setIsSubmitted(true);
-    reset();
+      toast.error(errorMessage);
+    }
   };
 
   const revealClass = isVisible
@@ -113,16 +138,16 @@ export const ContactSection = () => {
             className="mb-8 text-center text-[28px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[32px] md:text-[38px] lg:mb-10 lg:text-left"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            Contact Information
+            {contactSection.title}
           </h2>
 
           <div className="mx-auto max-w-[390px] space-y-8 sm:space-y-10 lg:mx-0 lg:max-w-none">
-            {contactInfo.map((item, index) => {
-              const Icon = item.icon;
+            {contactSection.items.map((item, index) => {
+              const iconSrc = getCmsAssetUrl(item.icon);
 
               return (
                 <div
-                  key={item.id}
+                  key={`${item.title}-${index}`}
                   className={`flex items-center justify-start gap-4 transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${revealClass}`}
                   style={{
                     transitionDelay: isVisible
@@ -131,7 +156,11 @@ export const ContactSection = () => {
                   }}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-[#D4A800] text-[#020202] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]">
-                    <Icon className="text-lg" />
+                    <img
+                      src={iconSrc}
+                      alt={item.title}
+                      className="h-5 w-5 object-contain"
+                    />
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -143,10 +172,10 @@ export const ContactSection = () => {
                     </h3>
 
                     <p
-                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#a8a8a8] sm:text-base "
+                      className="mt-2 break-words text-left text-sm font-normal leading-[150%] text-[#a8a8a8] sm:text-base"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
-                      {item.value}
+                      {item.subtitle}
                     </p>
                   </div>
                 </div>
@@ -164,7 +193,6 @@ export const ContactSection = () => {
         >
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              {/* Full Name */}
               <div>
                 <label
                   htmlFor="fullName"
@@ -205,7 +233,6 @@ export const ContactSection = () => {
                 )}
               </div>
 
-              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
@@ -244,7 +271,6 @@ export const ContactSection = () => {
               </div>
             </div>
 
-            {/* Message */}
             <div className="mt-5">
               <label
                 htmlFor="message"
@@ -284,7 +310,6 @@ export const ContactSection = () => {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}

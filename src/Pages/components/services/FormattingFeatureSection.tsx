@@ -3,35 +3,29 @@ import { useEffect, useRef, useState } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { ServiceBookSvg } from "../../../lib/Svg";
 
-const formattingFeatureData = {
-  icon: ServiceBookSvg,
-  title: "Book Formatting & Interior Design",
-  items: [
-    {
-      id: 1,
-      title: "Print Formatting",
-      description:
-        "Professional interior layout for paperback and hardcover (InDesign, custom trim sizes, bleed margins).",
-      span: "normal",
-    },
-    {
-      id: 2,
-      title: "Ebook Formatting",
-      description:
-        "Reflowable and fixed-layout EPUB, MOBI, and PDF for all major retailers.",
-      span: "normal",
-    },
-    {
-      id: 3,
-      title: "Typography & Chapter Openers",
-      description:
-        "Custom ornamental elements, drop caps, and section breaks that match your book's frequency.",
-      span: "full",
-    },
-  ],
+type ServiceInnerItem = {
+  id: number;
+  service_category_id: number;
+  title: string;
+  description: string;
 };
 
-export const FormattingFeatureSection = () => {
+type ServiceCategoryItem = {
+  id: number;
+  title: string;
+  icon: string;
+  description: string;
+  color_code: string;
+  services: ServiceInnerItem[];
+};
+
+type FormattingFeatureSectionProps = {
+  category?: ServiceCategoryItem;
+};
+
+export const FormattingFeatureSection = ({
+  category,
+}: FormattingFeatureSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -66,11 +60,15 @@ export const FormattingFeatureSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!category || !category.services?.length) {
+    return null;
+  }
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
 
-  const Icon = formattingFeatureData.icon;
+  const Icon = ServiceBookSvg;
 
   return (
     <section
@@ -93,7 +91,7 @@ export const FormattingFeatureSection = () => {
             className="text-[24px] font-normal uppercase leading-[120%] tracking-[1px] text-[#FFFAF0] sm:text-[30px] md:text-[38px] xl:text-[40px]"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            {formattingFeatureData.title}
+            {category.title}
           </h2>
         </div>
 
@@ -105,37 +103,42 @@ export const FormattingFeatureSection = () => {
           }}
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
-            {formattingFeatureData.items.map((item, index) => (
-              <div
-                key={item.id}
-                className={`group rounded-[10px] bg-[rgba(15,82,186,0.20)] px-5 py-5 text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:bg-[rgba(15,82,186,0.28)] hover:shadow-[0_12px_34px_rgba(15,82,186,0.18)] sm:px-7 sm:py-6 ${
-                  item.span === "full" ? "md:col-span-2" : ""
-                } ${revealClass}`}
-                style={{
-                  transitionDelay: isVisible
-                    ? `${280 + index * 100}ms`
-                    : "0ms",
-                }}
-              >
-                <div className="mb-3 flex items-center justify-center gap-3">
-                  <FaCheck className="text-base text-[#0F52BA] transition-transform duration-300 group-hover:scale-125" />
+            {category.services.map((item, index) => {
+              const isFullWidth =
+                category.services.length === 3 && index === 2;
 
-                  <h3
-                    className="text-base font-semibold leading-[130%] text-[#FFD700] transition-colors duration-300 group-hover:text-[#FFFAF0] xl:text-xl"
+              return (
+                <div
+                  key={item.id}
+                  className={`group rounded-[10px] bg-[rgba(15,82,186,0.20)] px-5 py-5 text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:bg-[rgba(15,82,186,0.28)] hover:shadow-[0_12px_34px_rgba(15,82,186,0.18)] sm:px-7 sm:py-6 ${
+                    isFullWidth ? "md:col-span-2" : ""
+                  } ${revealClass}`}
+                  style={{
+                    transitionDelay: isVisible
+                      ? `${280 + index * 100}ms`
+                      : "0ms",
+                  }}
+                >
+                  <div className="mb-3 flex items-center justify-center gap-3">
+                    <FaCheck className="text-base text-[#0F52BA] transition-transform duration-300 group-hover:scale-125" />
+
+                    <h3
+                      className="text-base font-semibold leading-[130%] text-[#FFD700] transition-colors duration-300 group-hover:text-[#FFFAF0] xl:text-xl"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      {item.title}
+                    </h3>
+                  </div>
+
+                  <p
+                    className="mx-auto max-w-[820px] text-sm font-normal leading-[150%] text-[#CDBDCA] transition-colors duration-300 group-hover:text-[#FFFAF0] xl:text-base"
                     style={{ fontFamily: "'Lora', serif" }}
                   >
-                    {item.title}
-                  </h3>
+                    {item.description}
+                  </p>
                 </div>
-
-                <p
-                  className="mx-auto max-w-[820px] text-sm font-normal leading-[150%] text-[#CDBDCA] transition-colors duration-300 group-hover:text-[#FFFAF0] xl:text-base"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  {item.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

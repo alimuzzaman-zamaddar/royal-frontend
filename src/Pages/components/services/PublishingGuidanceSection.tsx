@@ -1,41 +1,31 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
-import {  FaCrown } from "react-icons/fa";
+import { FaCrown } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 
-
-const publishingGuidanceData = {
-  icon: FaCrown,
-  title: "Publishing Guidance & Consultation",
-  items: [
-    {
-      id: 1,
-      title: "Publishing Roadmap Sessions",
-      description:
-        "Self-publishing vs. traditional vs. hybrid. We map the path that serves your goals, not industry defaults.",
-    },
-    {
-      id: 2,
-      title: "Distribution Strategy",
-      description:
-        "Amazon KDP, IngramSpark, Barnes & Noble Press, Draft2Digital, direct sales. Where to go, when, and why.",
-    },
-    {
-      id: 3,
-      title: "ISBN & Copyright Registration",
-      description:
-        "Step-by-step assistance with legal protection and cataloging.",
-    },
-    {
-      id: 4,
-      title: "Marketing Strategy",
-      description:
-        "Pre-launch, launch, and post-launch planning. Email campaigns, social sequencing, review generation, and long-term platform building.",
-    },
-  ],
+type ServiceInnerItem = {
+  id: number;
+  service_category_id: number;
+  title: string;
+  description: string;
 };
 
-export const PublishingGuidanceSection = () => {
+type ServiceCategoryItem = {
+  id: number;
+  title: string;
+  icon: string;
+  description: string;
+  color_code: string;
+  services: ServiceInnerItem[];
+};
+
+type PublishingGuidanceSectionProps = {
+  category?: ServiceCategoryItem;
+};
+
+export const PublishingGuidanceSection = ({
+  category,
+}: PublishingGuidanceSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -70,11 +60,15 @@ export const PublishingGuidanceSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!category || !category.services?.length) {
+    return null;
+  }
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
 
-  const Icon = publishingGuidanceData.icon;
+  const Icon = FaCrown;
 
   return (
     <section
@@ -97,7 +91,7 @@ export const PublishingGuidanceSection = () => {
             className="text-[24px] font-normal uppercase leading-[120%] tracking-[1px] text-[#FFFAF0] sm:text-[30px] md:text-[38px] xl:text-[40px]"
             style={{ fontFamily: "'Cinzel', serif" }}
           >
-            {publishingGuidanceData.title}
+            {category.title}
           </h2>
         </div>
 
@@ -109,7 +103,7 @@ export const PublishingGuidanceSection = () => {
           }}
         >
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
-            {publishingGuidanceData.items.map((item, index) => (
+            {category.services.map((item, index) => (
               <div
                 key={item.id}
                 className={`group rounded-[10px] bg-[rgba(168,85,247,0.16)] px-5 py-5 text-center transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:bg-[rgba(168,85,247,0.24)] hover:shadow-[0_12px_34px_rgba(168,85,247,0.16)] sm:px-7 sm:py-6 ${revealClass}`}

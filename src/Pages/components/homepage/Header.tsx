@@ -2,7 +2,7 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { FaTimes } from "react-icons/fa";
 import img from "../../../assets/mainlogo.png";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartCount } from "../../../lib/cartStorage";
 import { useGetProfileQuery } from "../../../redux/Slices/authApi";
 import { useAuth } from "../../../Provider/AuthProvider";
@@ -18,6 +18,18 @@ export const Header = () => {
     skip: !isAuthenticated,
   });
 
+  const location = useLocation();
+
+  const isActiveLink = (href: string) => {
+    if (href === "/") {
+      return location.pathname === "/";
+    }
+
+    return (
+      location.pathname === href || location.pathname.startsWith(`${href}/`)
+    );
+  };
+
   const profile = profileResponse?.data;
   const defaultAvatar = img;
 
@@ -28,7 +40,10 @@ export const Header = () => {
       return avatarPath;
     }
 
-    const baseUrl = import.meta.env.VITE_API_URL_IMAGE?.replace(/\/api\/?$/, "");
+    const baseUrl = import.meta.env.VITE_API_URL_IMAGE?.replace(
+      /\/api\/?$/,
+      "",
+    );
 
     return `${baseUrl}${avatarPath}`;
   };
@@ -137,22 +152,33 @@ export const Header = () => {
         </a>
 
         {/* Desktop Nav */}
+        {/* Desktop Nav */}
         <nav className="hidden xl:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={(e) => handleSmoothScroll(e, link.href)}
-              className="group relative text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off]  font-lora text-base font-normal leading-[150%] transition-colors duration-300 hover:text-[#FFFAF0]"
-              style={{
-                fontFamily: "'Lora', serif",
-              }}
-            >
-              {link.label}
+          {navLinks.map((link) => {
+            const isActive = isActiveLink(link.href);
 
-              <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-[#FFD700] transition-all duration-300 group-hover:w-full" />
-            </a>
-          ))}
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
+                className={`group relative text-[#FFD700] [font-feature-settings:'liga'_off,'clig'_off] font-lora text-base leading-[150%] transition-colors duration-300 hover:text-[#FFD700] ${
+                  isActive ? "font-semibold text-[#FFD700]" : "font-normal"
+                }`}
+                style={{
+                  fontFamily: "'Lora', serif",
+                }}
+              >
+                {link.label}
+
+                <span
+                  className={`absolute -bottom-1 left-0 h-[1px] bg-[#FFD700] transition-all duration-300 group-hover:w-full ${
+                    isActive ? "w-full" : "w-0"
+                  }`}
+                />
+              </a>
+            );
+          })}
         </nav>
 
         {/* Right Side */}
@@ -253,27 +279,40 @@ export const Header = () => {
 
         {/* Drawer Links */}
         <nav className="mt-8 flex flex-col gap-5">
-          {navLinks.map((link, index) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={(e) => handleSmoothScroll(e, link.href)}
-              style={{
-                transitionDelay: isMenuOpen ? `${index * 65}ms` : "0ms",
-                fontFamily: "'Lora', serif",
-              }}
-              className={`group border-b border-[#FFD700]/10 pb-4 text-[#FFD700] font-lora text-base font-normal tracking-[0.5px] transition-all duration-500 hover:translate-x-1 hover:border-[#FFD700]/40 hover:text-[#FFFAF0] ${
-                isMenuOpen
-                  ? "translate-x-0 opacity-100"
-                  : "-translate-x-3 opacity-0"
-              }`}
-            >
-              <span className="relative">
-                {link.label}
-                <span className="absolute -bottom-1 left-0 h-[1px] w-0 bg-[#FFD700] transition-all duration-300 group-hover:w-full" />
-              </span>
-            </a>
-          ))}
+          {navLinks.map((link, index) => {
+            const isActive = isActiveLink(link.href);
+
+            return (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
+                style={{
+                  transitionDelay: isMenuOpen ? `${index * 65}ms` : "0ms",
+                  fontFamily: "'Lora', serif",
+                }}
+                className={`group border-b pb-4 text-[#FFD700] font-lora text-base tracking-[0.5px] transition-all duration-500 hover:translate-x-1 hover:border-[#FFD700]/40 hover:text-[#FFD700] ${
+                  isActive
+                    ? "border-[#FFD700]/40 font-semibold text-[#FFD700]"
+                    : "border-[#FFD700]/10 font-normal"
+                } ${
+                  isMenuOpen
+                    ? "translate-x-0 opacity-100"
+                    : "-translate-x-3 opacity-0"
+                }`}
+              >
+                <span className="relative">
+                  {link.label}
+
+                  <span
+                    className={`absolute -bottom-1 left-0 h-[1px] bg-[#FFD700] transition-all duration-300 group-hover:w-full ${
+                      isActive ? "w-full" : "w-0"
+                    }`}
+                  />
+                </span>
+              </a>
+            );
+          })}
         </nav>
 
         <div>

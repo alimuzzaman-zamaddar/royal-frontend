@@ -1,36 +1,115 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useMemo, useState } from "react";
 import { FaStar, FaPlus, FaMinus, FaBoxes } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 
-import productMainImg from "../assets/Ebook cover.jpeg";
-import thumb1 from "../assets/Ebook cover.jpeg";
-import thumb2 from "../assets/middlecard.jpeg";
-import thumb3 from "../assets/Ebook cover.jpeg";
-import thumb4 from "../assets/Ebook cover.jpeg";
 import { RelatedProductsSection } from "./components/Shop/RelatedProductsSection";
 import { addToCart } from "../lib/cartStorage";
+import {
+  useGetProductDetailsQuery,
+  type ApiProductDetails,
+} from "../redux/Slices/productApi";
+import { Loader } from "../lib/Loader";
 
-const productDetailsData = {
-  id: 1,
-  breadcrumb: ["The Throne Room", "Shop", "Product Details"],
-  title: "No Sense Security",
-  author: "by Julius Spenser",
-  rating: 5,
-  reviewCount: 20,
-  oldPrice: "$49.99 USD",
-  price: "$39.99 USD",
-  priceAmount: 39.99,
-  stockStatus: "In Stock",
-  stockCount: "12 items left",
-  description:
-    'Hard Back Book "No Sense of Security" by Julius Spenser. It\'s an adventurous day for Leo, a ride-share driver who engages with different characters battling their life challenges and finds it therapeutic and secure to open up to someone they don\'t know. Is it his Moroccan pecan complexion and high cheekbones that gave off the distinguishing look of a Pharaoh that deemed him trustworthy? When Leo doesn\'t return the Black Spade\'s alligator briefcase, whose whole life fortunes and memories are locked. One day turns into seven days of cat-and-mouse travel throughout San Francisco. Both endure scars and losses and almost death before their agreement is finalized. It trickles down to who is more exhausted or unforgiving to overcome this situation or ratify the agreement.',
-  images: [productMainImg, thumb1, thumb2, thumb3, thumb4],
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+const parsePrice = (price?: string | null) => {
+  if (!price) return null;
+
+  const parsedPrice = Number(price);
+
+  return Number.isNaN(parsedPrice) ? null : parsedPrice;
+};
+
+const formatPrice = (price?: number | null) => {
+  if (price === null || price === undefined) return "";
+
+  return `$${price.toFixed(2)} USD`;
+};
+
+const formatBadge = (badge?: string | null) => {
+  if (!badge) return "";
+
+  return badge.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const getMainPrice = (product: ApiProductDetails) => {
+  return (
+    parsePrice(product.discount_price) ??
+    parsePrice(product.original_price) ??
+    parsePrice(product.soft_copy_discount_price) ??
+    parsePrice(product.soft_copy_price) ??
+    parsePrice(product.hard_copy_discount_price) ??
+    parsePrice(product.hard_copy_price) ??
+    0
+  );
+};
+
+const getOldPrice = (product: ApiProductDetails) => {
+  const originalPrice = parsePrice(product.original_price);
+  const discountPrice = parsePrice(product.discount_price);
+
+  if (originalPrice && discountPrice) {
+    return originalPrice;
+  }
+
+  return null;
+};
+
+const getProductImages = (product?: ApiProductDetails) => {
+  if (!product) return [];
+
+  const thumbnail = getCmsAssetUrl(product.thumbnail);
+
+  const galleryImages =
+    product.images
+      ?.map((item) => {
+        if (typeof item === "string") {
+          return getCmsAssetUrl(item);
+        }
+
+        return getCmsAssetUrl(item.image || item.path || item.url || "");
+      })
+      .filter(Boolean) || [];
+
+  const allImages = [thumbnail, ...galleryImages].filter(Boolean);
+
+  return Array.from(new Set(allImages));
 };
 
 export const ShopDetailsPage = () => {
-  const [selectedImage, setSelectedImage] = useState(
-    productDetailsData.images[0],
-  );
+  const { slug } = useParams();
+  const navigate = useNavigate();
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useGetProductDetailsQuery(slug || "", {
+    skip: !slug,
+  });
+
+  const product = data?.data;
+
+  const productImages = useMemo(() => getProductImages(product), [product]);
+
+  const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (productImages.length > 0) {
+      setSelectedImage(productImages[0]);
+    }
+  }, [productImages]);
 
   const handleIncrease = () => {
     setQuantity((prev) => prev + 1);
@@ -40,18 +119,66 @@ export const ShopDetailsPage = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
+  if (isLoading) {
+    return <Loader title="Loading product..." fullScreen />;
+  }
+
+  if (isError) {
+    console.log("Product details error:", error);
+
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#020202] px-5 text-center text-[#FFFAF0]">
+        Failed to load product details.
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#020202] px-5 text-center text-[#FFFAF0]">
+        Product not found.
+      </div>
+    );
+  }
+
+  const rating = Math.round(Number(product.avg_rating || 0));
+  const mainPrice = getMainPrice(product);
+  const oldPrice = getOldPrice(product);
+
+  const softCopyPrice =
+    parsePrice(product.soft_copy_discount_price) ??
+    parsePrice(product.soft_copy_price);
+
+  const hardCopyPrice =
+    parsePrice(product.hard_copy_discount_price) ??
+    parsePrice(product.hard_copy_price);
+
+  const stockStatus = product.stock > 0 ? "In Stock" : "Out of Stock";
+  const stockCount =
+    product.stock > 0 ? `${product.stock} items left` : "Unavailable";
+
   const handleAddToCart = () => {
     addToCart(
       {
-        id: productDetailsData.id,
-        name: productDetailsData.title,
-        author: productDetailsData.author,
+        id: product.id,
+        name: product.title,
+        category: product.category.title,
         image: selectedImage,
-        price: productDetailsData.priceAmount,
-        badge: "Product Details",
+        price: mainPrice,
+        softPrice: softCopyPrice ?? undefined,
+        hardPrice: hardCopyPrice ?? undefined,
+        badge: formatBadge(product.badge) || "Product Details",
+        rating,
+        reviewCount: product.rating_count,
+        buttonText: "View Details",
       },
       quantity,
     );
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    navigate("/cart");
   };
 
   return (
@@ -62,32 +189,30 @@ export const ShopDetailsPage = () => {
           className="mb-8 flex flex-wrap items-center gap-2 text-sm font-normal text-[#FFFAF0] sm:text-base"
           style={{ fontFamily: "'Lora', serif" }}
         >
-          {productDetailsData.breadcrumb.map((item, index) => (
-            <span
-              key={item}
-              className={
-                index === productDetailsData.breadcrumb.length - 1
-                  ? "text-[#FFD700]"
-                  : ""
-              }
-            >
-              {item}
-              {index !== productDetailsData.breadcrumb.length - 1 && (
-                <span className="mx-2 text-[#FFFAF0]">/</span>
-              )}
-            </span>
-          ))}
+          <span>The Throne Room</span>
+          <span className="mx-2 text-[#FFFAF0]">/</span>
+
+          <span>Shop</span>
+          <span className="mx-2 text-[#FFFAF0]">/</span>
+
+          <span className="text-[#FFD700]">{product.title}</span>
         </div>
 
         <div className="grid grid-cols-1 gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8 xl:py-20">
           {/* LEFT IMAGE */}
           <div className="w-full">
             <div className="overflow-hidden rounded-[14px]">
-              <img
-                src={selectedImage}
-                alt={productDetailsData.title}
-                className="h-105 w-full rounded-[14px] object-contain transition-all duration-500 sm:h-140 lg:h-155 xl:h-166.25"
-              />
+              {selectedImage ? (
+                <img
+                  src={selectedImage}
+                  alt={product.title}
+                  className="h-105 w-full rounded-[14px] object-contain transition-all duration-500 sm:h-140 lg:h-155 xl:h-166.25"
+                />
+              ) : (
+                <div className="flex h-105 w-full items-center justify-center rounded-[14px] border border-[#FFD700]/25 bg-[#050505] text-center text-[#B8B0A4] sm:h-140 lg:h-155 xl:h-166.25">
+                  No Image Available
+                </div>
+              )}
             </div>
           </div>
 
@@ -99,27 +224,43 @@ export const ShopDetailsPage = () => {
                   className="text-[34px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[42px] xl:text-[44px]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  {productDetailsData.title}
+                  {product.title}
                 </h1>
+
+                <p
+                  className="mt-2 text-base text-[#D4AF37]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {product.category.title}
+                </p>
 
                 <div className="mt-4 flex items-center gap-2">
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: productDetailsData.rating }).map(
-                      (_, index) => (
+                    {rating > 0 ? (
+                      Array.from({ length: rating }).map((_, index) => (
                         <FaStar
                           key={index}
                           className="text-lg text-[#FFD700]"
                         />
-                      ),
+                      ))
+                    ) : (
+                      <span
+                        className="text-sm text-[#FFD700]"
+                        style={{ fontFamily: "'Lora', serif" }}
+                      >
+                        No reviews yet
+                      </span>
                     )}
                   </div>
 
-                  <span
-                    className="text-xl text-[#FFFAF0]"
-                    style={{ fontFamily: "'Lora', serif" }}
-                  >
-                    ({productDetailsData.reviewCount})
-                  </span>
+                  {rating > 0 && (
+                    <span
+                      className="text-xl text-[#FFFAF0]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      ({product.rating_count})
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -127,12 +268,14 @@ export const ShopDetailsPage = () => {
                 className="flex items-center gap-4 text-left xl:pt-14 xl:text-right"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                <span className="text-sm text-[#FFFAF0]">
-                  {productDetailsData.oldPrice}
-                </span>
+                {oldPrice && (
+                  <span className="text-sm text-[#FFFAF0] line-through">
+                    {formatPrice(oldPrice)}
+                  </span>
+                )}
 
                 <span className="text-[24px] font-normal text-[#FFD700]">
-                  {productDetailsData.price}
+                  {formatPrice(mainPrice)}
                 </span>
               </div>
             </div>
@@ -145,10 +288,14 @@ export const ShopDetailsPage = () => {
                 className="text-base font-normal text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                <span className="text-[#8BC34A]">
-                  {productDetailsData.stockStatus}
+                <span
+                  className={
+                    product.stock > 0 ? "text-[#8BC34A]" : "text-[#E0115F]"
+                  }
+                >
+                  {stockStatus}
                 </span>{" "}
-                - {productDetailsData.stockCount}
+                - {stockCount}
               </p>
             </div>
 
@@ -157,8 +304,62 @@ export const ShopDetailsPage = () => {
               className="mt-8 max-w-172.5 text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg lg:text-base xl:text-[17px]"
               style={{ fontFamily: "'Lora', serif" }}
             >
-              {productDetailsData.description}
+              {product.description || product.short_description}
             </p>
+
+            {product.tags?.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {product.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-[#FFD700]/40 px-3 py-1 text-xs text-[#FFD700]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {(softCopyPrice || hardCopyPrice) && (
+              <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {softCopyPrice && (
+                  <div className="rounded-md border border-[#FFD700]/30 px-4 py-3">
+                    <p
+                      className="text-sm text-[#FFFAF0]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      Soft Copy
+                    </p>
+
+                    <p
+                      className="mt-1 text-xl font-bold text-[#FFD700]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      ${softCopyPrice.toFixed(2)}
+                    </p>
+                  </div>
+                )}
+
+                {hardCopyPrice && (
+                  <div className="rounded-md border border-[#FFD700]/30 px-4 py-3">
+                    <p
+                      className="text-sm text-[#FFFAF0]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      Hard Copy
+                    </p>
+
+                    <p
+                      className="mt-1 text-xl font-bold text-[#FFD700]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      ${hardCopyPrice.toFixed(2)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Quantity */}
             <div className="mt-7 flex h-10 w-26.25 items-center justify-between rounded-md border border-[#FFD700] px-3 text-[#FFFAF0]">
@@ -193,7 +394,8 @@ export const ShopDetailsPage = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="h-11 w-full rounded-md border border-[#FFD700] text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#020202] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)]"
+                disabled={product.stock <= 0}
+                className="h-11 w-full rounded-md border border-[#FFD700] text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#020202] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 Add to Cart
@@ -201,7 +403,9 @@ export const ShopDetailsPage = () => {
 
               <button
                 type="button"
-                className="h-11 w-full rounded-md bg-[#FFD700] text-base font-normal text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
+                onClick={handleBuyNow}
+                disabled={product.stock <= 0}
+                className="h-11 w-full rounded-md bg-[#FFD700] text-base font-normal text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 Buy Now
@@ -209,30 +413,32 @@ export const ShopDetailsPage = () => {
             </div>
 
             {/* Thumbnails */}
-            <div className="mt-6 grid grid-cols-4 gap-3 sm:gap-4">
-              {productDetailsData.images.slice(1).map((image, index) => {
-                const isActive = selectedImage === image;
+            {productImages.length > 1 && (
+              <div className="mt-6 grid grid-cols-4 gap-3 sm:gap-4">
+                {productImages.map((image, index) => {
+                  const isActive = selectedImage === image;
 
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setSelectedImage(image)}
-                    className={`overflow-hidden rounded-md border transition-all duration-300 hover:-translate-y-1 ${
-                      isActive
-                        ? "border-[#FFD700]/30"
-                        : "border-transparent hover:border-[#FFD700]/40"
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${productDetailsData.title} thumbnail ${index + 1}`}
-                      className="h-17.5 w-full rounded-md object-cover sm:h-20.5"
-                    />
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <button
+                      key={`${image}-${index}`}
+                      type="button"
+                      onClick={() => setSelectedImage(image)}
+                      className={`overflow-hidden rounded-md border transition-all duration-300 hover:-translate-y-1 ${
+                        isActive
+                          ? "border-[#FFD700]/30"
+                          : "border-transparent hover:border-[#FFD700]/40"
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.title} thumbnail ${index + 1}`}
+                        className="h-17.5 w-full rounded-md object-cover sm:h-20.5"
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

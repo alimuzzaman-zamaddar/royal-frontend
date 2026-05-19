@@ -1,19 +1,19 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaSlidersH, FaStar } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
-import bookImg1 from "../../../assets/middlecard.jpeg";
-import bookImg2 from "../../../assets/Front cover.png";
 import { CheckSvg } from "../../../lib/Svg";
 import { useNavigate } from "react-router-dom";
 import { addToCart } from "../../../lib/cartStorage";
+import { useGetCategoriesQuery } from "../../../redux/Slices/categoryApi";
+import {
+  useGetProductsQuery,
+  type ApiProduct,
+} from "../../../redux/Slices/productApi";
 
-type Category =
-  | "All"
-  | "Books"
-  | "Men's Collection"
-  | "Woman's Collection"
-  | "King Gorilla Collection"
-  | "Others";
+type CategoryFilter = {
+  id: number | "all";
+  title: string;
+};
 
 type PriceRangeId =
   | "all"
@@ -25,31 +25,6 @@ type PriceRangeId =
   | "250-plus";
 
 type SortOption = "featured" | "low-high" | "high-low" | "newest";
-
-type Product = {
-  id: number;
-  name: string;
-  author?: string;
-  category: Exclude<Category, "All">;
-  image: string;
-  badge?: string;
-  rating?: number;
-  reviewCount?: number;
-  softPrice?: number;
-  hardPrice?: number;
-  price?: number;
-  isNewest?: boolean;
-  buttonText: string;
-};
-
-const categories: Category[] = [
-  "All",
-  "Books",
-  "Men's Collection",
-  "Woman's Collection",
-  "King Gorilla Collection",
-  "Others",
-];
 
 const priceRanges: {
   id: PriceRangeId;
@@ -101,270 +76,175 @@ const priceRanges: {
   },
 ];
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "No Sense Security",
-    author: "by Julius Spenser",
-    category: "Books",
-    image: bookImg1,
-    badge: "New Arrival",
-    rating: 5,
-    reviewCount: 5,
-    softPrice: 29,
-    hardPrice: 39.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 2,
-    name: "The Yachat Klub",
-    author: "by Julius Spenser",
-    category: "Books",
-    image: bookImg2,
-    badge: "Up Coming",
-    rating: 5,
-    reviewCount: 5,
-    softPrice: 29,
-    hardPrice: 39.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 3,
-    name: "No Sense Security Special Edition",
-    author: "by Julius Spenser",
-    category: "Books",
-    image: bookImg1,
-    isNewest: true,
-    buttonText: "Link",
-  },
-  {
-    id: 4,
-    name: "Royal Exchange Classic Tee",
-    category: "Men's Collection",
-    image: bookImg1,
-    badge: "New Arrival",
-    rating: 4,
-    reviewCount: 12,
-    price: 35,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 5,
-    name: "King Frequency Hoodie",
-    category: "Men's Collection",
-    image: bookImg2,
-    badge: "Best Seller",
-    rating: 5,
-    reviewCount: 18,
-    price: 89.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 6,
-    name: "Royal Crown Joggers",
-    category: "Men's Collection",
-    image: bookImg1,
-    rating: 4,
-    reviewCount: 9,
-    price: 64.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 7,
-    name: "Legacy Varsity Jacket",
-    category: "Men's Collection",
-    image: bookImg2,
-    badge: "Premium",
-    rating: 5,
-    reviewCount: 6,
-    price: 149.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 8,
-    name: "Queen Lineage Tee",
-    category: "Woman's Collection",
-    image: bookImg1,
-    badge: "New Arrival",
-    rating: 5,
-    reviewCount: 11,
-    price: 35,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 9,
-    name: "Divine Crown Hoodie",
-    category: "Woman's Collection",
-    image: bookImg2,
-    rating: 4,
-    reviewCount: 7,
-    price: 84.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 10,
-    name: "Royal Exchange Crop Top",
-    category: "Woman's Collection",
-    image: bookImg1,
-    badge: "Featured",
-    rating: 5,
-    reviewCount: 15,
-    price: 42,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 11,
-    name: "Golden Memory Sweater",
-    category: "Woman's Collection",
-    image: bookImg2,
-    rating: 4,
-    reviewCount: 10,
-    price: 74.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 12,
-    name: "King Gorilla Signature Tee",
-    category: "King Gorilla Collection",
-    image: bookImg1,
-    badge: "New Arrival",
-    rating: 5,
-    reviewCount: 20,
-    price: 44.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 13,
-    name: "King Gorilla Hoodie",
-    category: "King Gorilla Collection",
-    image: bookImg2,
-    badge: "Best Seller",
-    rating: 5,
-    reviewCount: 25,
-    price: 94.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 14,
-    name: "King Gorilla Cap",
-    category: "King Gorilla Collection",
-    image: bookImg1,
-    rating: 4,
-    reviewCount: 13,
-    price: 29.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 15,
-    name: "King Gorilla Collector Jacket",
-    category: "King Gorilla Collection",
-    image: bookImg2,
-    badge: "Limited",
-    rating: 5,
-    reviewCount: 5,
-    price: 199.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 16,
-    name: "Royal Exchange Belt",
-    category: "Others",
-    image: bookImg1,
-    rating: 4,
-    reviewCount: 6,
-    price: 59.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 17,
-    name: "Legacy Crown Cap",
-    category: "Others",
-    image: bookImg2,
-    badge: "New Arrival",
-    rating: 5,
-    reviewCount: 9,
-    price: 32,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 18,
-    name: "Royal Exchange Tote Bag",
-    category: "Others",
-    image: bookImg1,
-    rating: 4,
-    reviewCount: 4,
-    price: 24.99,
-    isNewest: false,
-    buttonText: "View Details",
-  },
-  {
-    id: 19,
-    name: "Ancestral Memory Notebook",
-    category: "Others",
-    image: bookImg2,
-    badge: "Featured",
-    rating: 5,
-    reviewCount: 14,
-    price: 18.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-  {
-    id: 20,
-    name: "Royal Exchange Collector Bundle",
-    category: "Others",
-    image: bookImg1,
-    badge: "Premium",
-    rating: 5,
-    reviewCount: 3,
-    price: 259.99,
-    isNewest: true,
-    buttonText: "View Details",
-  },
-];
+const useDebouncedValue = <T,>(value: T, delay = 450) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
+
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
+
+const formatBadge = (badge?: string | null) => {
+  if (!badge) return "";
+
+  return badge
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const parsePrice = (price?: string | null) => {
+  if (!price) return null;
+
+  const parsedPrice = Number(price);
+
+  return Number.isNaN(parsedPrice) ? null : parsedPrice;
+};
+
+const getSortQuery = (sortBy: SortOption) => {
+  if (sortBy === "low-high") {
+    return {
+      sort: "low_to_high" as const,
+      direction: "asc" as const,
+    };
+  }
+
+  if (sortBy === "high-low") {
+    return {
+      sort: "high_to_low" as const,
+      direction: "desc" as const,
+    };
+  }
+
+  if (sortBy === "newest") {
+    return {
+      sort: "newest" as const,
+      direction: "desc" as const,
+    };
+  }
+
+  return {};
+};
+
+const getSelectedPriceQuery = (selectedPriceRanges: PriceRangeId[]) => {
+  if (selectedPriceRanges.includes("all")) {
+    return {};
+  }
+
+  const activeRange = priceRanges.find(
+    (range) => range.id === selectedPriceRanges[0],
+  );
+
+  if (!activeRange) {
+    return {};
+  }
+
+  return {
+    min_price: activeRange.min,
+    max_price: activeRange.max,
+  };
+};
+
+const getPrimaryPrice = (product: ApiProduct) => {
+  return (
+    parsePrice(product.discount_price) ??
+    parsePrice(product.original_price) ??
+    parsePrice(product.soft_copy_discount_price) ??
+    parsePrice(product.soft_copy_price) ??
+    parsePrice(product.hard_copy_discount_price) ??
+    parsePrice(product.hard_copy_price) ??
+    0
+  );
+};
 
 export const ShopPage = () => {
+  const { data: categoryData, isLoading: isCategoryLoading } =
+    useGetCategoriesQuery();
+
+  const categories = useMemo<CategoryFilter[]>(() => {
+    const apiCategories = categoryData?.data || [];
+
+    return [
+      {
+        id: "all",
+        title: "All",
+      },
+      ...apiCategories.map((category) => ({
+        id: category.id,
+        title: category.title,
+      })),
+    ];
+  }, [categoryData]);
+
   const [searchValue, setSearchValue] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<Category[]>([
-    "All",
-  ]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<
+    Array<number | "all">
+  >(["all"]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState<
     PriceRangeId[]
   >(["all"]);
   const [sortBy, setSortBy] = useState<SortOption>("featured");
 
-  const handleCategoryChange = (category: Category) => {
-    if (category === "All") {
-      setSelectedCategories(["All"]);
+  const debouncedSearchValue = useDebouncedValue(searchValue);
+
+  const selectedApiCategoryIds = selectedCategoryIds.filter(
+    (categoryId): categoryId is number => categoryId !== "all",
+  );
+
+  const productQueryParams = useMemo(() => {
+    return {
+      categories: selectedApiCategoryIds,
+      search: debouncedSearchValue.trim() || undefined,
+      ...getSortQuery(sortBy),
+      ...getSelectedPriceQuery(selectedPriceRanges),
+    };
+  }, [
+    selectedApiCategoryIds,
+    debouncedSearchValue,
+    sortBy,
+    selectedPriceRanges,
+  ]);
+
+  const {
+    data: productData,
+    isLoading: isProductLoading,
+    isFetching: isProductFetching,
+    isError: isProductError,
+  } = useGetProductsQuery(productQueryParams);
+
+  const productGroups = productData?.data || [];
+
+  const handleCategoryChange = (categoryId: number | "all") => {
+    if (categoryId === "all") {
+      setSelectedCategoryIds(["all"]);
       return;
     }
 
-    setSelectedCategories((prev) => {
-      const withoutAll = prev.filter((item) => item !== "All");
+    setSelectedCategoryIds((prev) => {
+      const withoutAll = prev.filter((item) => item !== "all");
 
-      const alreadySelected = withoutAll.includes(category);
+      const alreadySelected = withoutAll.includes(categoryId);
 
       const nextCategories = alreadySelected
-        ? withoutAll.filter((item) => item !== category)
-        : [...withoutAll, category];
+        ? withoutAll.filter((item) => item !== categoryId)
+        : [...withoutAll, categoryId];
 
-      return nextCategories.length > 0 ? nextCategories : ["All"];
+      return nextCategories.length > 0 ? nextCategories : ["all"];
     });
   };
 
@@ -374,71 +254,8 @@ export const ShopPage = () => {
       return;
     }
 
-    setSelectedPriceRanges((prev) => {
-      const withoutAll = prev.filter((item) => item !== "all");
-
-      const alreadySelected = withoutAll.includes(rangeId);
-
-      const nextRanges = alreadySelected
-        ? withoutAll.filter((item) => item !== rangeId)
-        : [...withoutAll, rangeId];
-
-      return nextRanges.length > 0 ? nextRanges : ["all"];
-    });
+    setSelectedPriceRanges([rangeId]);
   };
-
-  const getProductPrice = (product: Product) => {
-    return product.softPrice ?? product.price ?? product.hardPrice ?? 0;
-  };
-
-  const filteredProducts = useMemo(() => {
-    let filtered = [...products];
-
-    const normalizedSearch = searchValue.trim().toLowerCase();
-
-    if (normalizedSearch) {
-      filtered = filtered.filter((product) => {
-        return (
-          product.name.toLowerCase().includes(normalizedSearch) ||
-          product.author?.toLowerCase().includes(normalizedSearch)
-        );
-      });
-    }
-
-    if (!selectedCategories.includes("All")) {
-      filtered = filtered.filter((product) =>
-        selectedCategories.includes(product.category),
-      );
-    }
-
-    if (!selectedPriceRanges.includes("all")) {
-      const activeRanges = priceRanges.filter((range) =>
-        selectedPriceRanges.includes(range.id),
-      );
-
-      filtered = filtered.filter((product) => {
-        const productPrice = getProductPrice(product);
-
-        return activeRanges.some(
-          (range) => productPrice >= range.min && productPrice <= range.max,
-        );
-      });
-    }
-
-    if (sortBy === "low-high") {
-      filtered.sort((a, b) => getProductPrice(a) - getProductPrice(b));
-    }
-
-    if (sortBy === "high-low") {
-      filtered.sort((a, b) => getProductPrice(b) - getProductPrice(a));
-    }
-
-    if (sortBy === "newest") {
-      filtered.sort(NumberSortByNewest);
-    }
-
-    return filtered;
-  }, [searchValue, selectedCategories, selectedPriceRanges, sortBy]);
 
   return (
     <main className="min-h-screen w-full bg-[#020202] px-5 py-12 sm:px-6 md:py-16 xl:px-8 xl:py-20">
@@ -464,38 +281,47 @@ export const ShopPage = () => {
               Category
             </h3>
 
-            <div className="space-y-3">
-              {categories.map((category) => {
-                const isChecked = selectedCategories.includes(category);
+            {isCategoryLoading ? (
+              <p
+                className="text-sm text-[#B8B0A4]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                Loading categories...
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {categories.map((category) => {
+                  const isChecked = selectedCategoryIds.includes(category.id);
 
-                return (
-                  <label
-                    key={category}
-                    className="flex cursor-pointer items-center gap-2 text-sm text-[#B8B0A4] transition-colors hover:text-[#FFD700]"
-                    style={{ fontFamily: "'Lora', serif" }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => handleCategoryChange(category)}
-                      className="sr-only"
-                    />
-
-                    <span
-                      className={`flex h-4 w-4 items-center justify-center rounded-[3px] border transition-all duration-200 ${
-                        isChecked
-                          ? "border-transparent text-[#FFD700]"
-                          : "border-[#B8B0A4] text-transparent"
-                      }`}
+                  return (
+                    <label
+                      key={category.id}
+                      className="flex cursor-pointer items-center gap-2 text-sm text-[#B8B0A4] transition-colors hover:text-[#FFD700]"
+                      style={{ fontFamily: "'Lora', serif" }}
                     >
-                      {isChecked && <CheckSvg />}
-                    </span>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleCategoryChange(category.id)}
+                        className="sr-only"
+                      />
 
-                    <span>{category}</span>
-                  </label>
-                );
-              })}
-            </div>
+                      <span
+                        className={`flex h-4 w-4 items-center justify-center rounded-[3px] border transition-all duration-200 ${
+                          isChecked
+                            ? "border-transparent text-[#FFD700]"
+                            : "border-[#B8B0A4] text-transparent"
+                        }`}
+                      >
+                        {isChecked && <CheckSvg />}
+                      </span>
+
+                      <span>{category.title}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="my-6 h-px w-full bg-[#FFD700]/35" />
@@ -564,7 +390,7 @@ export const ShopPage = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="h-11 w-full xl:w-[20%] rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] md:w-[190px]"
+              className="h-11 w-full rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] md:w-[190px] xl:w-[20%]"
               style={{ fontFamily: "'Lora', serif" }}
             >
               <option value="featured">Sort by: Featured</option>
@@ -574,66 +400,153 @@ export const ShopPage = () => {
             </select>
           </div>
 
-          <h1
-            className="mt-8 text-xl font-normal text-[#FFFAF0]"
-            style={{ fontFamily: "'Lora', serif" }}
-          >
-            Book
-          </h1>
+          {isProductFetching && (
+            <p
+              className="mt-5 text-sm text-[#FFD700]"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              Loading products...
+            </p>
+          )}
 
-          {/* Products */}
-          {filteredProducts.length > 0 ? (
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
+          {isProductError && (
             <div className="mt-10 rounded-md border border-[#FFD700]/30 px-5 py-10 text-center">
               <p
                 className="text-base text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                No products found. Try changing your filters or search keyword.
+                Failed to load products. Please try again.
               </p>
             </div>
           )}
+
+          {!isProductError &&
+            !isProductLoading &&
+            productGroups.length === 0 && (
+              <div className="mt-10 rounded-md border border-[#FFD700]/30 px-5 py-10 text-center">
+                <p
+                  className="text-base text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  No products found. Try changing your filters or search
+                  keyword.
+                </p>
+              </div>
+            )}
+
+          {!isProductError &&
+            productGroups.map((group) => (
+              <div key={group.category}>
+                <h1
+                  className="mt-8 text-xl font-normal text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {group.category}
+                </h1>
+
+                {group.products.length > 0 ? (
+                  <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {group.products.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-6 rounded-md border border-[#FFD700]/30 px-5 py-10 text-center">
+                    <p
+                      className="text-base text-[#FFFAF0]"
+                      style={{ fontFamily: "'Lora', serif" }}
+                    >
+                      No products found in this category.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
         </section>
       </div>
     </main>
   );
 };
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ product }: { product: ApiProduct }) => {
   const navigate = useNavigate();
+
+  const thumbnail = getCmsAssetUrl(product.thumbnail);
+  const badge = formatBadge(product.badge);
+
+  const originalPrice = parsePrice(product.original_price);
+  const discountPrice = parsePrice(product.discount_price);
+
+  const softCopyPrice =
+    parsePrice(product.soft_copy_discount_price) ??
+    parsePrice(product.soft_copy_price);
+
+  const hardCopyPrice =
+    parsePrice(product.hard_copy_discount_price) ??
+    parsePrice(product.hard_copy_price);
+
+  const rating = Math.round(Number(product.avg_rating || 0));
+  const productPrice = getPrimaryPrice(product);
+
+  const cartPayload = {
+    id: product.id,
+    name: product.title,
+    category: product.category.title,
+    image: thumbnail,
+    badge,
+    rating,
+    reviewCount: product.rating_count,
+    price: productPrice,
+    softPrice: softCopyPrice ?? undefined,
+    hardPrice: hardCopyPrice ?? undefined,
+    buttonText: "View Details",
+  };
+
+const isExternalProduct =
+  product.product_type === "external" && Boolean(product.product_link);
+
+const handleViewDetails = () => {
+  if (isExternalProduct && product.product_link) {
+    window.open(product.product_link, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  navigate(`/shop/${product.slug}`);
+};
   return (
     <article className="group flex h-full flex-col rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)]">
       <div className="relative overflow-hidden rounded-[12px]">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
-        />
-
-<div className=" flex h-full w-full items-end justify-between p-4">
-          <button
-          type="button"
-          onClick={() => addToCart(product)}
-          className="absolute left-3 top-3 cursor-pointer xl:text-base flex p-2 items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
-          aria-label="Add to cart"
-        >
-          <BsCart3  />
-        </button>
-
-        {product.badge && (
-          <span
-            className="absolute right-3 top-3 rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] px-3 py-1 text-xs xl:text-base text-[#020202]"
-            style={{ fontFamily: "'Lora', serif" }}
-          >
-            {product.badge}
-          </span>
+        {thumbnail ? (
+          <img
+            src={thumbnail}
+            alt={product.title}
+            className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
+          />
+        ) : (
+          <div className="flex h-[370px] w-full items-center justify-center rounded-[12px] border border-[#FFD700]/20 bg-[#050505] text-center text-sm text-[#B8B0A4] sm:h-[390px] xl:h-[420px]">
+            No Image Available
+          </div>
         )}
-</div>
+
+        <div className="flex h-full w-full items-end justify-between p-4">
+          <button
+            type="button"
+            onClick={() => addToCart(cartPayload)}
+            className="absolute left-3 top-3 flex cursor-pointer items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] p-2 text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700] xl:text-base"
+            aria-label="Add to cart"
+          >
+            <BsCart3 />
+          </button>
+
+          {badge && (
+            <span
+              className="absolute right-3 top-3 rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] px-3 py-1 text-xs text-[#020202] xl:text-base"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              {badge}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col pt-5">
@@ -643,100 +556,115 @@ const ProductCard = ({ product }: { product: Product }) => {
               className="text-base font-normal text-[#FFFAF0]"
               style={{ fontFamily: "'Lora', serif" }}
             >
-              {product.name}
+              {product.title}
             </h2>
 
-            {product.author && (
+            {product.short_description && (
               <p
-                className="mt-1 text-xs text-[#FFFAF0]"
+                className="mt-1 line-clamp-2 text-xs text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                {product.author}
+                {product.short_description}
               </p>
             )}
           </div>
 
-          {(product.softPrice || product.hardPrice) && (
+          {(softCopyPrice || hardCopyPrice) && (
             <div className="flex gap-8 text-right">
-              <p
-                className="text-sm text-[#FFFAF0]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                Soft Copy
-              </p>
+              {softCopyPrice && (
+                <p
+                  className="text-sm text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  Soft Copy
+                </p>
+              )}
 
-              <p
-                className="text-sm text-[#FFFAF0]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                Hard Copy
-              </p>
+              {hardCopyPrice && (
+                <p
+                  className="text-sm text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  Hard Copy
+                </p>
+              )}
             </div>
           )}
         </div>
 
         <div className="my-5 flex items-center justify-between gap-4">
-          {product.rating && (
+          {rating > 0 && (
             <div className="flex items-center gap-1">
-              {Array.from({ length: product.rating }).map((_, index) => (
+              {Array.from({ length: rating }).map((_, index) => (
                 <FaStar key={index} className="text-sm text-[#FFD700]" />
               ))}
 
-              {product.reviewCount && (
-                <span
-                  className="ml-1 text-sm text-[#FFD700]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  ({product.reviewCount}/5)
-                </span>
-              )}
+              <span
+                className="ml-1 text-sm text-[#FFD700]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                ({product.rating_count}/5)
+              </span>
             </div>
           )}
 
-          {(product.softPrice || product.hardPrice) && (
+          {(softCopyPrice || hardCopyPrice) && (
             <div className="flex gap-8">
-              {product.softPrice && (
+              {softCopyPrice && (
                 <p
                   className="text-xl font-bold text-[#D4A800]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  ${product.softPrice.toFixed(2)}
+                  ${softCopyPrice.toFixed(2)}
                 </p>
               )}
 
-              {product.hardPrice && (
+              {hardCopyPrice && (
                 <p
                   className="text-xl font-bold text-[#D4A800]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  ${product.hardPrice.toFixed(2)}
+                  ${hardCopyPrice.toFixed(2)}
                 </p>
               )}
             </div>
           )}
 
-          {product.price && (
-            <p
-              className="text-xl font-bold text-[#D4A800]"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              ${product.price.toFixed(2)}
-            </p>
+          {!softCopyPrice && !hardCopyPrice && (
+            <div className="flex items-center gap-3">
+              {discountPrice && (
+                <p
+                  className="text-xl font-bold text-[#D4A800]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  ${discountPrice.toFixed(2)}
+                </p>
+              )}
+
+              {originalPrice && (
+                <p
+                  className={`text-xl font-bold ${
+                    discountPrice
+                      ? "text-[#B8B0A4] line-through"
+                      : "text-[#D4A800]"
+                  }`}
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  ${originalPrice.toFixed(2)}
+                </p>
+              )}
+            </div>
           )}
         </div>
 
-        <button
-          onClick={() => navigate(`/shop/${product.id}`)}
-          className="mt-auto h-12 w-full rounded-md cursor-pointer bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
-          style={{ fontFamily: "'Montserrat', sans-serif" }}
-        >
-          {product.buttonText}
-        </button>
+<button
+  onClick={handleViewDetails}
+  className="mt-auto h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
+  style={{ fontFamily: "'Montserrat', sans-serif" }}
+>
+  {isExternalProduct ? "Link" : "View Details"}
+</button>
       </div>
     </article>
   );
-};
-
-const NumberSortByNewest = (a: Product, b: Product) => {
-  return Number(Boolean(b.isNewest)) - Number(Boolean(a.isNewest));
 };

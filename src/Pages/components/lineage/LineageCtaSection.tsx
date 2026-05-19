@@ -2,17 +2,38 @@
 import { useEffect, useRef, useState } from "react";
 import { FaCrown } from "react-icons/fa";
 
-const lineageCtaData = {
-  intro: "If you have felt the pull, the current has already found you.",
-  question:
-    "The only question: are you ready to claim the throne that was always yours?",
-  buttonText: "JOIN THE LINEAGE",
-  quote: "Where story becomes covenant, and authors become lineage.",
+type LineageSubFooterSection = {
+  title: string;
+  subtitle: string;
+  description: string;
+  button_text: string;
+  button_link: string;
 };
 
-export const LineageCtaSection = () => {
+type LineageCtaSectionProps = {
+  subFooterSection?: LineageSubFooterSection;
+};
+
+export const LineageCtaSection = ({
+  subFooterSection,
+}: LineageCtaSectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+
+  const handleNewsletterScroll = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+
+    const newsletterSection = document.getElementById("notify-me");
+
+    if (newsletterSection) {
+      newsletterSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -45,6 +66,10 @@ export const LineageCtaSection = () => {
     return () => observer.disconnect();
   }, []);
 
+  if (!subFooterSection) {
+    return null;
+  }
+
   const revealClass = isVisible
     ? "translate-y-0 opacity-100"
     : "translate-y-8 opacity-0";
@@ -73,7 +98,7 @@ export const LineageCtaSection = () => {
             transitionDelay: isVisible ? "100ms" : "0ms",
           }}
         >
-          {lineageCtaData.intro}
+          {subFooterSection.subtitle}
         </p>
 
         <p
@@ -83,10 +108,12 @@ export const LineageCtaSection = () => {
             transitionDelay: isVisible ? "220ms" : "0ms",
           }}
         >
-          {lineageCtaData.question}
+          {subFooterSection.description}
         </p>
 
-        <button
+        <a
+          href="#notify-me"
+          onClick={handleNewsletterScroll}
           className={`group relative mt-8 inline-flex items-center justify-center gap-3 overflow-hidden rounded-md bg-[#FFD700] px-7 py-3 text-sm font-bold uppercase tracking-[3px] text-[#080500] shadow-[0_8px_28px_rgba(255,215,0,0.20)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:bg-[#f5d87a] hover:shadow-[0_12px_36px_rgba(255,215,0,0.30)] sm:px-8 sm:py-3.5 sm:text-base ${revealClass}`}
           style={{
             fontFamily: "'Montserrat', sans-serif",
@@ -95,11 +122,11 @@ export const LineageCtaSection = () => {
         >
           <span className="relative z-10 flex items-center gap-3">
             <FaCrown className="text-sm sm:text-base" />
-            {lineageCtaData.buttonText}
+            {subFooterSection.button_text}
           </span>
 
           <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-        </button>
+        </a>
 
         <p
           className={`mt-8 font-lora text-sm font-normal leading-[150%] text-[#BBA400] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[#FFD700] sm:text-base ${revealClass}`}
@@ -108,7 +135,7 @@ export const LineageCtaSection = () => {
             transitionDelay: isVisible ? "460ms" : "0ms",
           }}
         >
-          "{lineageCtaData.quote}"
+          "{subFooterSection.title}"
         </p>
       </div>
     </section>

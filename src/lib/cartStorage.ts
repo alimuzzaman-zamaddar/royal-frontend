@@ -11,16 +11,20 @@ export type CartStorageItem = {
   author?: string;
   badge?: string;
 };
-
-type AddToCartProduct = {
+export type AddToCartProduct = {
   id: number;
   name: string;
-  image: string;
   author?: string;
-  badge?: string;
+  image: string;
   price?: number;
   softPrice?: number;
   hardPrice?: number;
+  badge?: string;
+  rating?: number;
+  reviewCount?: number;
+  buttonText?: string;
+
+  category?: string;
 };
 
 export const CART_STORAGE_KEY = "royal_exchange_cart";
