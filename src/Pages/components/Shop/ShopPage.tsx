@@ -502,17 +502,17 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
     buttonText: "View Details",
   };
 
-const isExternalProduct =
-  product.product_type === "external" && Boolean(product.product_link);
+  const isExternalProduct =
+    product.product_type === "external" && Boolean(product.product_link);
 
-const handleViewDetails = () => {
-  if (isExternalProduct && product.product_link) {
-    window.open(product.product_link, "_blank", "noopener,noreferrer");
-    return;
-  }
+  const handleViewDetails = () => {
+    if (isExternalProduct && product.product_link) {
+      window.open(product.product_link, "_blank", "noopener,noreferrer");
+      return;
+    }
 
-  navigate(`/shop/${product.slug}`);
-};
+    navigate(`/shop/${product.slug}`);
+  };
   return (
     <article className="group flex h-full flex-col rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)]">
       <div className="relative overflow-hidden rounded-[12px]">
@@ -529,14 +529,16 @@ const handleViewDetails = () => {
         )}
 
         <div className="flex h-full w-full items-end justify-between p-4">
-          <button
-            type="button"
-            onClick={() => addToCart(cartPayload)}
-            className="absolute left-3 top-3 flex cursor-pointer items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] p-2 text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700] xl:text-base"
-            aria-label="Add to cart"
-          >
-            <BsCart3 />
-          </button>
+          {!isExternalProduct && (
+            <button
+              type="button"
+              onClick={() => addToCart(cartPayload)}
+              className="absolute left-3 top-3 flex cursor-pointer items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] p-2 text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700] xl:text-base"
+              aria-label="Add to cart"
+            >
+              <BsCart3 />
+            </button>
+          )}
 
           {badge && (
             <span
@@ -657,13 +659,13 @@ const handleViewDetails = () => {
           )}
         </div>
 
-<button
-  onClick={handleViewDetails}
-  className="mt-auto h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
-  style={{ fontFamily: "'Montserrat', sans-serif" }}
->
-  {isExternalProduct ? "Link" : "View Details"}
-</button>
+        <button
+          onClick={handleViewDetails}
+          className="mt-auto h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
+        >
+          {isExternalProduct ? "Link" : "View Details"}
+        </button>
       </div>
     </article>
   );
