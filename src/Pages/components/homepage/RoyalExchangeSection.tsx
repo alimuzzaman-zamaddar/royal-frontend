@@ -6,6 +6,7 @@ import tshirtImg from "../../../assets/tshirt (1).png";
 import beltImg from "../../../assets/belt.png";
 import hoodieImg from "../../../assets/hoodie.png";
 import capImg from "../../../assets/cap.png";
+import { Link } from "react-router-dom";
 
 type CrownSectionData = {
   main_title?: string;
@@ -41,7 +42,7 @@ const royalExchangeData = {
     "Every purchase supports indigenous authors",
   ],
   buttonText: "ENTER THE ROYAL WARDROBE",
-  buttonLink: "#",
+  buttonLink: "/shop",
   mainImage: mainImg,
   mainImageAlt: "Royal Exchange clothing model",
   caption: "Royal Exchange — Regalia for the Inheritors",
@@ -141,7 +142,6 @@ export const RoyalExchangeSection = ({
   const title = crown?.title || royalExchangeData.title;
   const description = crown?.description || royalExchangeData.description;
   const buttonText = crown?.button_text || royalExchangeData.buttonText;
-  const buttonLink = crown?.button_link || royalExchangeData.buttonLink;
   const caption = banner?.title || royalExchangeData.caption;
 
   const descriptionParagraphs = description
@@ -227,8 +227,8 @@ export const RoyalExchangeSection = ({
             ))}
           </div>
 
-          <a
-            href={buttonLink}
+          <Link
+            to="/shop"
             className={`group relative mt-8 inline-block overflow-hidden rounded-md bg-[#FFD700] px-6 py-3 text-sm font-bold uppercase tracking-[1.2px] text-[#080500] shadow-[0_4px_24px_rgba(255,215,0,0.28)] transition-all duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[2px] hover:scale-[1.02] hover:bg-[#f5d87a] hover:shadow-[0_12px_34px_rgba(255,215,0,0.28)] sm:px-7 sm:text-base ${revealClass}`}
             style={{
               fontFamily: "'Lora', serif",
@@ -237,7 +237,7 @@ export const RoyalExchangeSection = ({
           >
             <span className="relative z-10">{buttonText}</span>
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-          </a>
+          </Link>
         </div>
 
         {/* RIGHT IMAGE AREA */}

@@ -18,6 +18,8 @@ import { SignupOtp } from "../Pages/Auth/SignupOtp";
 import { ForgotOtp } from "../Pages/Auth/ForgotOtp";
 import { ForgotPassword } from "../Pages/Auth/ForgotPassword";
 import { ResetPassword } from "../Pages/Auth/ResetPassword";
+import { PaymentSuccess } from "../Pages/Dashboard/components/PaymentSuccess";
+import { PaymentCancel } from "../Pages/Dashboard/components/PaymentCancel";
 
 
 const router = createBrowserRouter([
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
         path: "/cart",
         element: <Cart />,
       },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/payment-cancel",
+        element: <PaymentCancel />,
+      }
     ],
   },
   {

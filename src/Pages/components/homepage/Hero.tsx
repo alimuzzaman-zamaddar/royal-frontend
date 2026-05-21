@@ -4,6 +4,7 @@ import img from "../../../assets/logo (4).png";
 import bgimage from "../../../assets/bgimage.png";
 import videoxl from "../../../assets/IMG_1875.mp4";
 import video from "../../../assets/IMG_1874 (1).mp4";
+import { Link } from "react-router-dom";
 
 type HeroSectionData = {
   main_title?: string;
@@ -359,21 +360,21 @@ export const Hero = ({ hero }: HeroProps) => {
             className="button-container flex w-full flex-col items-center justify-center gap-4 sm:flex-row xl:flex-row"
             style={fadeUp(0.9)}
           >
-            <a
-              href={buttonLink}
+            <Link
+              to={buttonLink}
               className="group relative w-[235px] overflow-hidden rounded-lg bg-[#FFD700] px-7 py-3 text-[#080500] font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#d4a01740] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(212,160,23,0.36)] md:w-auto md:text-base xl:text-[0.72rem]"
             >
               <span className="relative z-10">{buttonText}</span>
               <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-            </a>
+            </Link>
 
-            <a
-              href={button2Link}
+            <Link
+              to={button2Link}
               className="group relative w-[235px] overflow-hidden rounded-lg bg-[#c0185a] px-7 py-3 text-white font-cinzel text-sm font-bold tracking-[0.12em] shadow-[0_4px_24px_#c0185a40] transition-all duration-300 hover:-translate-y-[2px] hover:scale-[1.03] hover:brightness-110 hover:shadow-[0_10px_34px_rgba(192,24,90,0.36)] md:w-auto md:text-base xl:text-[0.72rem]"
             >
               <span className="relative z-10">{button2Text}</span>
               <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-700 group-hover:left-full" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>

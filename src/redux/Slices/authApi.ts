@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiSlice } from "../Slices/apiSlice";
 
 export type RegisterPayload = {
@@ -254,6 +255,12 @@ export const authApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getSystemData: builder.query<any, void>({
+      query: () => ({
+        url: "/system-data",
+        method: "GET",
+      }),
+    }),
 
     updateProfile: builder.mutation<UpdateProfileResponse, FormData>({
       query: (formData) => ({
@@ -292,6 +299,7 @@ export const {
   useResetResendOtpMutation,
   useResetPasswordMutation,
   useGetProfileQuery,
+  useGetSystemDataQuery,
   useUpdateProfileMutation,
   useChangePasswordMutation,
   useLogoutUserMutation,

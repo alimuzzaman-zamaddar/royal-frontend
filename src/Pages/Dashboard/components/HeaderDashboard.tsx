@@ -1,6 +1,7 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { FaTimes } from "react-icons/fa";
 import img from "../../../assets/mainlogo.png";
+import img2 from "../../../assets/images (3).jpg";
 import { CartSvg, SvgHamburger } from "../../../lib/Svg";
 import { Link } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartCount } from "../../../lib/cartStorage";
@@ -19,7 +20,7 @@ export const HeaderDashboard = () => {
   });
 
   const profile = profileResponse?.data;
-  const defaultAvatar = img;
+  const defaultAvatar = img2;
 
   const getProfileImage = (avatarPath?: string | null) => {
     if (!avatarPath) return defaultAvatar;

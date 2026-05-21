@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/immutability */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaCrown, FaTimes } from "react-icons/fa";
 import logo from "../../../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.png";
+import { useJoinExchangeMutation } from "../../../redux/Slices/storyApi";
+import toast from "react-hot-toast";
 
 type ContactServicesFormValues = {
   firstName: string;
@@ -32,13 +35,6 @@ type RoyalServicesProcessSectionProps = {
   engageSection?: ServicesEngageSection;
   subFooterSection?: ServicesSubFooterSection;
 };
-
-const interestOptions = [
-  "Clothing Drops",
-  "Publishing",
-  "Book Releases",
-  "Everything",
-];
 
 export const RoyalServicesProcessSection = ({
   engageSection,
@@ -258,12 +254,16 @@ const JoinExchangePopup = ({
 }) => {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+    const [interestOptions, setInterestOptions] = useState<string[]>([]);
+    const [joinExchange, { isLoading }] = useJoinExchangeMutation();
+
+
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ContactServicesFormValues>({
     mode: "onBlur",
     defaultValues: {
@@ -273,44 +273,50 @@ const JoinExchangePopup = ({
     },
   });
 
-  const onSubmit = async (data: ContactServicesFormValues) => {
-    setApiError("");
-    setSuccessMessage("");
-
-    try {
-      /*
-        Ready for API call.
-        Replace this block with your real endpoint.
-
-        Example:
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/contact-services`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
+    useEffect(() => {
+    const fetchInterests = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/exchange/interests`
+        );
         const result = await response.json();
 
-        if (!response.ok) {
-          throw new Error(result.message || "Submission failed");
+        if (result.success && Array.isArray(result.data)) {
+          setInterestOptions(result.data);
         }
-      */
+      } catch (error) {
+        console.error("Failed to fetch interests:", error);
+      }
+    };
 
-      console.log("Contact services popup payload:", data);
+    fetchInterests();
+  }, []);
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+const onSubmit = async (data: ContactServicesFormValues) => {
+  setApiError("");
+  setSuccessMessage("");
 
+  try {
+    const payload = {
+      name: data.firstName,
+      email: data.email,
+      interested_in: data.interests,
+    };
+
+    const response = await joinExchange(payload).unwrap();
+
+    if (response.success) {
       setSuccessMessage("Thank you. You have joined the exchange.");
+      toast.success("Thank you. You have joined the exchange.");
       reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      setApiError(message);
+      onClose();
+    } else {
+      setApiError(response.message || "Failed to submit");
     }
-  };
-
+  } catch (err: any) {
+    setApiError(err?.data?.message || err.message || "Something went wrong");
+  }
+};
   return (
     <div
       className={`fixed inset-0 z-[999] flex items-center justify-center bg-[#4A0E4E]/60 backdrop-blur-sm px-4 py-8 transition-all duration-300 ${
@@ -449,35 +455,38 @@ const JoinExchangePopup = ({
               I am interested in :
             </p>
 
-            <div className="space-y-3">
-              {interestOptions.map((interest) => (
-                <label
-                  key={interest}
-                  className="flex h-[40px] cursor-pointer items-center gap-3 rounded-md border border-[#B8860B]/45 bg-[#6A0E69] px-3 text-sm text-[#FFFAF0] transition-all duration-300 hover:border-[#FFD700] hover:bg-[#761179]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  <input
-                    type="checkbox"
-                    value={interest}
-                    {...register("interests", {
-                      validate: (value) =>
-                        value.length > 0 ||
-                        "Please select at least one interest",
-                    })}
-                    className="h-4 w-4 cursor-pointer accent-[#FFD700]"
-                  />
+        <div className="space-y-3">
+          {interestOptions.map((interest) => (
+            <label
+              key={interest}
+              className="flex h-[40px] cursor-pointer items-center gap-3 rounded-md border border-[#B8860B]/45 bg-[#6A0E69] px-3 text-sm text-[#FFFAF0] transition-all duration-300 hover:border-[#FFD700] hover:bg-[#761179]"
+            >
+              <input
+                type="checkbox"
+                value={interest}
+                {...register("interests", {
+                  validate: (value) =>
+                    value.length > 0 || "Please select at least one interest",
+                })}
+                className="h-4 w-4 cursor-pointer accent-[#FFD700]"
+              />
+              {interest}
+            </label>
+          ))}
+        </div>
 
-                  {interest}
-                </label>
-              ))}
-            </div>
+        {errors.interests && (
+          <p className="mt-1 text-xs text-[#FFD700]">
+            {errors.interests.message}
+          </p>
+        )}
+      </div>
 
             {errors.interests && (
               <p className="mt-1 text-xs text-[#FFD700]">
                 {errors.interests.message}
               </p>
             )}
-          </div>
 
           {/* API Messages */}
           {apiError && (
@@ -495,12 +504,12 @@ const JoinExchangePopup = ({
           {/* Submit */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="group relative mt-6 h-[46px] w-full overflow-hidden rounded-md bg-[#FFD700] text-sm font-medium uppercase tracking-[1px] text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_30px_rgba(255,215,0,0.25)] disabled:cursor-not-allowed disabled:opacity-70"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
             <span className="relative z-10">
-              {isSubmitting ? "Submitting..." : "Enter The Exchange"}
+              {isLoading ? "Submitting..." : "Enter The Exchange"}
             </span>
 
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />

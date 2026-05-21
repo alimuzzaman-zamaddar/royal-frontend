@@ -23,6 +23,7 @@ import img2 from "../../../assets/middlecard.jpeg";
 import img3 from "../../../assets/Frame 33 (2).png";
 import logomodal from "../../../assets/image.png";
 import { Book2Svg, BookSvg } from "../../../lib/Svg";
+import { useSubmitStoryMutation } from "../../../redux/Slices/storyApi";
 
 type SubmitWorkFormValues = {
   firstName: string;
@@ -453,62 +454,44 @@ const SubmitWorkModal = ({
     setUploadedFiles((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const onSubmit = async (data: SubmitWorkFormValues) => {
-    if (uploadedFiles.length === 0) {
-      setFileError("Please upload at least one manuscript file.");
-      return;
-    }
+const [submitStory] = useSubmitStoryMutation();
 
-    try {
-      const payload = {
-        ...data,
-        files: uploadedFiles.map((item) => item.file),
-      };
+const onSubmit = async (data: SubmitWorkFormValues) => {
+  if (uploadedFiles.length === 0) {
+    setFileError("Please upload at least one manuscript file.");
+    return;
+  }
 
-      console.log("Submit work payload:", payload);
+  try {
+    const formData = new FormData();
 
-      /*
-        Ready for API call.
+    formData.append("name", data.firstName);
+    formData.append("email", data.email);
+    formData.append("book_title", data.bookTitle);
+    formData.append("manuscript_about", data.aboutManuscript);
 
-        const formData = new FormData();
+    uploadedFiles.forEach((item) => {
+      formData.append("files[]", item.file);
+    });
 
-        formData.append("firstName", data.firstName);
-        formData.append("email", data.email);
-        formData.append("bookTitle", data.bookTitle);
-        formData.append("aboutManuscript", data.aboutManuscript);
+    const response = await submitStory(formData).unwrap();
 
-        uploadedFiles.forEach((item) => {
-          formData.append("files", item.file);
-        });
+    toast.success(response.message || "Your story has been submitted successfully.");
+    reset();
+    setUploadedFiles([]);
+    setFileError("");
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/submit-work`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.message || "Submission failed");
-        }
-      */
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      toast.success("Your work has been submitted successfully.");
-      reset();
-      setUploadedFiles([]);
-      setFileError("");
-
-      window.setTimeout(() => {
-        onClose();
-      }, 700);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      toast.error(message);
-    }
-  };
+    window.setTimeout(() => {
+      onClose();
+    }, 700);
+  } catch (error: any) {
+    const message =
+      error?.data?.message ||
+      error?.message ||
+      "Something went wrong.";
+    toast.error(message);
+  }
+};
 
   return (
     <div

@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 
 import { useGetHomeCmsQuery } from "../../../redux/Slices/cmsApi";
 import { Loader } from "../../../lib/Loader";
+import { useSubscribeNewsletterMutation } from "../../../redux/Slices/storyApi";
 
 type NewsletterFormValues = {
   email: string;
@@ -130,32 +131,32 @@ export const Footer = () => {
   const socialMedia = footerSection?.items?.social_media || [];
   const footerLogo = getCmsAssetUrl(footerSection?.image);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<NewsletterFormValues>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<NewsletterFormValues>({
     mode: "onBlur",
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: { email: "" },
   });
 
-  const onNewsletterSubmit = async (data: NewsletterFormValues) => {
+  // Use the real mutation
+  const [subscribeNewsletter] = useSubscribeNewsletterMutation();
+
+  const onNewsletterSubmit = async (formData: NewsletterFormValues) => {
     try {
-      console.log("Newsletter payload:", data);
+      const response = await subscribeNewsletter(formData).unwrap();
 
-      await new Promise((resolve) => setTimeout(resolve, 700));
-
-      toast.success("You have joined the kingdom.");
-      reset();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      toast.error(message);
+      if (response.success) {
+        toast.success(response.message || "You have joined the kingdom.");
+        reset();
+      } else {
+        toast.error(response.message || "Failed to subscribe.");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "Something went wrong.");
     }
   };
+
+  if (isLoading) return <Loader title="Loading Footer..." />;
+  if (isError) return <div>Failed to load footer content.</div>;
+  if (!footerSection || !footerSettings) return null;
 
   if (isLoading) {
     return <Loader title="Loading Footer..." />;
@@ -257,50 +258,33 @@ export const Footer = () => {
               Newsletter
             </p>
 
-            <form
-              onSubmit={handleSubmit(onNewsletterSubmit)}
-              noValidate
-              className="order-2 w-full max-w-[292px] xl:order-4 xl:max-w-[300px]"
-            >
-              <input
-                type="email"
-                placeholder="Your email"
-                autoComplete="email"
-                {...register("email", {
-                  required: "Email address is required",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-                className={`mb-3 h-10 w-full rounded-md border bg-[#1E1A16] px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#8D8277] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${
-                  errors.email ? "border-[#E0115F]" : "border-[#3A3024]"
-                }`}
-                style={{ fontFamily: "'Lora', serif" }}
-              />
+      <form onSubmit={handleSubmit(onNewsletterSubmit)} noValidate className="order-2 w-full max-w-[292px] xl:order-4 xl:max-w-[300px]">
+        <input
+          type="email"
+          placeholder="Your email"
+          autoComplete="email"
+          {...register("email", {
+            required: "Email address is required",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Please enter a valid email address",
+            },
+          })}
+          className={`mb-3 h-10 w-full rounded-md border bg-[#1E1A16] px-4 text-sm text-[#FFFAF0] outline-none placeholder:text-[#8D8277] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${errors.email ? "border-[#E0115F]" : "border-[#3A3024]"}`}
+          style={{ fontFamily: "'Lora', serif" }}
+        />
+        {errors.email && <p className="-mt-1 mb-3 text-left text-xs text-[#FFD700]">{errors.email.message}</p>}
 
-              {errors.email && (
-                <p
-                  className="-mt-1 mb-3 text-left text-xs text-[#FFD700]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  {errors.email.message}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="group relative h-10 w-full overflow-hidden rounded-md bg-[#FFD700] px-5 text-xs font-bold uppercase tracking-[0.8px] text-[#080500] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                <span className="relative z-10">
-                  {isSubmitting ? "JOINING..." : "JOIN THE KINGDOM"}
-                </span>
-
-                <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
-              </button>
-            </form>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="group relative h-10 w-full overflow-hidden rounded-md bg-[#FFD700] px-5 text-xs font-bold uppercase tracking-[0.8px] text-[#080500] transition-all duration-300 hover:-translate-y-[1px] hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
+        >
+          <span className="relative z-10">{isSubmitting ? "JOINING..." : "JOIN THE KINGDOM"}</span>
+          <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
+        </button>
+      </form>
 
             <h3
               className="order-3 mt-6 mb-5 text-xl font-normal uppercase leading-[150%] text-[#FFD700] xl:order-1 xl:mt-0 xl:mb-4 xl:text-base"

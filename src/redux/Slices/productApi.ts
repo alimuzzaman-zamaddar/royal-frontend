@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/redux/Slices/productApi.ts
 
 import { apiSlice } from "./apiSlice";
@@ -110,7 +111,14 @@ export const productApi = apiSlice.injectEndpoints({
         includeToken: false,
       }),
     }),
+    getOrderHistoryList: builder.query<any, any>({
+      query: () => ({
+        url: `/orders`,
+        method: "GET",
+        includeToken: true,
+      }),
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetProductDetailsQuery } = productApi;
+export const { useGetProductsQuery, useGetProductDetailsQuery, useGetOrderHistoryListQuery } = productApi;

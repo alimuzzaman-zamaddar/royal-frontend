@@ -9,11 +9,28 @@ import {
   removeCartItem,
   type CartStorageItem,
 } from "../../../lib/cartStorage";
+import { useGetSystemDataQuery } from "../../../redux/Slices/authApi";
+import { CheckoutModal } from "./CheckoutModal";
 
 export const CartPage = () => {
   const [cartItems, setCartItems] = useState<CartStorageItem[]>([]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const shipping = 20;
+  const { data: systemData } = useGetSystemDataQuery();
+  const minimumOrder = systemData?.data?.minimum_order ?? 100;
+  const shippingFee = systemData?.data?.shipping_fee ?? 9.99;
+
+  // Calculate total of all products in cart
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
+
+  // Determine shipping charge
+  const shippingCharge = subtotal < minimumOrder ? shippingFee : 0;
+
+  // Total
+  const total = subtotal + shippingCharge;
 
   const refreshCart = () => {
     setCartItems(getCartItems());
@@ -38,7 +55,11 @@ export const CartPage = () => {
     );
   }, [cartItems]);
 
-  const total = subTotal + (cartItems.length > 0 ? shipping : 0);
+  // Dynamic shipping calculation
+  const shipping = useMemo(() => {
+    if (cartItems.length === 0) return 0;
+    return subTotal >= minimumOrder ? 0 : shippingFee;
+  }, [cartItems, subTotal, shippingFee, minimumOrder]);
 
   const handleIncrease = (id: number) => {
     increaseCartItem(id);
@@ -112,10 +133,7 @@ export const CartPage = () => {
 
             <div className="space-y-7">
               <SummaryRow label="Sub Total" value={`$${subTotal.toFixed(2)}`} />
-              <SummaryRow
-                label="Shipping"
-                value={`$${cartItems.length > 0 ? shipping.toFixed(2) : "0.00"}`}
-              />
+              <SummaryRow label="Shipping" value={`$${shipping.toFixed(2)}`} />
             </div>
 
             <div className="my-6 h-px w-full bg-[#FFFAF0]/70" />
@@ -125,6 +143,7 @@ export const CartPage = () => {
             <button
               type="button"
               disabled={cartItems.length === 0}
+              onClick={() => setIsCheckoutOpen(true)}
               className="mt-14 h-14 w-full rounded-md bg-[#FFD700] text-base font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_28px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
               style={{ fontFamily: "'Lora', serif" }}
             >
@@ -133,6 +152,12 @@ export const CartPage = () => {
           </div>
         </aside>
       </div>
+
+      <CheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cartItems={cartItems}
+      />
     </main>
   );
 };
