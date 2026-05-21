@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaStar, FaTimes } from "react-icons/fa";
-import { useGetOrderHistoryListQuery } from "../../../redux/Slices/productApi";
+import { useGetOrderHistoryListQuery, useSendReviewMutation } from "../../../redux/Slices/productApi";
 
 type OrderStatus = "Delivered" | "Pending" | "confirmed" | "pending";
 
@@ -43,9 +44,46 @@ export const OrderHistoryTab = () => {
 
   const orders: OrderHistoryItem[] = data?.data?.data || [];
 
-  const handleInvoice = (orderId: string) => {
-    toast.success(`Invoice opened for ${orderId}`);
-  };
+  console.log("Order history data:", data);
+
+const handleInvoice = async (orderId: number) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/orders/${orderId}/invoice`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch invoice PDF");
+    }
+
+    // Get the file as a blob
+    const blob = await response.blob();
+
+    // Create a download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+
+    // Optional: set a filename
+    a.download = `invoice-${orderId}.pdf`;
+
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Invoice download failed:", error);
+  }
+};
+
 
   const openReviewModal = (orderId: string, product: OrderProduct) => {
     setSelectedReviewProduct({
@@ -149,11 +187,11 @@ export const OrderHistoryTab = () => {
               </div>
 
               {/* Invoice Button */}
-              <div className="px-4 pt-5">
+              <div className="px-4 pt-5 w-full flex justify-end">
                 <button
                   type="button"
-                  onClick={() => handleInvoice(order.order_id)}
-                  className="h-8 cursor-pointer rounded-md border border-[#D4AF37]/40 bg-[#7A3478] px-7 text-xs font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500]"
+                  onClick={() => handleInvoice(order.id)}
+                  className="h-8 cursor-pointer  rounded-md border border-[#D4AF37]/40 bg-[#7A3478] px-7 text-xs font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
                   Invoice
@@ -238,39 +276,32 @@ const ReviewModal = ({
 }) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const activeRating = hoverRating || rating;
 
-  const handleSendReview = async () => {
-    if (rating < 1) {
-      toast.error("Please select a rating before sending review.");
-      return;
-    }
 
-    setIsSubmitting(true);
+const [sendReview, { isLoading: isSending }] = useSendReviewMutation();
 
-    try {
-      console.log("Review payload:", {
-        orderId: selectedReviewProduct.orderId,
-        productId: selectedReviewProduct.product.id,
-        productName: selectedReviewProduct.product.title,
-        rating,
-      });
+const handleSendReview = async () => {
+  if (rating < 1) {
+    toast.error("Please select a rating before sending review.");
+    return;
+  }
 
-      await new Promise((resolve) => setTimeout(resolve, 700));
+  try {
+    const payload = {
+      order_item_ids: [selectedReviewProduct.product.id],
+      rating,
+    };
 
-      toast.success("Review submitted successfully.");
-      onClose();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
+    const response = await sendReview(payload).unwrap();
 
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    toast.success(response.message);
+    onClose();
+  } catch (error: any) {
+    toast.error(error.data?.message || "Something went wrong.");
+  }
+};
 
   return (
     <div
@@ -330,11 +361,11 @@ const ReviewModal = ({
         <button
           type="button"
           onClick={handleSendReview}
-          disabled={isSubmitting}
+          disabled={isSending}
           className="mt-8 h-[60px] w-full cursor-pointer rounded-xl bg-[#FFD700] text-xl font-medium text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_30px_rgba(255,215,0,0.25)] disabled:cursor-not-allowed disabled:opacity-70 sm:h-[68px] sm:text-2xl"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
-          {isSubmitting ? "Sending..." : "Send Review"}
+          {isSending ? "Sending..." : "Send Review"}
         </button>
       </div>
     </div>

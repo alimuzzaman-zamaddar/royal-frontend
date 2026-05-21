@@ -118,7 +118,31 @@ export const productApi = apiSlice.injectEndpoints({
         includeToken: true,
       }),
     }),
+
+    applyPromo: builder.mutation<any, { code: string; subtotal: number }>({
+      query: (body) => ({
+        url: "/promo/apply",
+        method: "POST",
+        data: body,
+        includeToken: true,
+      }),
+    }),
+
+    sendReview: builder.mutation<any, any>({
+      query: (payload) => ({
+        url: `/orders/${payload.order_item_ids[0]}/send-rating`,
+        method: "PUT",
+        data: payload,
+        includeToken: true, // attach bearer token
+      }),
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetProductDetailsQuery, useGetOrderHistoryListQuery } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetProductDetailsQuery,
+  useGetOrderHistoryListQuery,
+  useApplyPromoMutation,
+  useSendReviewMutation,
+} = productApi;

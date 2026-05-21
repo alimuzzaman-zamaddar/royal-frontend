@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useState } from "react";
 import { FaMinus, FaPlus, FaTrashAlt } from "react-icons/fa";
@@ -11,6 +12,8 @@ import {
 } from "../../../lib/cartStorage";
 import { useGetSystemDataQuery } from "../../../redux/Slices/authApi";
 import { CheckoutModal } from "./CheckoutModal";
+import { useApplyPromoMutation } from "../../../redux/Slices/productApi";
+import toast from "react-hot-toast";
 
 export const CartPage = () => {
   const [cartItems, setCartItems] = useState<CartStorageItem[]>([]);
@@ -20,60 +23,66 @@ export const CartPage = () => {
   const minimumOrder = systemData?.data?.minimum_order ?? 100;
   const shippingFee = systemData?.data?.shipping_fee ?? 9.99;
 
-  // Calculate total of all products in cart
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
+  const [promoCode, setPromoCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+
+  const [applyPromo, { isLoading: isApplyingPromo }] = useApplyPromoMutation();
+
+  // Calculate subtotal
+  const subTotal = useMemo(
+    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+    [cartItems]
   );
 
-  // Determine shipping charge
-  const shippingCharge = subtotal < minimumOrder ? shippingFee : 0;
+  // Dynamic shipping calculation
+  const shipping = useMemo(() => (subTotal >= minimumOrder ? 0 : shippingFee), [
+    subTotal,
+    minimumOrder,
+    shippingFee,
+  ]);
 
-  // Total
-  const total = subtotal + shippingCharge;
+  // Total with discount
+  const total = subTotal + shipping - discount;
 
-  const refreshCart = () => {
-    setCartItems(getCartItems());
-  };
+  const refreshCart = () => setCartItems(getCartItems());
 
   useEffect(() => {
     refreshCart();
-
     window.addEventListener(CART_UPDATED_EVENT, refreshCart);
     window.addEventListener("storage", refreshCart);
-
     return () => {
       window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
       window.removeEventListener("storage", refreshCart);
     };
   }, []);
 
-  const subTotal = useMemo(() => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0,
-    );
-  }, [cartItems]);
-
-  // Dynamic shipping calculation
-  const shipping = useMemo(() => {
-    if (cartItems.length === 0) return 0;
-    return subTotal >= minimumOrder ? 0 : shippingFee;
-  }, [cartItems, subTotal, shippingFee, minimumOrder]);
-
   const handleIncrease = (id: number) => {
     increaseCartItem(id);
     refreshCart();
   };
-
   const handleDecrease = (id: number) => {
     decreaseCartItem(id);
     refreshCart();
   };
-
   const handleRemove = (id: number) => {
     removeCartItem(id);
     refreshCart();
+  };
+
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+
+    try {
+      const res: any = await applyPromo({ code: promoCode, subtotal: subTotal }).unwrap();
+      if (res.success) {
+        setDiscount(res.data.discount ?? 0);
+        toast.success(res.message); // show success
+      } else {
+        toast.error(res.message); // show error
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to apply promo code");
+    }
   };
 
   return (
@@ -103,15 +112,14 @@ export const CartPage = () => {
               ))
             ) : (
               <div className="rounded-xl border border-[#D4AF37]/30 px-6 py-14 text-center">
-                <p
-                  className="text-lg text-[#FFFAF0]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
+                <p className="text-lg text-[#FFFAF0]" style={{ fontFamily: "'Lora', serif" }}>
                   Your cart is empty.
                 </p>
               </div>
             )}
           </div>
+
+
         </section>
 
         {/* RIGHT ORDER SUMMARY */}
@@ -134,11 +142,37 @@ export const CartPage = () => {
             <div className="space-y-7">
               <SummaryRow label="Sub Total" value={`$${subTotal.toFixed(2)}`} />
               <SummaryRow label="Shipping" value={`$${shipping.toFixed(2)}`} />
+              {discount > 0 && <SummaryRow label="Discount" value={`$${discount.toFixed(2)}`} />}
             </div>
 
             <div className="my-6 h-px w-full bg-[#FFFAF0]/70" />
 
-            <SummaryRow label="Total" value={`$${total.toFixed(2)}`} large />
+            <SummaryRow
+              label="Total"
+              value={`$${(total > 0 ? total : 0).toFixed(2)}`}
+              large
+            />
+
+                      {/* Promo Code Input */}
+          <div className="mt-8 flex gap-2">
+            <input
+              type="text"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+              placeholder="Enter promo code"
+              className="flex-1 rounded-md border border-[#FFD700]/30 px-4 py-2 text-[#FFFAF0] bg-[#650D65]"
+              style={{ fontFamily: "'Lora', serif" }}
+            />
+            <button
+              type="button"
+              onClick={handleApplyPromo}
+           
+              className="h-12 rounded-md bg-[#FFD700] px-6 text-sm cursor-pointer font-bold text-[#020202] hover:bg-[#f5d87a]"
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {isApplyingPromo ? "Applying..." : "Apply" }
+            </button>
+          </div>
 
             <button
               type="button"

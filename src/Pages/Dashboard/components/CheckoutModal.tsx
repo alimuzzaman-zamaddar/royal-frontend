@@ -23,7 +23,7 @@ export const CheckoutModal = ({
   const [district, setDistrict] = useState("");
   const [country, setCountry] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [isSaved] = useState(true);
+  // const [isSaved] = useState(true);
   const [promoCode, setPromoCode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<
     "paypal" | "stripe" | "cod"
