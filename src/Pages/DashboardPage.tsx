@@ -5,14 +5,14 @@ import { useForm } from "react-hook-form";
 import {
   FaRegUser,
   FaShoppingCart,
-  FaHistory,
+  // FaHistory,
   FaCog,
   FaSignOutAlt,
   FaPencilAlt,
 } from "react-icons/fa";
 
 import avatarImg from "../assets/images (3).jpg";
-import { MyOrders } from "./Dashboard/components/MyOrders";
+// import { MyOrders } from "./Dashboard/components/MyOrders";
 import { OrderHistoryTab } from "./Dashboard/components/OrderHistoryTab";
 import { SettingsTab } from "./Dashboard/components/SettingsTab";
 import { LogoutTab } from "./Dashboard/components/LogoutTab";
@@ -43,11 +43,6 @@ const dashboardTabs = [
     id: "orders",
     label: "My Orders",
     icon: FaShoppingCart,
-  },
-  {
-    id: "history",
-    label: "Order History",
-    icon: FaHistory,
   },
   {
     id: "settings",
@@ -449,12 +444,12 @@ export const DashboardPage = () => {
     }
 
     if (activeTab === "orders") {
-      return <MyOrders />;
-    }
-
-    if (activeTab === "history") {
       return <OrderHistoryTab />;
     }
+
+    // if (activeTab === "history") {
+    //   return <OrderHistoryTab />;
+    // }
 
     if (activeTab === "settings") {
       return <SettingsTab />;

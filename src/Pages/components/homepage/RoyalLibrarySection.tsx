@@ -24,6 +24,7 @@ import img3 from "../../../assets/Frame 33 (2).png";
 import logomodal from "../../../assets/image.png";
 import { Book2Svg, BookSvg } from "../../../lib/Svg";
 import { useSubmitStoryMutation } from "../../../redux/Slices/storyApi";
+import { useNavigate } from "react-router-dom";
 
 type SubmitWorkFormValues = {
   firstName: string;
@@ -97,7 +98,7 @@ const getButtonTextColor = (colorCode: string) => {
 export const RoyalLibrarySection = ({ library }: RoyalLibrarySectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
-
+    const navigate = useNavigate();
   const [isModalMounted, setIsModalMounted] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -168,9 +169,13 @@ export const RoyalLibrarySection = ({ library }: RoyalLibrarySectionProps) => {
   };
 
   const handleLibraryButtonClick = (item: LibraryApiItem) => {
+
     if (item.button_text === "SUBMIT YOUR WORK") {
       openSubmitWorkModal();
       return;
+    }
+    if (item.button_text === "GET YOUR COPY") {
+           navigate(item.button_link);
     }
 
     if (item.button_text === "NOTIFY ME") {
