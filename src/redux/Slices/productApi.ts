@@ -55,10 +55,15 @@ export type ProductsResponse = {
   code: number;
 };
 
+
+
 export type ProductDetailsResponse = {
   success: boolean;
   message: string;
-  data: ApiProductDetails;
+  data: {
+    product: ApiProductDetails;
+    related: ApiProduct[];
+  };
   code: number;
 };
 

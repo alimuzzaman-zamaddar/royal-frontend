@@ -55,7 +55,7 @@ export const PaymentSuccess = () => {
         {/* Buttons */}
         <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
-            to="/profile/orders"
+            to="/dashboard"
             className="flex h-[56px] items-center justify-center rounded-xl border border-[#FFD700]/40 bg-[#FFD700] px-8 text-base font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_30px_rgba(255,215,0,0.20)]"
             style={{ fontFamily: "'Lora', serif" }}
           >

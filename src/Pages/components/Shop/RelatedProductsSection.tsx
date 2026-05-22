@@ -1,27 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import {  FaStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
-// import { addToCart } from "../../../lib/cartStorage";
-import { useGetProductsQuery } from "../../../redux/Slices/productApi";
+import { type ApiProduct } from "../../../redux/Slices/productApi";
 
-export const RelatedProductsSection = () => {
-  // Fetch all products (or adjust params if needed)
-  const { data, isLoading, isError } = useGetProductsQuery({});
+const getCmsAssetUrl = (path?: string | null) => {
+  if (!path) return "";
 
-  if (isLoading) return <p className="text-white">Loading...</p>;
-  if (isError || !data?.data) return <p className="text-white">Failed to load products.</p>;
+  if (path.startsWith("http")) {
+    return path;
+  }
 
-  // Flatten grouped products into a single array
-  const relatedProductsData = data.data
+  return `${import.meta.env.VITE_API_URL_IMAGE}${path}`;
+};
 
-    .map((group: any) => group.products)
-    .flat();
+const parsePrice = (price?: string | null) => {
+  if (!price) return null;
+
+  const parsedPrice = Number(price);
+  return Number.isNaN(parsedPrice) ? null : parsedPrice;
+};
+
+const getPrimaryPrice = (product: ApiProduct) => {
+  return (
+    parsePrice(product.discount_price) ??
+    parsePrice(product.original_price) ??
+    parsePrice(product.soft_copy_discount_price) ??
+    parsePrice(product.soft_copy_price) ??
+    parsePrice(product.hard_copy_discount_price) ??
+    parsePrice(product.hard_copy_price) ??
+    0
+  );
+};
+
+type RelatedProductsSectionProps = {
+  products: ApiProduct[];
+};
+
+export const RelatedProductsSection = ({ products }: RelatedProductsSectionProps) => {
+  const navigate = useNavigate();
+
+  if (!products.length) return null;
 
   return (
     <section className="w-full bg-[#020202] px-5 py-12 sm:px-6 md:py-14 xl:px-8 xl:py-16">
@@ -41,7 +65,7 @@ export const RelatedProductsSection = () => {
             disableOnInteraction: false,
             pauseOnMouseEnter: true,
           }}
-          loop={relatedProductsData.length > 4}
+          loop={products.length > 4}
           spaceBetween={16}
           slidesPerView={1.2}
           breakpoints={{
@@ -52,9 +76,9 @@ export const RelatedProductsSection = () => {
           }}
           className="related-products-swiper !pb-4"
         >
-          {relatedProductsData.map((product: any) => (
+          {products.map((product) => (
             <SwiperSlide key={product.id} className="!h-auto">
-              <RelatedProductCard product={product} />
+              <RelatedProductCard product={product} navigate={navigate} />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -63,31 +87,49 @@ export const RelatedProductsSection = () => {
   );
 };
 
-const RelatedProductCard = ({ product }: { product: any }) => {
+const RelatedProductCard = ({
+  product,
+  navigate,
+}: {
+  product: ApiProduct;
+  navigate: ReturnType<typeof useNavigate>;
+}) => {
+  const thumbnail = getCmsAssetUrl(product.thumbnail);
+  const isExternalProduct =
+    product.product_type === "external" && Boolean(product.product_link);
+  const price = getPrimaryPrice(product);
+
+  const badge = product.badge
+    ? product.badge.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+    : "";
+
+  const productTitle = product.title ?? "Untitled";
+  const shortDescription = product.short_description ?? "";
+
+  const handleAction = () => {
+    if (isExternalProduct && product.product_link) {
+      window.open(product.product_link, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    navigate(`/shop/${product.slug}`);
+  };
+
   return (
-    <article className="group flex h-full flex-col rounded-[10px] border border-[#FFD700]/30  bg-[#020202] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(255,215,0,0.12)]">
+    <article className="group flex h-full flex-col rounded-[10px] border border-[#FFD700]/30 bg-[#020202] p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(255,215,0,0.12)]">
       <div className="relative overflow-hidden rounded-[7px]">
         <img
-          src={import.meta.env.VITE_API_URL_IMAGE + product.thumbnail || ""}
-          alt={product.title}
+          src={thumbnail}
+          alt={productTitle}
           className="h-[225px] w-full rounded-[7px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[270px]"
         />
 
-        {/* <button
-          type="button"
-          onClick={() => addToCart(product)}
-          className="absolute left-2 top-2 flex h-7 w-7 items-center justify-center rounded bg-[#BBA400] text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700]"
-          aria-label="Add to cart"
-        >
-          <FaShoppingCart className="text-xs" />
-        </button> */}
-
-        {product.badge && (
+        {badge && (
           <span
             className="absolute right-2 top-3 rounded-sm bg-[#D4A800] px-2 py-1 text-[10px] leading-none text-[#020202]"
             style={{ fontFamily: "'Lora', serif" }}
           >
-            {product.badge}
+            {badge}
           </span>
         )}
       </div>
@@ -99,25 +141,27 @@ const RelatedProductCard = ({ product }: { product: any }) => {
               className="truncate text-[10px] font-normal leading-[140%] text-[#FFFAF0] sm:text-xs"
               style={{ fontFamily: "'Lora', serif" }}
             >
-              {product.title}
+              {productTitle}
             </h3>
 
-            {product.writer_name && (
+            {shortDescription && (
               <p
                 className="mt-0.5 truncate text-[8px] text-[#FFFAF0] sm:text-[9px]"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                {product.writer_name}
+                {shortDescription}
               </p>
             )}
           </div>
 
-          {(product.soft_copy_price || product.hard_copy_price) && (
-            <div className="flex shrink-0 gap-3 text-right">
-              {product.soft_copy_price && <p className="text-[8px] text-[#FFFAF0] sm:text-[9px]">Soft Copy</p>}
-              {product.hard_copy_price && <p className="text-[8px] text-[#FFFAF0] sm:text-[9px]">Hard Copy</p>}
-            </div>
-          )}
+          <div className="flex shrink-0 gap-3 text-right">
+            {parsePrice(product.soft_copy_price) != null && (
+              <p className="text-[8px] text-[#FFFAF0] sm:text-[9px]">Soft Copy</p>
+            )}
+            {parsePrice(product.hard_copy_price) != null && (
+              <p className="text-[8px] text-[#FFFAF0] sm:text-[9px]">Hard Copy</p>
+            )}
+          </div>
         </div>
 
         <div className="my-4 flex items-center justify-between gap-2">
@@ -127,33 +171,31 @@ const RelatedProductCard = ({ product }: { product: any }) => {
                 <FaStar key={index} className="text-[9px] text-[#FFD700]" />
               ))}
               {product.rating_count > 0 && (
-                <span className="ml-1 text-[9px] text-[#FFD700]" style={{ fontFamily: "'Lora', serif" }}>
+                <span
+                  className="ml-1 text-[9px] text-[#FFD700]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
                   ({product.rating_count}/5)
                 </span>
               )}
             </div>
           )}
 
-          <div className="flex gap-3">
-            {product.soft_copy_price && (
-              <p className="text-xs font-bold text-[#D4A800] sm:text-sm" style={{ fontFamily: "'Lora', serif" }}>
-                ${product.soft_copy_price}
-              </p>
-            )}
-            {product.hard_copy_price && (
-              <p className="text-xs font-bold text-[#D4A800] sm:text-sm" style={{ fontFamily: "'Lora', serif" }}>
-                ${product.hard_copy_price}
-              </p>
-            )}
-          </div>
+          <p
+            className="ml-auto text-xs font-bold text-[#D4A800] sm:text-sm"
+            style={{ fontFamily: "'Lora', serif" }}
+          >
+            ${price.toFixed(2)}
+          </p>
         </div>
 
         <button
           type="button"
+          onClick={handleAction}
           className="mt-auto h-9 w-full rounded-md bg-[#FFD700] text-xs font-bold tracking-[0.8px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_20px_rgba(255,215,0,0.20)]"
           style={{ fontFamily: "'Montserrat', sans-serif" }}
         >
-          {product.button_text || "View Details"}
+          {isExternalProduct ? "Link" : "View Details"}
         </button>
       </div>
     </article>

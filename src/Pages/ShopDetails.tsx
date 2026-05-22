@@ -4,12 +4,22 @@ import { FaStar, FaPlus, FaMinus, FaBoxes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { RelatedProductsSection } from "./components/Shop/RelatedProductsSection";
-import { addToCart } from "../lib/cartStorage";
+import {
+  addToCart,
+  type CopyType,
+  type ProductVariant,
+} from "../lib/cartStorage";
 import {
   useGetProductDetailsQuery,
   type ApiProductDetails,
+  type ApiProduct,
 } from "../redux/Slices/productApi";
 import { Loader } from "../lib/Loader";
+import toast from "react-hot-toast";
+
+type ProductDetailsProduct = ApiProductDetails & {
+  variants?: ProductVariant[];
+};
 
 const getCmsAssetUrl = (path?: string | null) => {
   if (!path) return "";
@@ -25,19 +35,16 @@ const parsePrice = (price?: string | null) => {
   if (!price) return null;
 
   const parsedPrice = Number(price);
-
   return Number.isNaN(parsedPrice) ? null : parsedPrice;
 };
 
 const formatPrice = (price?: number | null) => {
   if (price === null || price === undefined) return "";
-
   return `$${price.toFixed(2)} USD`;
 };
 
 const formatBadge = (badge?: string | null) => {
   if (!badge) return "";
-
   return badge.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
@@ -64,7 +71,7 @@ const getOldPrice = (product: ApiProductDetails) => {
   return null;
 };
 
-const getProductImages = (product?: ApiProductDetails) => {
+const getProductImages = (product?: ProductDetailsProduct) => {
   if (!product) return [];
 
   const thumbnail = getCmsAssetUrl(product.thumbnail);
@@ -89,21 +96,19 @@ export const ShopDetailsPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useGetProductDetailsQuery(slug || "", {
+  const { data, isLoading, isError, error } = useGetProductDetailsQuery(slug || "", {
     skip: !slug,
   });
 
-  const product = data?.data;
+  const product = data?.data?.product as ProductDetailsProduct | undefined;
+  const relatedProducts: ApiProduct[] = data?.data?.related ?? [];
 
   const productImages = useMemo(() => getProductImages(product), [product]);
 
   const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [selectedCopyType, setSelectedCopyType] = useState<CopyType | null>(null);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
 
   useEffect(() => {
     if (productImages.length > 0) {
@@ -111,13 +116,26 @@ export const ShopDetailsPage = () => {
     }
   }, [productImages]);
 
-  const handleIncrease = () => {
-    setQuantity((prev) => prev + 1);
-  };
+  useEffect(() => {
+    if (!product) return;
 
-  const handleDecrease = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-  };
+    if (product.soft_copy_price != null) {
+      setSelectedCopyType("soft");
+    } else if (product.hard_copy_price != null) {
+      setSelectedCopyType("hard");
+    } else {
+      setSelectedCopyType(null);
+    }
+
+    if (product.variants?.length) {
+      setSelectedVariantId(product.variants[0].id);
+    } else {
+      setSelectedVariantId(null);
+    }
+  }, [product]);
+
+  const handleIncrease = () => setQuantity((prev) => prev + 1);
+  const handleDecrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   if (isLoading) {
     return <Loader title="Loading product..." fullScreen />;
@@ -141,6 +159,8 @@ export const ShopDetailsPage = () => {
     );
   }
 
+  const categoryTitle = product.category?.title ?? "Uncategorized";
+  const productTitle = product.title ?? "Untitled";
   const rating = Math.round(Number(product.avg_rating || 0));
   const mainPrice = getMainPrice(product);
   const oldPrice = getOldPrice(product);
@@ -153,16 +173,25 @@ export const ShopDetailsPage = () => {
     parsePrice(product.hard_copy_discount_price) ??
     parsePrice(product.hard_copy_price);
 
+  const variantOptions = product.variants ?? [];
+  const selectedVariant =
+    variantOptions.find((variant) => variant.id === selectedVariantId) ?? null;
+
   const stockStatus = product.stock > 0 ? "In Stock" : "Out of Stock";
   const stockCount =
     product.stock > 0 ? `${product.stock} items left` : "Unavailable";
 
   const handleAddToCart = () => {
+    if (variantOptions.length > 0 && !selectedVariant) {
+      toast.error("Please select a variant.");
+      return;
+    }
+
     addToCart(
       {
         id: product.id,
-        name: product.title,
-        category: product.category.title,
+        name: productTitle,
+        category: categoryTitle,
         image: selectedImage,
         price: mainPrice,
         softPrice: softCopyPrice ?? undefined,
@@ -171,8 +200,13 @@ export const ShopDetailsPage = () => {
         rating,
         reviewCount: product.rating_count,
         buttonText: "View Details",
+        variants: variantOptions,
       },
       quantity,
+      {
+        selectedCopyType,
+        selectedVariant,
+      },
     );
   };
 
@@ -184,28 +218,24 @@ export const ShopDetailsPage = () => {
   return (
     <main className="min-h-screen w-full bg-[#020202] px-5 py-10 sm:px-6 md:py-14 xl:px-8 xl:py-16">
       <div className="mx-auto max-w-370">
-        {/* Breadcrumb */}
         <div
           className="mb-8 flex flex-wrap items-center gap-2 text-sm font-normal text-[#FFFAF0] sm:text-base"
           style={{ fontFamily: "'Lora', serif" }}
         >
           <span>The Throne Room</span>
           <span className="mx-2 text-[#FFFAF0]">/</span>
-
           <span>Shop</span>
           <span className="mx-2 text-[#FFFAF0]">/</span>
-
-          <span className="text-[#FFD700]">{product.title}</span>
+          <span className="text-[#FFD700]">{productTitle}</span>
         </div>
 
         <div className="grid grid-cols-1 gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8 xl:py-20">
-          {/* LEFT IMAGE */}
           <div className="w-full">
             <div className="overflow-hidden rounded-[14px]">
               {selectedImage ? (
                 <img
                   src={selectedImage}
-                  alt={product.title}
+                  alt={productTitle}
                   className="h-105 w-full rounded-[14px] object-contain transition-all duration-500 sm:h-140 lg:h-155 xl:h-166.25"
                 />
               ) : (
@@ -216,7 +246,6 @@ export const ShopDetailsPage = () => {
             </div>
           </div>
 
-          {/* RIGHT DETAILS */}
           <div className="flex w-full flex-col justify-start lg:pt-2">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
               <div>
@@ -224,24 +253,21 @@ export const ShopDetailsPage = () => {
                   className="text-[34px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[42px] xl:text-[44px]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  {product.title}
+                  {productTitle}
                 </h1>
 
                 <p
                   className="mt-2 text-base text-[#D4AF37]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  {product.category.title}
+                  {categoryTitle}
                 </p>
 
                 <div className="mt-4 flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     {rating > 0 ? (
                       Array.from({ length: rating }).map((_, index) => (
-                        <FaStar
-                          key={index}
-                          className="text-lg text-[#FFD700]"
-                        />
+                        <FaStar key={index} className="text-lg text-[#FFD700]" />
                       ))
                     ) : (
                       <span
@@ -280,7 +306,6 @@ export const ShopDetailsPage = () => {
               </div>
             </div>
 
-            {/* Stock */}
             <div className="mt-8 flex items-center gap-3">
               <FaBoxes className="text-[22px] text-[#FFD700]" />
 
@@ -289,9 +314,7 @@ export const ShopDetailsPage = () => {
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 <span
-                  className={
-                    product.stock > 0 ? "text-[#8BC34A]" : "text-[#E0115F]"
-                  }
+                  className={product.stock > 0 ? "text-[#8BC34A]" : "text-[#E0115F]"}
                 >
                   {stockStatus}
                 </span>{" "}
@@ -299,7 +322,6 @@ export const ShopDetailsPage = () => {
               </p>
             </div>
 
-            {/* Description */}
             <p
               className="mt-8 max-w-172.5 text-base font-normal leading-[150%] text-[#FFFAF0] sm:text-lg lg:text-base xl:text-[17px]"
               style={{ fontFamily: "'Lora', serif" }}
@@ -331,7 +353,6 @@ export const ShopDetailsPage = () => {
                     >
                       Soft Copy
                     </p>
-
                     <p
                       className="mt-1 text-xl font-bold text-[#FFD700]"
                       style={{ fontFamily: "'Lora', serif" }}
@@ -349,7 +370,6 @@ export const ShopDetailsPage = () => {
                     >
                       Hard Copy
                     </p>
-
                     <p
                       className="mt-1 text-xl font-bold text-[#FFD700]"
                       style={{ fontFamily: "'Lora', serif" }}
@@ -361,7 +381,61 @@ export const ShopDetailsPage = () => {
               </div>
             )}
 
-            {/* Quantity */}
+            {variantOptions.length > 0 && (
+              <div className="mt-7">
+                <p
+                  className="mb-3 text-sm font-normal text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  Select Variant
+                </p>
+
+                <select
+                  value={selectedVariantId ?? ""}
+                  onChange={(e) => setSelectedVariantId(Number(e.target.value))}
+                  className="h-11 w-full rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {variantOptions.map((variant) => (
+                    <option key={variant.id} value={variant.id}>
+                      {variant.title}
+                      {variant.stock != null ? ` (${variant.stock} left)` : ""}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedVariant?.stock != null && (
+                  <p
+                    className="mt-2 text-sm text-[#B8B0A4]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    Selected variant stock: {selectedVariant.stock}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {(softCopyPrice || hardCopyPrice) && (
+              <div className="mt-7">
+                <p
+                  className="mb-3 text-sm font-normal text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  Copy Type
+                </p>
+
+                <select
+                  value={selectedCopyType ?? ""}
+                  onChange={(e) => setSelectedCopyType(e.target.value as CopyType)}
+                  className="h-11 w-full rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {softCopyPrice != null && <option value="soft">Soft Copy</option>}
+                  {hardCopyPrice != null && <option value="hard">Hard Copy</option>}
+                </select>
+              </div>
+            )}
+
             <div className="mt-7 flex h-10 w-26.25 items-center justify-between rounded-md border border-[#FFD700] px-3 text-[#FFFAF0]">
               <button
                 type="button"
@@ -372,10 +446,7 @@ export const ShopDetailsPage = () => {
                 <FaMinus />
               </button>
 
-              <span
-                className="text-base"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
+              <span className="text-base" style={{ fontFamily: "'Lora', serif" }}>
                 {quantity}
               </span>
 
@@ -389,7 +460,6 @@ export const ShopDetailsPage = () => {
               </button>
             </div>
 
-            {/* Buttons */}
             <div className="mt-5 flex flex-col gap-5">
               <button
                 type="button"
@@ -412,7 +482,6 @@ export const ShopDetailsPage = () => {
               </button>
             </div>
 
-            {/* Thumbnails */}
             {productImages.length > 1 && (
               <div className="mt-6 grid grid-cols-4 gap-3 sm:gap-4">
                 {productImages.map((image, index) => {
@@ -431,7 +500,7 @@ export const ShopDetailsPage = () => {
                     >
                       <img
                         src={image}
-                        alt={`${product.title} thumbnail ${index + 1}`}
+                        alt={`${productTitle} thumbnail ${index + 1}`}
                         className="h-17.5 w-full rounded-md object-cover sm:h-20.5"
                       />
                     </button>
@@ -443,7 +512,7 @@ export const ShopDetailsPage = () => {
         </div>
       </div>
 
-      <RelatedProductsSection />
+      <RelatedProductsSection products={relatedProducts} />
     </main>
   );
 };

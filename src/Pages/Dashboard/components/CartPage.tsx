@@ -8,7 +8,10 @@ import {
   getCartItems,
   increaseCartItem,
   removeCartItem,
+  updateCartItemOptions,
   type CartStorageItem,
+  type CopyType,
+  type ProductVariant,
 } from "../../../lib/cartStorage";
 import { useGetSystemDataQuery } from "../../../redux/Slices/authApi";
 import { CheckoutModal } from "./CheckoutModal";
@@ -26,25 +29,23 @@ export const CartPage = () => {
   const shippingFee = systemData?.data?.shipping_fee ?? 9.99;
 
   const [promoCode, setPromoCode] = useState("");
+  const [appliedPromoCode, setAppliedPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
 
   const [applyPromo, { isLoading: isApplyingPromo }] = useApplyPromoMutation();
 
-  // Calculate subtotal
   const subTotal = useMemo(
     () =>
       cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
     [cartItems],
   );
 
-  // Dynamic shipping calculation
   const shipping = useMemo(
     () => (subTotal >= minimumOrder ? 0 : shippingFee),
     [subTotal, minimumOrder, shippingFee],
   );
 
-  // Total with discount
-  const total = subTotal + shipping - discount;
+  const total = Math.max(subTotal + shipping - discount, 0);
 
   const refreshCart = () => setCartItems(getCartItems());
 
@@ -52,22 +53,25 @@ export const CartPage = () => {
     refreshCart();
     window.addEventListener(CART_UPDATED_EVENT, refreshCart);
     window.addEventListener("storage", refreshCart);
+
     return () => {
       window.removeEventListener(CART_UPDATED_EVENT, refreshCart);
       window.removeEventListener("storage", refreshCart);
     };
   }, []);
 
-  const handleIncrease = (id: number) => {
-    increaseCartItem(id);
+  const handleIncrease = (cartKey: string) => {
+    increaseCartItem(cartKey);
     refreshCart();
   };
-  const handleDecrease = (id: number) => {
-    decreaseCartItem(id);
+
+  const handleDecrease = (cartKey: string) => {
+    decreaseCartItem(cartKey);
     refreshCart();
   };
-  const handleRemove = (id: number) => {
-    removeCartItem(id);
+
+  const handleRemove = (cartKey: string) => {
+    removeCartItem(cartKey);
     refreshCart();
   };
 
@@ -79,13 +83,19 @@ export const CartPage = () => {
         code: promoCode,
         subtotal: subTotal,
       }).unwrap();
+
       if (res.success) {
         setDiscount(res.data.discount ?? 0);
-        toast.success(res.message); // show success
+        setAppliedPromoCode(res.data?.promo?.code ?? promoCode.trim());
+        toast.success(res.message);
       } else {
-        toast.error(res.message); // show error
+        setDiscount(0);
+        setAppliedPromoCode("");
+        toast.error(res.message);
       }
     } catch (err: any) {
+      setDiscount(0);
+      setAppliedPromoCode("");
       toast.error(err?.data?.message || "Failed to apply promo code");
     }
   };
@@ -96,7 +106,6 @@ export const CartPage = () => {
   return (
     <main className="min-h-screen w-full bg-[#4A0E4E] px-5 py-14 sm:px-6 md:py-16 xl:px-8 xl:py-40">
       <div className="mx-auto grid max-w-[1480px] grid-cols-1 gap-8 lg:grid-cols-[1fr_430px] xl:gap-8">
-        {/* LEFT PRODUCT DETAILS */}
         <section>
           <div className="mb-8 rounded-2xl bg-[linear-gradient(90deg,_#6E5B1D_0%,_#D4AF37_100%)] px-7 py-5 sm:px-9">
             <h1
@@ -111,7 +120,7 @@ export const CartPage = () => {
             {cartItems.length > 0 ? (
               cartItems.map((item) => (
                 <CartItemCard
-                  key={item.id}
+                  key={item.cartKey}
                   item={item}
                   onIncrease={handleIncrease}
                   onDecrease={handleDecrease}
@@ -131,7 +140,6 @@ export const CartPage = () => {
           </div>
         </section>
 
-        {/* RIGHT ORDER SUMMARY */}
         <aside className="h-fit rounded-[26px] border border-[#D4AF37]/30 px-6 py-7 sm:px-8 lg:sticky lg:top-8">
           <h2
             className="text-center text-[30px] font-bold leading-[120%] text-[#FFFAF0] sm:text-[34px]"
@@ -152,10 +160,7 @@ export const CartPage = () => {
               <SummaryRow label="Sub Total" value={`$${subTotal.toFixed(2)}`} />
               <SummaryRow label="Shipping" value={`$${shipping.toFixed(2)}`} />
               {discount > 0 && (
-                <SummaryRow
-                  label="Discount"
-                  value={`$${discount.toFixed(2)}`}
-                />
+                <SummaryRow label="Discount" value={`$${discount.toFixed(2)}`} />
               )}
             </div>
 
@@ -163,24 +168,32 @@ export const CartPage = () => {
 
             <SummaryRow
               label="Total"
-              value={`$${(total > 0 ? total : 0).toFixed(2)}`}
+              value={`$${total.toFixed(2)}`}
               large
             />
 
-            {/* Promo Code Input */}
+            {appliedPromoCode && (
+              <p
+                className="mt-3 text-sm text-[#FFD700]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                Promo applied: {appliedPromoCode}
+              </p>
+            )}
+
             <div className="mt-8 flex gap-2">
               <input
                 type="text"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
                 placeholder="Enter promo code"
-                className="flex-1 rounded-md border border-[#FFD700]/30 px-4 py-2 text-[#FFFAF0] bg-[#650D65]"
+                className="flex-1 rounded-md border border-[#FFD700]/30 bg-[#650D65] px-4 py-2 text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               />
               <button
                 type="button"
                 onClick={handleApplyPromo}
-                className="h-12 rounded-md bg-[#FFD700] px-6 text-sm cursor-pointer font-bold text-[#020202] hover:bg-[#f5d87a]"
+                className="h-12 cursor-pointer rounded-md bg-[#FFD700] px-6 text-sm font-bold text-[#020202] hover:bg-[#f5d87a]"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 {isApplyingPromo ? "Applying..." : "Apply"}
@@ -190,12 +203,14 @@ export const CartPage = () => {
             <button
               type="button"
               disabled={cartItems.length === 0}
-              {...(isAuthenticated
-                ? { onClick: () => setIsCheckoutOpen(true) }
-                : { onClick: () => {
-                    navigate("/auth/login");
-                    toast.error("Please login to proceed to checkout");
-                  } })}
+              onClick={
+                isAuthenticated
+                  ? () => setIsCheckoutOpen(true)
+                  : () => {
+                      navigate("/auth/login");
+                      toast.error("Please login to proceed to checkout");
+                    }
+              }
               className="mt-14 h-14 w-full rounded-md bg-[#FFD700] text-base font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_28px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
               style={{ fontFamily: "'Lora', serif" }}
             >
@@ -209,6 +224,11 @@ export const CartPage = () => {
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         cartItems={cartItems}
+        subtotal={subTotal}
+        shipping={shipping}
+        discount={discount}
+        total={total}
+        promoCode={appliedPromoCode}
       />
     </main>
   );
@@ -221,10 +241,23 @@ const CartItemCard = ({
   onRemove,
 }: {
   item: CartStorageItem;
-  onIncrease: (id: number) => void;
-  onDecrease: (id: number) => void;
-  onRemove: (id: number) => void;
+  onIncrease: (cartKey: string) => void;
+  onDecrease: (cartKey: string) => void;
+  onRemove: (cartKey: string) => void;
 }) => {
+  const isBook =
+    item.category?.toLowerCase() === "books" ||
+    item.softPrice != null ||
+    item.hardPrice != null;
+
+  const currentCopyType: CopyType | null =
+    item.selectedCopyType ??
+    (item.softPrice != null
+      ? "soft"
+      : item.hardPrice != null
+        ? "hard"
+        : null);
+
   return (
     <article className="flex flex-col gap-5 rounded-xl border border-[#D4AF37]/45 bg-[#650D65] p-4 transition-all duration-300 hover:border-[#FFD700]/70 hover:shadow-[0_14px_34px_rgba(255,215,0,0.10)] sm:flex-row sm:items-center sm:p-5">
       <img
@@ -260,7 +293,7 @@ const CartItemCard = ({
             <div className="flex h-11 items-center gap-3 rounded-lg border border-[#FFFAF0]/30 px-2 text-[#FFFAF0]">
               <button
                 type="button"
-                onClick={() => onDecrease(item.id)}
+                onClick={() => onDecrease(item.cartKey)}
                 className="flex h-6 w-6 items-center justify-center rounded border border-[#FFFAF0]/30 text-xs transition-colors hover:border-[#FFD700] hover:text-[#FFD700]"
                 aria-label="Decrease quantity"
               >
@@ -276,7 +309,7 @@ const CartItemCard = ({
 
               <button
                 type="button"
-                onClick={() => onIncrease(item.id)}
+                onClick={() => onIncrease(item.cartKey)}
                 className="flex h-6 w-6 items-center justify-center rounded border border-[#FFFAF0]/30 text-xs transition-colors hover:border-[#FFD700] hover:text-[#FFD700]"
                 aria-label="Increase quantity"
               >
@@ -284,11 +317,69 @@ const CartItemCard = ({
               </button>
             </div>
           </div>
+
+          {isBook && (
+            <div className="mt-5">
+              <p
+                className="mb-2 text-sm text-[#FFFAF0]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                Copy Type
+              </p>
+
+              <select
+                value={currentCopyType ?? ""}
+                onChange={(e) =>
+                  updateCartItemOptions(item.cartKey, {
+                    selectedCopyType: e.target.value as CopyType,
+                  })
+                }
+                className="h-10 rounded-md border border-[#FFD700]/30 bg-[#050505] px-3 text-sm text-[#FFFAF0] outline-none"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                {item.softPrice != null && <option value="soft">Soft Copy</option>}
+                {item.hardPrice != null && <option value="hard">Hard Copy</option>}
+              </select>
+            </div>
+          )}
+
+          {item.variants?.length ? (
+            <div className="mt-5">
+              <p
+                className="mb-2 text-sm text-[#FFFAF0]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                Variant
+              </p>
+
+              <select
+                value={item.variantId ?? ""}
+                onChange={(e) => {
+                  const variantId = Number(e.target.value);
+                  const selectedVariant =
+                    item.variants?.find((variant) => variant.id === variantId) ?? null;
+
+                  updateCartItemOptions(item.cartKey, {
+                    selectedVariant,
+                  });
+                }}
+                className="h-10 rounded-md border border-[#FFD700]/30 bg-[#050505] px-3 text-sm text-[#FFFAF0] outline-none"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                <option value="">Select variant</option>
+                {item.variants.map((variant: ProductVariant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {variant.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
         </div>
 
         <button
           type="button"
-          onClick={() => onRemove(item.id)}
+          onClick={() => onRemove(item.cartKey)}
           className="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-md bg-[#D4AF37] text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#080500] sm:self-center"
           aria-label="Remove item"
         >
