@@ -14,6 +14,8 @@ import { useGetSystemDataQuery } from "../../../redux/Slices/authApi";
 import { CheckoutModal } from "./CheckoutModal";
 import { useApplyPromoMutation } from "../../../redux/Slices/productApi";
 import toast from "react-hot-toast";
+import { useAuth } from "../../../Provider/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export const CartPage = () => {
   const [cartItems, setCartItems] = useState<CartStorageItem[]>([]);
@@ -30,16 +32,16 @@ export const CartPage = () => {
 
   // Calculate subtotal
   const subTotal = useMemo(
-    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
-    [cartItems]
+    () =>
+      cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+    [cartItems],
   );
 
   // Dynamic shipping calculation
-  const shipping = useMemo(() => (subTotal >= minimumOrder ? 0 : shippingFee), [
-    subTotal,
-    minimumOrder,
-    shippingFee,
-  ]);
+  const shipping = useMemo(
+    () => (subTotal >= minimumOrder ? 0 : shippingFee),
+    [subTotal, minimumOrder, shippingFee],
+  );
 
   // Total with discount
   const total = subTotal + shipping - discount;
@@ -73,7 +75,10 @@ export const CartPage = () => {
     if (!promoCode.trim()) return;
 
     try {
-      const res: any = await applyPromo({ code: promoCode, subtotal: subTotal }).unwrap();
+      const res: any = await applyPromo({
+        code: promoCode,
+        subtotal: subTotal,
+      }).unwrap();
       if (res.success) {
         setDiscount(res.data.discount ?? 0);
         toast.success(res.message); // show success
@@ -84,6 +89,9 @@ export const CartPage = () => {
       toast.error(err?.data?.message || "Failed to apply promo code");
     }
   };
+
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <main className="min-h-screen w-full bg-[#4A0E4E] px-5 py-14 sm:px-6 md:py-16 xl:px-8 xl:py-40">
@@ -112,14 +120,15 @@ export const CartPage = () => {
               ))
             ) : (
               <div className="rounded-xl border border-[#D4AF37]/30 px-6 py-14 text-center">
-                <p className="text-lg text-[#FFFAF0]" style={{ fontFamily: "'Lora', serif" }}>
+                <p
+                  className="text-lg text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
                   Your cart is empty.
                 </p>
               </div>
             )}
           </div>
-
-
         </section>
 
         {/* RIGHT ORDER SUMMARY */}
@@ -142,7 +151,12 @@ export const CartPage = () => {
             <div className="space-y-7">
               <SummaryRow label="Sub Total" value={`$${subTotal.toFixed(2)}`} />
               <SummaryRow label="Shipping" value={`$${shipping.toFixed(2)}`} />
-              {discount > 0 && <SummaryRow label="Discount" value={`$${discount.toFixed(2)}`} />}
+              {discount > 0 && (
+                <SummaryRow
+                  label="Discount"
+                  value={`$${discount.toFixed(2)}`}
+                />
+              )}
             </div>
 
             <div className="my-6 h-px w-full bg-[#FFFAF0]/70" />
@@ -153,31 +167,35 @@ export const CartPage = () => {
               large
             />
 
-                      {/* Promo Code Input */}
-          <div className="mt-8 flex gap-2">
-            <input
-              type="text"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              placeholder="Enter promo code"
-              className="flex-1 rounded-md border border-[#FFD700]/30 px-4 py-2 text-[#FFFAF0] bg-[#650D65]"
-              style={{ fontFamily: "'Lora', serif" }}
-            />
-            <button
-              type="button"
-              onClick={handleApplyPromo}
-           
-              className="h-12 rounded-md bg-[#FFD700] px-6 text-sm cursor-pointer font-bold text-[#020202] hover:bg-[#f5d87a]"
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              {isApplyingPromo ? "Applying..." : "Apply" }
-            </button>
-          </div>
+            {/* Promo Code Input */}
+            <div className="mt-8 flex gap-2">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Enter promo code"
+                className="flex-1 rounded-md border border-[#FFD700]/30 px-4 py-2 text-[#FFFAF0] bg-[#650D65]"
+                style={{ fontFamily: "'Lora', serif" }}
+              />
+              <button
+                type="button"
+                onClick={handleApplyPromo}
+                className="h-12 rounded-md bg-[#FFD700] px-6 text-sm cursor-pointer font-bold text-[#020202] hover:bg-[#f5d87a]"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                {isApplyingPromo ? "Applying..." : "Apply"}
+              </button>
+            </div>
 
             <button
               type="button"
               disabled={cartItems.length === 0}
-              onClick={() => setIsCheckoutOpen(true)}
+              {...(isAuthenticated
+                ? { onClick: () => setIsCheckoutOpen(true) }
+                : { onClick: () => {
+                    navigate("/auth/login");
+                    toast.error("Please login to proceed to checkout");
+                  } })}
               className="mt-14 h-14 w-full rounded-md bg-[#FFD700] text-base font-bold text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_28px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
               style={{ fontFamily: "'Lora', serif" }}
             >
