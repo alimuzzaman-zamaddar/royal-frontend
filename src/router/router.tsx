@@ -20,6 +20,7 @@ import { ForgotPassword } from "../Pages/Auth/ForgotPassword";
 import { ResetPassword } from "../Pages/Auth/ResetPassword";
 import { PaymentSuccess } from "../Pages/Dashboard/components/PaymentSuccess";
 import { PaymentCancel } from "../Pages/Dashboard/components/PaymentCancel";
+import PaymentLayout from "../Layout/PaymentLayout";
 
 
 const router = createBrowserRouter([
@@ -67,14 +68,7 @@ const router = createBrowserRouter([
         path: "/cart",
         element: <Cart />,
       },
-      {
-        path: "/payment-success",
-        element: <PaymentSuccess />,
-      },
-      {
-        path: "/payment-cancel",
-        element: <PaymentCancel />,
-      }
+
     ],
   },
   {
@@ -115,6 +109,20 @@ const router = createBrowserRouter([
         path: "",
         element: <DashboardHome />,
       },
+    ],
+  },
+  {
+    path: "/payment",
+    element: <PaymentLayout />,
+    children: [
+      {
+        path: "success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "cancel",
+        element: <PaymentCancel />,
+      }
     ],
   },
 ]);

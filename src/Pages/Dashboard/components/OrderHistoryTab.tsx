@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaStar, FaTimes } from "react-icons/fa";
-import { useGetOrderHistoryListQuery, useSendReviewMutation } from "../../../redux/Slices/productApi";
+import {
+  useGetOrderHistoryListQuery,
+  useSendReviewMutation,
+} from "../../../redux/Slices/productApi";
+import { Loader } from "../../../lib/Loader";
 
 type OrderStatus = "Delivered" | "Pending" | "confirmed" | "pending";
 
@@ -46,44 +50,43 @@ export const OrderHistoryTab = () => {
 
   console.log("Order history data:", data);
 
-const handleInvoice = async (orderId: number) => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/orders/${orderId}/invoice`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+  const handleInvoice = async (orderId: number) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/orders/${orderId}/invoice`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
         },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch invoice PDF");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch invoice PDF");
+      // Get the file as a blob
+      const blob = await response.blob();
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+
+      // Optional: set a filename
+      a.download = `invoice-${orderId}.pdf`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      // Clean up
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Invoice download failed:", error);
     }
-
-    // Get the file as a blob
-    const blob = await response.blob();
-
-    // Create a download link
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-
-    // Optional: set a filename
-    a.download = `invoice-${orderId}.pdf`;
-
-    document.body.appendChild(a);
-    a.click();
-
-    // Clean up
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Invoice download failed:", error);
-  }
-};
-
+  };
 
   const openReviewModal = (orderId: string, product: OrderProduct) => {
     setSelectedReviewProduct({
@@ -127,11 +130,7 @@ const handleInvoice = async (orderId: number) => {
   }, [isReviewModalMounted]);
 
   if (isLoading) {
-    return (
-      <div className="py-10 text-center text-white">
-        Loading orders...
-      </div>
-    );
+    return <Loader title="Loading orders..." />;
   }
 
   if (isError) {
@@ -160,10 +159,7 @@ const handleInvoice = async (orderId: number) => {
             >
               {/* Order Header */}
               <div className="grid grid-cols-2 gap-y-4 rounded-t-[18px] bg-[linear-gradient(90deg,#D4AF37_0%,#E0BB39_100%)] px-4 py-5 text-[#080500] sm:grid-cols-3 lg:grid-cols-5">
-                <OrderInfo
-                  label="Order ID"
-                  value={order.order_id}
-                />
+                <OrderInfo label="Order ID" value={order.order_id} />
 
                 <OrderInfo
                   label="Total Payment"
@@ -175,15 +171,9 @@ const handleInvoice = async (orderId: number) => {
                   value={order.payment_method}
                 />
 
-                <OrderInfo
-                  label="Order Date"
-                  value={order.created_at}
-                />
+                <OrderInfo label="Order Date" value={order.created_at} />
 
-                <OrderInfo
-                  label="Order Status"
-                  value={order.status}
-                />
+                <OrderInfo label="Order Status" value={order.status} />
               </div>
 
               {/* Invoice Button */}
@@ -191,7 +181,7 @@ const handleInvoice = async (orderId: number) => {
                 <button
                   type="button"
                   onClick={() => handleInvoice(order.id)}
-                  className="h-8 cursor-pointer  rounded-md border border-[#D4AF37]/40 bg-[#7A3478] px-7 text-xs font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500]"
+                  className="h-8 cursor-pointer rounded-md border border-[#D4AF37]/40 bg-[#7A3478] px-7 text-xs font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
                   Invoice
@@ -238,9 +228,7 @@ const handleInvoice = async (orderId: number) => {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        openReviewModal(order.order_id, product)
-                      }
+                      onClick={() => openReviewModal(order.order_id, product)}
                       className="cursor-pointer self-start rounded-md border border-[#D4AF37]/40 bg-[#7A0F55] px-6 py-2 text-xs font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#080500] sm:self-start"
                       style={{ fontFamily: "'Lora', serif" }}
                     >
@@ -279,29 +267,28 @@ const ReviewModal = ({
 
   const activeRating = hoverRating || rating;
 
+  const [sendReview, { isLoading: isSending }] = useSendReviewMutation();
 
-const [sendReview, { isLoading: isSending }] = useSendReviewMutation();
+  const handleSendReview = async () => {
+    if (rating < 1) {
+      toast.error("Please select a rating before sending review.");
+      return;
+    }
 
-const handleSendReview = async () => {
-  if (rating < 1) {
-    toast.error("Please select a rating before sending review.");
-    return;
-  }
+    try {
+      const payload = {
+        order_item_ids: [selectedReviewProduct.product.id],
+        rating,
+      };
 
-  try {
-    const payload = {
-      order_item_ids: [selectedReviewProduct.product.id],
-      rating,
-    };
+      const response = await sendReview(payload).unwrap();
 
-    const response = await sendReview(payload).unwrap();
-
-    toast.success(response.message);
-    onClose();
-  } catch (error: any) {
-    toast.error(error.data?.message || "Something went wrong.");
-  }
-};
+      toast.success(response.message);
+      onClose();
+    } catch (error: any) {
+      toast.error(error.data?.message || "Something went wrong.");
+    }
+  };
 
   return (
     <div
@@ -372,13 +359,7 @@ const handleSendReview = async () => {
   );
 };
 
-const OrderInfo = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) => {
+const OrderInfo = ({ label, value }: { label: string; value: string }) => {
   return (
     <div className="border-[#080500]/25 pr-4 lg:border-r lg:last:border-r-0">
       <p

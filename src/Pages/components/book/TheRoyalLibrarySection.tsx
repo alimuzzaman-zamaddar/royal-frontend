@@ -20,6 +20,7 @@ import {
 
 import logomodal from "../../../assets/image.png";
 import { Book2Svg, BookSvg } from "../../../lib/Svg";
+import { useNavigate } from "react-router-dom";
 
 type SubmitWorkFormValues = {
   firstName: string;
@@ -93,6 +94,7 @@ export const TheRoyalLibrarySection = ({
 }: TheRoyalLibrarySectionProps) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate();
 
   const [isModalMounted, setIsModalMounted] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -173,6 +175,9 @@ export const TheRoyalLibrarySection = ({
     if (buttonText === "SUBMIT YOUR WORK") {
       openSubmitWorkModal();
       return;
+    }
+        if (item.button_text === "GET YOUR COPY") {
+           navigate(item.button_link);
     }
 
     if (buttonText === "NOTIFY ME") {
