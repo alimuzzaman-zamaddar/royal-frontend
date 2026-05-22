@@ -465,7 +465,7 @@ export const ShopDetailsPage = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
-                className="h-11 w-full rounded-md border border-[#FFD700] text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#020202] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-11 w-full rounded-md border border-[#FFD700]/30 text-base font-normal text-[#FFFAF0] transition-all duration-300 hover:-translate-y-px hover:bg-[#FFD700] hover:text-[#020202] hover:shadow-[0_8px_24px_rgba(255,215,0,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 Add to Cart
@@ -475,7 +475,7 @@ export const ShopDetailsPage = () => {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={product.stock <= 0}
-                className="h-11 w-full rounded-md bg-[#FFD700] text-base font-normal text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-11 w-full rounded-md bg-[#aa9102] text-base font-normal text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 Buy Now
