@@ -343,38 +343,62 @@ const CartItemCard = ({
             </div>
           )}
 
-          {item.variants?.length ? (
-            <div className="mt-5">
-              <p
-                className="mb-2 text-sm text-[#FFFAF0]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                Variant
-              </p>
+{item.variants?.length ? (
+  <div className="mt-5">
+    <p
+      className="mb-2 text-sm text-[#FFFAF0]"
+      style={{ fontFamily: "'Lora', serif" }}
+    >
+      Variant
+    </p>
 
-              <select
-                value={item.variantId ?? ""}
-                onChange={(e) => {
-                  const variantId = Number(e.target.value);
-                  const selectedVariant =
-                    item.variants?.find((variant) => variant.id === variantId) ?? null;
+    <div className="flex flex-wrap gap-3">
+      {item.variants.map((variant: ProductVariant) => {
+        const isActive = item.variantId === variant.id;
+        const isOutOfStock = variant.stock != null && variant.stock <= 0;
 
-                  updateCartItemOptions(item.cartKey, {
-                    selectedVariant,
-                  });
-                }}
-                className="h-10 rounded-md border border-[#FFD700]/30 bg-[#650D65] px-3 text-sm text-[#FFFAF0] outline-none"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                <option value="">Select variant</option>
-                {item.variants.map((variant: ProductVariant) => (
-                  <option key={variant.id} value={variant.id}>
-                    {variant.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
+        return (
+          <button
+            key={variant.id}
+            type="button"
+            onClick={() => {
+              const selectedVariant =
+                item.variants?.find((v) => v.id === variant.id) ?? null;
+
+              updateCartItemOptions(item.cartKey, {
+                selectedVariant,
+              });
+            }}
+            disabled={isOutOfStock}
+            className={`group relative flex flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
+              isActive
+                ? "border-[#D4AF37]/30 bg-[#D4AF37] text-[#fffff] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
+                : "border-[#FFD700]/30 bg-[#650D65] text-[#FFFAF0] hover:border-[#650D65]/30 hover:bg-[#420542]"
+            } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+          >
+            <span
+              className={`text-sm font-semibold ${
+                isActive ? "text-[#020202]" : "text-[#FFFAF0]"
+              }`}
+              style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+              {variant.title}
+            </span>
+
+            <span
+              className={`mt-1 text-xs ${
+                isActive ? "text-[#020202]/80" : "text-[#B8B0A4]"
+              }`}
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              {isOutOfStock ? "Out of stock" : `${variant.stock ?? 0} left`}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+) : null}
         </div>
 
         <button

@@ -1,14 +1,16 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useState } from "react";
-import { FaSearch, FaSlidersH, FaStar } from "react-icons/fa";
+import { FaSearch, FaSlidersH, FaStar, FaTimes } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { CheckSvg } from "../../../lib/Svg";
 import { useNavigate } from "react-router-dom";
-import { addToCart } from "../../../lib/cartStorage";
+import { addToCart, type ProductVariant } from "../../../lib/cartStorage";
 import { useGetCategoriesQuery } from "../../../redux/Slices/categoryApi";
 import {
   useGetProductsQuery,
   type ApiProduct,
 } from "../../../redux/Slices/productApi";
+import { Loader } from "../../../lib/Loader";
 
 type CategoryFilter = {
   id: number | "all";
@@ -282,12 +284,7 @@ export const ShopPage = () => {
             </h3>
 
             {isCategoryLoading ? (
-              <p
-                className="text-sm text-[#B8B0A4]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                Loading categories...
-              </p>
+              <Loader title="Category loading " />
             ) : (
               <div className="space-y-3">
                 {categories.map((category) => {
@@ -400,14 +397,7 @@ export const ShopPage = () => {
             </select>
           </div>
 
-          {isProductFetching && (
-            <p
-              className="mt-5 text-sm text-[#FFD700]"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              Loading products...
-            </p>
-          )}
+          {isProductFetching && <Loader title="Category loading " />}
 
           {isProductError && (
             <div className="mt-10 rounded-md border border-[#FFD700]/30 px-5 py-10 text-center">
@@ -468,6 +458,128 @@ export const ShopPage = () => {
   );
 };
 
+type VariantModalProps = {
+  isOpen: boolean;
+  productName: string;
+  variants: ProductVariant[];
+  selectedVariantId: number | null;
+  onChange: (variantId: number) => void;
+  onClose: () => void;
+  onConfirm: () => void;
+};
+
+const VariantModal = ({
+  isOpen,
+  productName,
+  variants,
+  selectedVariantId,
+  onChange,
+  onClose,
+  onConfirm,
+}: VariantModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3
+              className="text-lg font-normal text-[#FFFAF0] sm:text-xl"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              Select Variant
+            </h3>
+            <p
+              className="mt-1 text-sm text-[#B8B0A4]"
+              style={{ fontFamily: "'Lora', serif" }}
+            >
+              {productName}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-[#FFD700]/30 text-[#FFFAF0] transition-colors hover:border-[#FFD700] hover:text-[#FFD700]"
+            aria-label="Close modal"
+          >
+            <FaTimes className="text-sm" />
+          </button>
+        </div>
+
+<div className="mt-5">
+  <p
+    className="mb-3 text-sm text-[#FFFAF0]"
+    style={{ fontFamily: "'Lora', serif" }}
+  >
+    Variant
+  </p>
+
+  <div className="flex flex-wrap gap-3">
+    {variants.map((variant) => {
+      const isActive = selectedVariantId === variant.id;
+      const isOutOfStock = variant.stock != null && variant.stock <= 0;
+
+      return (
+        <button
+          key={variant.id}
+          type="button"
+          onClick={() => onChange(variant.id)}
+          disabled={isOutOfStock}
+          className={`group relative flex  flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
+            isActive
+              ? "border-[#FFD700] bg-[#FFD700] text-[#020202] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
+              : "border-[#FFD700]/30 bg-[#050505] text-[#FFFAF0] hover:border-[#FFD700]/70 hover:bg-[#0b0b0b]"
+          } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+        >
+          <span
+            className={`text-sm font-semibold ${
+              isActive ? "text-[#020202]" : "text-[#FFFAF0]"
+            }`}
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {variant.title}
+          </span>
+
+          <span
+            className={`mt-1 text-xs ${
+              isActive ? "text-[#020202]/80" : "text-[#B8B0A4]"
+            }`}
+            style={{ fontFamily: "'Lora', serif" }}
+          >
+            {isOutOfStock ? "Out of stock" : `${variant.stock ?? 0} left`}
+          </span>
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-11 flex-1 rounded-md border border-[#FFD700]/30 bg-transparent text-sm font-semibold text-[#FFFAF0] transition-all duration-300 hover:border-[#FFD700]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="h-11 flex-1 rounded-md bg-[#FFD700] text-sm font-bold text-[#020202] transition-all duration-300 hover:bg-[#f5d87a]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProductCard = ({ product }: { product: ApiProduct }) => {
   const navigate = useNavigate();
 
@@ -488,10 +600,13 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
   const rating = Math.round(Number(product.avg_rating || 0));
   const productPrice = getPrimaryPrice(product);
 
+  const variants =
+    (product as ApiProduct & { variants?: ProductVariant[] }).variants ?? [];
+
   const cartPayload = {
     id: product.id,
     name: product.title,
-    category: product.category.title,
+    category: product.category?.title ?? "Uncategorized",
     image: thumbnail,
     badge,
     rating,
@@ -499,11 +614,23 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
     price: productPrice,
     softPrice: softCopyPrice ?? undefined,
     hardPrice: hardCopyPrice ?? undefined,
+    variants,
     buttonText: "View Details",
   };
 
   const isExternalProduct =
     product.product_type === "external" && Boolean(product.product_link);
+
+  const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    variants[0]?.id ?? null,
+  );
+
+  useEffect(() => {
+    if (variants.length > 0 && selectedVariantId == null) {
+      setSelectedVariantId(variants[0].id);
+    }
+  }, [variants, selectedVariantId]);
 
   const handleViewDetails = () => {
     if (isExternalProduct && product.product_link) {
@@ -513,105 +640,135 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
 
     navigate(`/shop/${product.slug}`);
   };
+
+  const handleAddToCartClick = () => {
+    if (isExternalProduct) return;
+
+    if (variants.length > 0) {
+      setSelectedVariantId(variants[0]?.id ?? null);
+      setIsVariantModalOpen(true);
+      return;
+    }
+
+    addToCart(cartPayload);
+  };
+
+  const handleConfirmVariant = () => {
+    const selectedVariant =
+      variants.find((variant) => variant.id === selectedVariantId) ?? null;
+
+    if (!selectedVariant) {
+      return;
+    }
+
+    addToCart(cartPayload, 1, {
+      selectedVariant,
+    });
+
+    setIsVariantModalOpen(false);
+  };
+
   return (
-    <article className="group flex h-full flex-col rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)]">
-      <div className="relative overflow-hidden rounded-[12px]">
-        {thumbnail ? (
-          <img
-            src={thumbnail}
-            alt={product.title}
-            className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
-          />
-        ) : (
-          <div className="flex h-[370px] w-full items-center justify-center rounded-[12px] border border-[#FFD700]/20 bg-[#050505] text-center text-sm text-[#B8B0A4] sm:h-[390px] xl:h-[420px]">
-            No Image Available
-          </div>
-        )}
-
-        <div className="flex h-full w-full items-end justify-between p-4">
-          {!isExternalProduct && (
-            <button
-              type="button"
-              onClick={() => addToCart(cartPayload)}
-              className="absolute left-3 top-3 flex cursor-pointer items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] p-2 text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700] xl:text-base"
-              aria-label="Add to cart"
-            >
-              <BsCart3 />
-            </button>
+    <>
+      <article className="group flex h-full flex-col rounded-[18px] border border-[#FFD700]/30 bg-[#020202] p-4 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_50px_rgba(255,215,0,0.12)]">
+        <div className="relative overflow-hidden rounded-[12px]">
+          {thumbnail ? (
+            <img
+              src={thumbnail}
+              alt={product.title}
+              className="h-[370px] w-full rounded-[12px] object-contain transition-transform duration-700 group-hover:scale-[1.035] sm:h-[390px] xl:h-[420px]"
+            />
+          ) : (
+            <div className="flex h-[370px] w-full items-center justify-center rounded-[12px] border border-[#FFD700]/20 bg-[#050505] text-center text-sm text-[#B8B0A4] sm:h-[390px] xl:h-[420px]">
+              No Image Available
+            </div>
           )}
 
-          {badge && (
-            <span
-              className="absolute right-3 top-3 rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] px-3 py-1 text-xs text-[#020202] xl:text-base"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {badge}
-            </span>
-          )}
-        </div>
-      </div>
+          <div className="flex h-full w-full items-end justify-between p-4">
+            {!isExternalProduct && (
+              <button
+                type="button"
+                onClick={handleAddToCartClick}
+                className="absolute left-3 top-3 flex cursor-pointer items-center justify-center rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] p-2 text-[#020202] transition-all duration-300 hover:scale-105 hover:bg-[#FFD700] xl:text-base"
+                aria-label="Add to cart"
+              >
+                <BsCart3 />
+              </button>
+            )}
 
-      <div className="flex flex-1 flex-col pt-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2
-              className="text-base font-normal text-[#FFFAF0]"
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {product.title}
-            </h2>
-
-            {product.short_description && (
-              <p
-                className="mt-1 line-clamp-2 text-xs text-[#FFFAF0]"
+            {badge && (
+              <span
+                className="absolute right-3 top-3 rounded-md border border-[#D4AF37] bg-[rgba(255,215,0,0.50)] px-3 py-1 text-xs text-[#020202] xl:text-base"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                {product.short_description}
-              </p>
+                {badge}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col pt-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2
+                className="text-base font-normal text-[#FFFAF0]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                {product.title}
+              </h2>
+
+              {product.short_description && (
+                <p
+                  className="mt-1 line-clamp-2 text-xs text-[#FFFAF0]"
+                  style={{ fontFamily: "'Lora', serif" }}
+                >
+                  {product.short_description}
+                </p>
+              )}
+            </div>
+
+            {(softCopyPrice || hardCopyPrice) && (
+              <div className="flex gap-8 text-right">
+                {softCopyPrice && (
+                  <p
+                    className="text-sm text-[#FFFAF0]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    Soft Copy
+                  </p>
+                )}
+
+                {hardCopyPrice && (
+                  <p
+                    className="text-sm text-[#FFFAF0]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    Hard Copy
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
-          {(softCopyPrice || hardCopyPrice) && (
-            <div className="flex gap-8 text-right">
-              {softCopyPrice && (
-                <p
-                  className="text-sm text-[#FFFAF0]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  Soft Copy
-                </p>
-              )}
+          <div className="my-5 flex items-center justify-between gap-4">
+            {rating > 0 && (
+              <div className="flex items-center gap-1">
+                {Array.from({ length: rating }).map((_, index) => (
+                  <FaStar key={index} className="text-sm text-[#FFD700]" />
+                ))}
 
-              {hardCopyPrice && (
-                <p
-                  className="text-sm text-[#FFFAF0]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  Hard Copy
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+                {product.rating_count > 0 && (
+                  <span
+                    className="ml-1 text-sm text-[#FFD700]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    ({product.rating_count}/5)
+                  </span>
+                )}
+              </div>
+            )}
 
-        <div className="my-5 flex items-center justify-between gap-4">
-          {rating > 0 && (
-            <div className="flex items-center gap-1">
-              {Array.from({ length: rating }).map((_, index) => (
-                <FaStar key={index} className="text-sm text-[#FFD700]" />
-              ))}
-
-              <span
-                className="ml-1 text-sm text-[#FFD700]"
-                style={{ fontFamily: "'Lora', serif" }}
-              >
-                ({product.rating_count}/5)
-              </span>
-            </div>
-          )}
-
-          {(softCopyPrice || hardCopyPrice) && (
-            <div className="flex gap-8">
+            <div className="flex gap-3">
               {softCopyPrice && (
                 <p
                   className="text-xl font-bold text-[#D4A800]"
@@ -629,12 +786,8 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
                   ${hardCopyPrice.toFixed(2)}
                 </p>
               )}
-            </div>
-          )}
 
-          {!softCopyPrice && !hardCopyPrice && (
-            <div className="flex items-center gap-3">
-              {discountPrice && (
+              {!softCopyPrice && !hardCopyPrice && discountPrice && (
                 <p
                   className="text-xl font-bold text-[#D4A800]"
                   style={{ fontFamily: "'Lora', serif" }}
@@ -643,30 +796,39 @@ const ProductCard = ({ product }: { product: ApiProduct }) => {
                 </p>
               )}
 
-              {originalPrice && (
-                <p
-                  className={`text-xl font-bold ${
-                    discountPrice
-                      ? "text-[#B8B0A4] line-through"
-                      : "text-[#D4A800]"
-                  }`}
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  ${originalPrice.toFixed(2)}
-                </p>
-              )}
+              {!softCopyPrice &&
+                !hardCopyPrice &&
+                !discountPrice &&
+                originalPrice && (
+                  <p
+                    className="text-xl font-bold text-[#D4A800]"
+                    style={{ fontFamily: "'Lora', serif" }}
+                  >
+                    ${originalPrice.toFixed(2)}
+                  </p>
+                )}
             </div>
-          )}
-        </div>
+          </div>
 
-        <button
-          onClick={handleViewDetails}
-          className="mt-auto h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
-          style={{ fontFamily: "'Montserrat', sans-serif" }}
-        >
-          {isExternalProduct ? "Link" : "View Details"}
-        </button>
-      </div>
-    </article>
+          <button
+            onClick={handleViewDetails}
+            className="mt-auto h-12 w-full cursor-pointer rounded-md bg-[#FFD700] text-sm font-bold tracking-[1px] text-[#020202] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_8px_24px_rgba(255,215,0,0.22)]"
+            style={{ fontFamily: "'Montserrat', sans-serif" }}
+          >
+            {isExternalProduct ? "Link" : "View Details"}
+          </button>
+        </div>
+      </article>
+
+      <VariantModal
+        isOpen={isVariantModalOpen}
+        productName={product.title}
+        variants={variants}
+        selectedVariantId={selectedVariantId}
+        onChange={setSelectedVariantId}
+        onClose={() => setIsVariantModalOpen(false)}
+        onConfirm={handleConfirmVariant}
+      />
+    </>
   );
 };

@@ -45,7 +45,9 @@ const formatPrice = (price?: number | null) => {
 
 const formatBadge = (badge?: string | null) => {
   if (!badge) return "";
-  return badge.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  return badge
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 const getMainPrice = (product: ApiProductDetails) => {
@@ -96,9 +98,12 @@ export const ShopDetailsPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading, isError, error } = useGetProductDetailsQuery(slug || "", {
-    skip: !slug,
-  });
+  const { data, isLoading, isError, error } = useGetProductDetailsQuery(
+    slug || "",
+    {
+      skip: !slug,
+    },
+  );
 
   const product = data?.data?.product as ProductDetailsProduct | undefined;
   const relatedProducts: ApiProduct[] = data?.data?.related ?? [];
@@ -107,8 +112,12 @@ export const ShopDetailsPage = () => {
 
   const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [selectedCopyType, setSelectedCopyType] = useState<CopyType | null>(null);
-  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
+  const [selectedCopyType, setSelectedCopyType] = useState<CopyType | null>(
+    null,
+  );
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (productImages.length > 0) {
@@ -177,7 +186,7 @@ export const ShopDetailsPage = () => {
   const selectedVariant =
     variantOptions.find((variant) => variant.id === selectedVariantId) ?? null;
 
-  const stockStatus = product.stock > 0 ? "In Stock" : "Out of Stock";
+  // const stockStatus = product.stock > 0 ? "In Stock" : "Out of Stock";
   const stockCount =
     product.stock > 0 ? `${product.stock} items left` : "Unavailable";
 
@@ -267,7 +276,10 @@ export const ShopDetailsPage = () => {
                   <div className="flex items-center gap-1">
                     {rating > 0 ? (
                       Array.from({ length: rating }).map((_, index) => (
-                        <FaStar key={index} className="text-lg text-[#FFD700]" />
+                        <FaStar
+                          key={index}
+                          className="text-lg text-[#FFD700]"
+                        />
                       ))
                     ) : (
                       <span
@@ -314,9 +326,11 @@ export const ShopDetailsPage = () => {
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 <span
-                  className={product.stock > 0 ? "text-[#8BC34A]" : "text-[#E0115F]"}
+                  className={
+                    product.stock > 0 ? "text-[#8BC34A]" : "text-[#E0115F]"
+                  }
                 >
-                  {stockStatus}
+                  {selectedVariant?.stock ?? product.stock}
                 </span>{" "}
                 - {stockCount}
               </p>
@@ -390,19 +404,47 @@ export const ShopDetailsPage = () => {
                   Select Variant
                 </p>
 
-                <select
-                  value={selectedVariantId ?? ""}
-                  onChange={(e) => setSelectedVariantId(Number(e.target.value))}
-                  className="h-11 w-full rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700]"
-                  style={{ fontFamily: "'Lora', serif" }}
-                >
-                  {variantOptions.map((variant) => (
-                    <option key={variant.id} value={variant.id}>
-                      {variant.title}
-                      {variant.stock != null ? ` (${variant.stock} left)` : ""}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-wrap gap-3">
+                  {variantOptions.map((variant) => {
+                    const isActive = selectedVariantId === variant.id;
+                    const isOutOfStock =
+                      variant.stock != null && variant.stock <= 0;
+
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        onClick={() => setSelectedVariantId(variant.id)}
+                        disabled={isOutOfStock}
+                        className={`group relative flex flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
+                          isActive
+                            ? "border-[#FFD700] bg-[#FFD700] text-[#020202] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
+                            : "border-[#FFD700]/30 bg-[#050505] text-[#FFFAF0] hover:border-[#FFD700]/70 hover:bg-[#0b0b0b]"
+                        } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+                      >
+                        <span
+                          className={`text-sm font-semibold ${
+                            isActive ? "text-[#020202]" : "text-[#FFFAF0]"
+                          }`}
+                          style={{ fontFamily: "'Montserrat', sans-serif" }}
+                        >
+                          {variant.title}
+                        </span>
+
+                        <span
+                          className={`mt-1 text-xs ${
+                            isActive ? "text-[#020202]/80" : "text-[#B8B0A4]"
+                          }`}
+                          style={{ fontFamily: "'Lora', serif" }}
+                        >
+                          {isOutOfStock
+                            ? "Out of stock"
+                            : `${variant.stock ?? 0} left`}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
                 {selectedVariant?.stock != null && (
                   <p
@@ -426,12 +468,18 @@ export const ShopDetailsPage = () => {
 
                 <select
                   value={selectedCopyType ?? ""}
-                  onChange={(e) => setSelectedCopyType(e.target.value as CopyType)}
+                  onChange={(e) =>
+                    setSelectedCopyType(e.target.value as CopyType)
+                  }
                   className="h-11 w-full rounded-md border border-[#FFD700]/30 bg-[#050505] px-4 text-sm text-[#FFFAF0] outline-none transition-all duration-300 focus:border-[#FFD700]"
                   style={{ fontFamily: "'Lora', serif" }}
                 >
-                  {softCopyPrice != null && <option value="soft">Soft Copy</option>}
-                  {hardCopyPrice != null && <option value="hard">Hard Copy</option>}
+                  {softCopyPrice != null && (
+                    <option value="soft">Soft Copy</option>
+                  )}
+                  {hardCopyPrice != null && (
+                    <option value="hard">Hard Copy</option>
+                  )}
                 </select>
               </div>
             )}
@@ -446,7 +494,10 @@ export const ShopDetailsPage = () => {
                 <FaMinus />
               </button>
 
-              <span className="text-base" style={{ fontFamily: "'Lora', serif" }}>
+              <span
+                className="text-base"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
                 {quantity}
               </span>
 

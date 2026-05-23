@@ -9,6 +9,7 @@ export type ApiProductCategory = {
 };
 
 export type ApiProduct = {
+  [x: string]: any;
   id: number;
   title: string;
   slug: string;
