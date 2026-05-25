@@ -160,17 +160,16 @@ export const CartPage = () => {
               <SummaryRow label="Sub Total" value={`$${subTotal.toFixed(2)}`} />
               <SummaryRow label="Shipping" value={`$${shipping.toFixed(2)}`} />
               {discount > 0 && (
-                <SummaryRow label="Discount" value={`$${discount.toFixed(2)}`} />
+                <SummaryRow
+                  label="Discount"
+                  value={`$${discount.toFixed(2)}`}
+                />
               )}
             </div>
 
             <div className="my-6 h-px w-full bg-[#FFFAF0]/70" />
 
-            <SummaryRow
-              label="Total"
-              value={`$${total.toFixed(2)}`}
-              large
-            />
+            <SummaryRow label="Total" value={`$${total.toFixed(2)}`} large />
 
             {appliedPromoCode && (
               <p
@@ -252,11 +251,7 @@ const CartItemCard = ({
 
   const currentCopyType: CopyType | null =
     item.selectedCopyType ??
-    (item.softPrice != null
-      ? "soft"
-      : item.hardPrice != null
-        ? "hard"
-        : null);
+    (item.softPrice != null ? "soft" : item.hardPrice != null ? "hard" : null);
 
   return (
     <article className="flex flex-col gap-5 rounded-xl border border-[#D4AF37]/45 bg-[#650D65] p-4 transition-all duration-300 hover:border-[#FFD700]/70 hover:shadow-[0_14px_34px_rgba(255,215,0,0.10)] sm:flex-row sm:items-center sm:p-5">
@@ -337,68 +332,76 @@ const CartItemCard = ({
                 className="h-10 rounded-md border border-[#FFD700]/30 bg-[#650D65] px-3 text-sm text-[#FFFAF0] outline-none"
                 style={{ fontFamily: "'Lora', serif" }}
               >
-                {item.softPrice != null && <option value="soft">Soft Copy</option>}
-                {item.hardPrice != null && <option value="hard">Hard Copy</option>}
+                {item.softPrice != null && (
+                  <option value="soft">Soft Copy</option>
+                )}
+                {item.hardPrice != null && (
+                  <option value="hard">Hard Copy</option>
+                )}
               </select>
             </div>
           )}
 
-{item.variants?.length ? (
-  <div className="mt-5">
-    <p
-      className="mb-2 text-sm text-[#FFFAF0]"
-      style={{ fontFamily: "'Lora', serif" }}
-    >
-      Variant
-    </p>
+          {item.variants?.length ? (
+            <div className="mt-5">
+              <p
+                className="mb-2 text-sm text-[#FFFAF0]"
+                style={{ fontFamily: "'Lora', serif" }}
+              >
+                Variant
+              </p>
 
-    <div className="flex flex-wrap gap-3">
-      {item.variants.map((variant: ProductVariant) => {
-        const isActive = item.variantId === variant.id;
-        const isOutOfStock = variant.stock != null && variant.stock <= 0;
+              <div className="flex flex-wrap gap-3">
+                {item.variants.map((variant: ProductVariant) => {
+                  const isActive = item.variantId === variant.id;
+                  const isOutOfStock =
+                    variant.stock != null && variant.stock <= 0;
 
-        return (
-          <button
-            key={variant.id}
-            type="button"
-            onClick={() => {
-              const selectedVariant =
-                item.variants?.find((v) => v.id === variant.id) ?? null;
+                  return (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      onClick={() => {
+                        const selectedVariant =
+                          item.variants?.find((v) => v.id === variant.id) ??
+                          null;
 
-              updateCartItemOptions(item.cartKey, {
-                selectedVariant,
-              });
-            }}
-            disabled={isOutOfStock}
-            className={`group relative flex flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
-              isActive
-                ? "border-[#D4AF37]/30 bg-[#D4AF37] text-[#fffff] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
-                : "border-[#FFD700]/30 bg-[#650D65] text-[#FFFAF0] hover:border-[#650D65]/30 hover:bg-[#420542]"
-            } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
-          >
-            <span
-              className={`text-sm font-semibold ${
-                isActive ? "text-[#020202]" : "text-[#FFFAF0]"
-              }`}
-              style={{ fontFamily: "'Montserrat', sans-serif" }}
-            >
-              {variant.title}
-            </span>
+                        updateCartItemOptions(item.cartKey, {
+                          selectedVariant,
+                        });
+                      }}
+                      disabled={isOutOfStock}
+                      className={`group relative flex flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
+                        isActive
+                          ? "border-[#D4AF37]/30 bg-[#D4AF37] text-[#fffff] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
+                          : "border-[#FFD700]/30 bg-[#650D65] text-[#FFFAF0] hover:border-[#650D65]/30 hover:bg-[#420542]"
+                      } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+                    >
+                      <span
+                        className={`text-sm font-semibold ${
+                          isActive ? "text-[#020202]" : "text-[#FFFAF0]"
+                        }`}
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {variant.title}
+                      </span>
 
-            <span
-              className={`mt-1 text-xs ${
-                isActive ? "text-[#020202]/80" : "text-[#B8B0A4]"
-              }`}
-              style={{ fontFamily: "'Lora', serif" }}
-            >
-              {isOutOfStock ? "Out of stock" : `${variant.stock ?? 0} left`}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  </div>
-) : null}
+                      <span
+                        className={`mt-1 text-xs ${
+                          isActive ? "text-[#020202]/80" : "text-[#B8B0A4]"
+                        }`}
+                        style={{ fontFamily: "'Lora', serif" }}
+                      >
+                        {isOutOfStock
+                          ? "Out of stock"
+                          : `${variant.stock ?? 0} left`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <button
