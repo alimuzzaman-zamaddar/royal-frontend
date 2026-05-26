@@ -136,7 +136,7 @@ export const Header = () => {
   return (
     <>
       <header
-        className={`absolute top-0 left-0 right-0 z-50 mx-6 mt-8 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
+        className={`fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1440px] z-50 flex h-[56px] items-center justify-between rounded-[6px] border border-[#ffd9009f] bg-[rgba(2,2,2,0.78)] px-4 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-700 ease-out xl:mx-auto xl:h-auto xl:w-[1480px] xl:px-8 xl:py-3 xl:rounded-lg xl:border-[#ffd9005e] xl:border-[0.4px] xl:bg-[rgba(2,2,2,0.40)] ${
           isMounted ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
         }`}
       >

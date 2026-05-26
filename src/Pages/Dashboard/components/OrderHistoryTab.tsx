@@ -193,7 +193,7 @@ export const OrderHistoryTab = () => {
                 {order.items?.map((product) => (
                   <div
                     key={`${order.id}-${product.id}`}
-                    className="flex flex-col gap-5 rounded-[12px] border border-[#D4AF37]/25 bg-[#6A0E69] p-4 transition-all duration-300 hover:border-[#FFD700]/60 hover:shadow-[0_12px_34px_rgba(255,215,0,0.10)] sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-5 rounded-xl border border-[#D4AF37]/25 bg-[#6A0E69] p-4 transition-all duration-300 hover:border-[#FFD700]/60 hover:shadow-[0_12px_34px_rgba(255,215,0,0.10)] sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                       <img

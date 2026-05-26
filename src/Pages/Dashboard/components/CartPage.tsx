@@ -329,7 +329,7 @@ const CartItemCard = ({
                     selectedCopyType: e.target.value as CopyType,
                   })
                 }
-                className="h-10 rounded-md border border-[#FFD700]/30 bg-[#650D65] px-3 text-sm text-[#FFFAF0] outline-none"
+                className="h-10 rounded-md border border-[#FFFAF0]/30  bg-[#650D65] px-3 text-sm text-[#FFFAF0] outline-none"
                 style={{ fontFamily: "'Lora', serif" }}
               >
                 {item.softPrice != null && (
