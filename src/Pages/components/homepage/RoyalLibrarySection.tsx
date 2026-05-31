@@ -266,7 +266,7 @@ export const RoyalLibrarySection = ({ library }: RoyalLibrarySectionProps) => {
                     <img
                       src={imageSrc}
                       alt={item.title}
-                      className="h-[460px] w-full rounded-t-xl object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] xl:h-[510px]"
+                      className="lg:h-[460px] lg:w-full rounded-t-xl object-contain transition-transform duration-700 ease-out group-hover:scale-[1.035] xl:h-[510px]"
                     />
 
                     {index === libraryItems.length - 1 && (

@@ -104,7 +104,7 @@ export const CartPage = () => {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen w-full bg-[#4A0E4E] px-5 py-14 sm:px-6 md:py-16 xl:px-8 xl:py-40">
+    <main className="min-h-screen w-full bg-[#4A0E4E] px-5  sm:px-6 py-30 xl:px-8 xl:py-40">
       <div className="mx-auto grid max-w-[1480px] grid-cols-1 gap-8 lg:grid-cols-[1fr_430px] xl:gap-8">
         <section>
           <div className="mb-8 rounded-2xl bg-[linear-gradient(90deg,_#6E5B1D_0%,_#D4AF37_100%)] px-7 py-5 sm:px-9">
@@ -179,20 +179,20 @@ export const CartPage = () => {
                 Promo applied: {appliedPromoCode}
               </p>
             )}
-
-            <div className="mt-8 flex gap-2">
+            <div className="mt-8 flex  gap-2 sm:flex-row">
               <input
                 type="text"
                 value={promoCode}
                 onChange={(e) => setPromoCode(e.target.value)}
                 placeholder="Enter promo code"
-                className="flex-1 rounded-md border border-[#FFD700]/30 bg-[#650D65] px-4 py-2 text-[#FFFAF0]"
+                className="w-[80%] lg:w-[70%] rounded-md border border-[#FFD700]/30 bg-[#650D65] px-4 py-2 text-[#FFFAF0]"
                 style={{ fontFamily: "'Lora', serif" }}
               />
+
               <button
                 type="button"
                 onClick={handleApplyPromo}
-                className="h-12 cursor-pointer rounded-md bg-[#FFD700] px-6 text-sm font-bold text-[#020202] hover:bg-[#f5d87a]"
+                className="h-12 w-[20%] lg:w-[30%] cursor-pointer rounded-md bg-[#FFD700] px-1 px-3 text-xs lg:text-sm font-bold text-[#020202] hover:bg-[#f5d87a] sm:w-auto"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 {isApplyingPromo ? "Applying..." : "Apply"}
@@ -373,8 +373,8 @@ const CartItemCard = ({
                       disabled={isOutOfStock}
                       className={`group relative flex flex-col items-start justify-center rounded-[8px] border px-3 py-2 text-left transition-all duration-300 ${
                         isActive
-                          ? "border-[#D4AF37]/30 bg-[#D4AF37] text-[#fffff] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
-                          : "border-[#FFD700]/30 bg-[#650D65] text-[#FFFAF0] hover:border-[#650D65]/30 hover:bg-[#420542]"
+                          ? "border-[#FFFAF0]/30  bg-[#D4AF37] text-[#fffff] shadow-[0_10px_28px_rgba(255,215,0,0.18)]"
+                          : "border-[#FFFAF0]/30  bg-[#650D65] text-[#FFFAF0] hover:border-[#650D65]/30 hover:bg-[#420542]"
                       } ${isOutOfStock ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
                     >
                       <span

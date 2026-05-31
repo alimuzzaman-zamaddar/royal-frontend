@@ -17,11 +17,15 @@ export const NewsletterPopup = () => {
   const [apiError, setApiError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
-    useForm<NewsletterFormValues>({
-      mode: "onBlur",
-      defaultValues: { email: "" },
-    });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<NewsletterFormValues>({
+    mode: "onBlur",
+    defaultValues: { email: "" },
+  });
 
   const [subscribeNewsletter, { isLoading }] = useSubscribeNewsletterMutation();
 
@@ -70,7 +74,6 @@ export const NewsletterPopup = () => {
 
       if (result.success) reset();
       closePopup();
-
     } catch (error: any) {
       if (error.data?.message) {
         setApiError(error.data.message);
@@ -82,7 +85,8 @@ export const NewsletterPopup = () => {
 
   // Show toast notifications
   useEffect(() => {
-    if (successMessage) toast.success(successMessage, { style: { borderRadius: "10px" } });
+    if (successMessage)
+      toast.success(successMessage, { style: { borderRadius: "10px" } });
   }, [successMessage]);
 
   useEffect(() => {
@@ -93,13 +97,13 @@ export const NewsletterPopup = () => {
 
   return (
     <div
-      className={`fixed inset-0 z-[999] flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm transition-all duration-300 ${
+      className={`fixed inset-0 z-[999] flex items-center justify-center bg-black/70 px-3 py-3 backdrop-blur-sm transition-all duration-300 sm:px-4 sm:py-8 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
       onMouseDown={closePopup}
     >
       <div
-        className={`relative w-full max-w-[520px] rounded-[20px] border border-[#FFD700]/40 bg-[rgba(75,15,78,0.92)] px-5 py-8 shadow-[0_24px_90px_rgba(0,0,0,0.55)] backdrop-blur-md transition-all duration-300 sm:px-8 ${
+        className={`relative max-h-[calc(100svh-24px)] w-full max-w-[calc(100vw-24px)] overflow-y-auto rounded-[16px] border border-[#FFD700]/40 bg-[rgba(75,15,78,0.92)] px-4 py-6 shadow-[0_24px_90px_rgba(0,0,0,0.55)] backdrop-blur-md transition-all duration-300 sm:max-h-[calc(100vh-64px)] sm:max-w-[520px] sm:rounded-[20px] sm:px-8 sm:py-8 ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-6 scale-95 opacity-0"
@@ -110,31 +114,46 @@ export const NewsletterPopup = () => {
         <button
           type="button"
           onClick={closePopup}
-          className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-[#FFD700]/35 text-[#FFD700] transition-all duration-300 hover:rotate-90 hover:bg-[#FFD700] hover:text-[#080500]"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#FFD700]/35 text-[#FFD700] transition-all duration-300 hover:rotate-90 hover:bg-[#FFD700] hover:text-[#080500] sm:right-4 sm:top-4 sm:h-9 sm:w-9"
         >
-          <FaTimes className="text-sm" />
+          <FaTimes className="text-xs sm:text-sm" />
         </button>
 
         {/* Logo */}
-        <div className="mb-5 flex justify-center">
-          <img src={logo} alt="Royal Exchange Logo" className="h-[82px] w-auto object-contain sm:h-[95px]" />
+        <div className="mb-4 flex justify-center sm:mb-5">
+          <img
+            src={logo}
+            alt="Royal Exchange Logo"
+            className="h-[64px] w-auto object-contain sm:h-[95px]"
+          />
         </div>
 
         {/* Heading */}
         <div className="text-center">
-          <h2 className="text-[30px] font-normal uppercase leading-[115%] tracking-[1.5px] text-[#FFD700] sm:text-[40px]" style={{ fontFamily: "'Cinzel', serif" }}>
+          <h2
+            className="text-[24px] font-normal uppercase leading-[115%] tracking-[1.2px] text-[#FFD700] sm:text-[40px] sm:tracking-[1.5px]"
+            style={{ fontFamily: "'Cinzel', serif" }}
+          >
             Join The Kingdom
           </h2>
 
-          <div className="mx-auto my-5 h-px w-full max-w-[190px] bg-gradient-to-r from-transparent via-[#B8860B] to-transparent" />
+          <div className="mx-auto my-4 h-px w-full max-w-[160px] bg-gradient-to-r from-transparent via-[#B8860B] to-transparent sm:my-5 sm:max-w-[190px]" />
 
-          <p className="mx-auto max-w-[430px] text-sm font-normal leading-[160%] text-[#FFFAF0] sm:text-base" style={{ fontFamily: "'Lora', serif" }}>
-            Subscribe to receive Royal Exchange updates, book releases, service announcements, and exclusive legacy drops.
+          <p
+            className="mx-auto max-w-[430px] text-[13px] font-normal leading-[155%] text-[#FFFAF0] sm:text-base sm:leading-[160%]"
+            style={{ fontFamily: "'Lora', serif" }}
+          >
+            Subscribe to receive Royal Exchange updates, book releases, service
+            announcements, and exclusive legacy drops.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-7">
-          <label htmlFor="newsletterEmail" className="mb-3 block text-base font-semibold text-[#FFFAF0]" style={{ fontFamily: "'Lora', serif" }}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="mt-5 sm:mt-7">
+          <label
+            htmlFor="newsletterEmail"
+            className="mb-2 block text-sm font-semibold text-[#FFFAF0] sm:mb-3 sm:text-base"
+            style={{ fontFamily: "'Lora', serif" }}
+          >
             Email Address <span className="text-[#E0115F]">*</span>
           </label>
 
@@ -146,24 +165,38 @@ export const NewsletterPopup = () => {
               autoComplete="email"
               {...register("email", {
                 required: "Email address is required",
-                pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Please enter a valid email address" },
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Please enter a valid email address",
+                },
               })}
-              className={`h-[52px] w-full rounded-lg border bg-[#6A0E69] px-4 pr-12 text-base text-[#FFFAF0] outline-none placeholder:text-[#BFA7C0] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] ${errors.email ? "border-[#E0115F]" : "border-[#B8860B]/40"}`}
+              className={`h-[48px] w-full rounded-lg border bg-[#6A0E69] px-4 pr-11 text-sm text-[#FFFAF0] outline-none placeholder:text-[#BFA7C0] transition-all duration-300 focus:border-[#FFD700] focus:shadow-[0_0_0_3px_rgba(255,215,0,0.12)] sm:h-[52px] sm:pr-12 sm:text-base ${
+                errors.email ? "border-[#E0115F]" : "border-[#B8860B]/40"
+              }`}
               style={{ fontFamily: "'Lora', serif" }}
             />
-            <FaEnvelope className="absolute right-4 top-1/2 -translate-y-1/2 text-[#BFA7C0]" />
+            <FaEnvelope className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#BFA7C0] sm:text-base" />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting || isLoading}
-            className="group relative mt-6 h-[54px] w-full overflow-hidden rounded-lg bg-[#FFD700] text-base font-semibold uppercase tracking-[1.5px] text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_30px_rgba(255,215,0,0.25)] disabled:cursor-not-allowed disabled:opacity-70"
+            className="group relative mt-5 h-[50px] w-full overflow-hidden rounded-lg bg-[#FFD700] text-sm font-semibold uppercase tracking-[1.2px] text-[#080500] transition-all duration-300 hover:-translate-y-px hover:bg-[#f5d87a] hover:shadow-[0_10px_30px_rgba(255,215,0,0.25)] disabled:cursor-not-allowed disabled:opacity-70 sm:mt-6 sm:h-[54px] sm:text-base sm:tracking-[1.5px]"
           >
-            <span className="relative z-10">{isSubmitting || isLoading ? "Subscribing..." : "Subscribe Newsletter"}</span>
+            <span className="relative z-10">
+              {isSubmitting || isLoading
+                ? "Subscribing..."
+                : "Subscribe Newsletter"}
+            </span>
             <span className="absolute inset-y-0 -left-full w-full bg-gradient-to-r from-transparent via-white/35 to-transparent transition-all duration-700 group-hover:left-full" />
           </button>
 
-          <button type="button" onClick={closePopup} className="mt-5 w-full text-center text-sm text-[#CDBDCA] transition-colors hover:text-[#FFD700]" style={{ fontFamily: "'Lora', serif" }}>
+          <button
+            type="button"
+            onClick={closePopup}
+            className="mt-4 w-full text-center text-sm text-[#CDBDCA] transition-colors hover:text-[#FFD700] sm:mt-5"
+            style={{ fontFamily: "'Lora', serif" }}
+          >
             Maybe later
           </button>
         </form>
