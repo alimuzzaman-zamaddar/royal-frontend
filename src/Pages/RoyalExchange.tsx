@@ -42,8 +42,7 @@ const RoyalExchange = () => {
 
   return (
     <div>
-
-            <SEO
+      <SEO
         title="Julius Spenser Author| Founder of Royal Exchange Publishing"
         description="Meet Julius Spenser author, founder of Royal Exchange Publishing and Clothing, inspiring a new generation through books, must read thriller this year."
       />

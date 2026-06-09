@@ -41,8 +41,7 @@ const Shop = () => {
 
   return (
     <div>
-
-            <SEO
+      <SEO
         title="Buy Premium Apparel, luxury streetwear| Royal Exchange"
         description="Buy premium apparel, exclusive books, cloths and collectibles. Kings, Queens, shop with confidence at Royal Exchange at cost effective prices."
       />

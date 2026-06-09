@@ -29,12 +29,9 @@ const Home = () => {
     );
   }
 
-  
-
   return (
     <div>
-
-         <SEO
+      <SEO
         title="Royal Exchange | Books, Apparel & Publishing Brand"
         description="Shop suspense thriller novels by Julius Spenser & Royal Exchange the Brand streetwear. Empowering stories, bold fashion & publishing services — built to inspire."
       />

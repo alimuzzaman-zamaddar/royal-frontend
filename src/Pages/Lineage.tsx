@@ -49,8 +49,7 @@ const Lineage = () => {
 
   return (
     <div>
-
-            <SEO
+      <SEO
         title="Royal Exchange Lineage | Legacy, Purpose & Vision"
         description="Discover the lineage of Royal Exchange, where legacy, purpose, and vision inspire a new generation through publishing, fashion, and leadership"
       />

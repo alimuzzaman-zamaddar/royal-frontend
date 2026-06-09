@@ -227,14 +227,10 @@ export const ShopDetailsPage = () => {
 
   return (
     <main className="min-h-screen w-full bg-[#020202] px-5 py-10 sm:px-6 md:py-14 xl:px-8 xl:py-16">
-
-          <SEO
-      title={product?.meta_title || product?.title}
-      description={
-        product?.meta_description ||
-        product?.description
-      }
-    />
+      <SEO
+        title={product?.meta_title || product?.title}
+        description={product?.meta_description || product?.description}
+      />
       <div className="mx-auto max-w-370">
         <div
           className="mb-8 flex flex-wrap items-center gap-2 text-sm font-normal text-[#FFFAF0] sm:text-base"
@@ -571,7 +567,6 @@ export const ShopDetailsPage = () => {
           </div>
         </div>
       </div>
-
       <RelatedProductsSection products={relatedProducts} />
     </main>
   );
