@@ -5,6 +5,7 @@ import { ArchiveStatementSection } from "./components/lineage/ArchiveStatementSe
 import { LineageCtaSection } from "./components/lineage/LineageCtaSection";
 import { useGetLineageCmsQuery } from "../redux/Slices/cmsApi";
 import { Loader } from "../lib/Loader";
+import SEO from "../lib/SEO";
 
 const getCmsAssetUrl = (path?: string | null) => {
   if (!path) return "";
@@ -48,6 +49,11 @@ const Lineage = () => {
 
   return (
     <div>
+
+            <SEO
+        title="Royal Exchange Lineage | Legacy, Purpose & Vision"
+        description="Discover the lineage of Royal Exchange, where legacy, purpose, and vision inspire a new generation through publishing, fashion, and leadership"
+      />
       <CommonBanner
         id="lineage-hero"
         backgroundImage={getCmsAssetUrl(hero.background_image)}

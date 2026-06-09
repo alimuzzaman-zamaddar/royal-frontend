@@ -3,6 +3,7 @@ import logoimg from "../assets/lineage/6DF99710-9C58-4B44-8A31-20FDC393A953 3.pn
 import { FounderStorySection } from "./components/royalexchange/FounderStorySection";
 import { useGetRoyalExchangeCmsQuery } from "../redux/Slices/cmsApi";
 import { Loader } from "../lib/Loader";
+import SEO from "../lib/SEO";
 
 const getCmsAssetUrl = (path?: string | null) => {
   if (!path) return "";
@@ -41,6 +42,11 @@ const RoyalExchange = () => {
 
   return (
     <div>
+
+            <SEO
+        title="Julius Spenser Author| Founder of Royal Exchange Publishing"
+        description="Meet Julius Spenser author, founder of Royal Exchange Publishing and Clothing, inspiring a new generation through books, must read thriller this year."
+      />
       <CommonBanner
         id="lineage-hero"
         backgroundImage={getCmsAssetUrl(hero.background_image)}

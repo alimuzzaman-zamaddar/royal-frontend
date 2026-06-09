@@ -10,6 +10,7 @@ import { PublishingGuidanceSection } from "./components/services/PublishingGuida
 import { RoyalServicesProcessSection } from "./components/services/RoyalServicesProcessSection";
 import { useGetServicesCmsQuery } from "../redux/Slices/cmsApi";
 import { Loader } from "../lib/Loader";
+import SEO from "../lib/SEO";
 
 const getCmsAssetUrl = (path?: string | null) => {
   if (!path) return "";
@@ -78,6 +79,10 @@ const Services = () => {
 
   return (
     <div>
+      < SEO
+        title="Book Formatting Services | Professional Manuscript Editing"
+        description="Get professional book formatting services from Royal Exchange Publishing. We prepare print and eBook manuscripts for a polished publishing experience."
+      />
       <CommonBanner
         id="lineage-hero"
         backgroundImage={getCmsAssetUrl(hero.background_image)}

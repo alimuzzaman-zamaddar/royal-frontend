@@ -3,6 +3,7 @@ import { CommonBanner } from "./components/CommonBanner";
 import { ShopPage } from "./components/Shop/ShopPage";
 import { Loader } from "../lib/Loader";
 import { useGetShopCmsQuery } from "../redux/Slices/cmsApi";
+import SEO from "../lib/SEO";
 
 const getCmsAssetUrl = (path?: string | null) => {
   if (!path) return "";
@@ -40,6 +41,11 @@ const Shop = () => {
 
   return (
     <div>
+
+            <SEO
+        title="Buy Premium Apparel, luxury streetwear| Royal Exchange"
+        description="Buy premium apparel, exclusive books, cloths and collectibles. Kings, Queens, shop with confidence at Royal Exchange at cost effective prices."
+      />
       <CommonBanner
         id="lineage-hero"
         backgroundImage={getCmsAssetUrl(hero.background_image)}

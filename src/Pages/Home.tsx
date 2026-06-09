@@ -8,6 +8,7 @@ import { EarthIsOursSection } from "./components/homepage/EarthIsOursSection";
 import { NewsletterPopup } from "./components/homepage/NewsletterPopup";
 import { useGetHomeCmsQuery } from "../redux/Slices/cmsApi";
 import { Loader } from "../lib/Loader";
+import SEO from "../lib/SEO";
 
 const Home = () => {
   const { data, isLoading, isError, error } = useGetHomeCmsQuery();
@@ -28,10 +29,15 @@ const Home = () => {
     );
   }
 
-  console.log("Home CMS data:", homeCmsData);
+  
 
   return (
     <div>
+
+         <SEO
+        title="Royal Exchange | Books, Apparel & Publishing Brand"
+        description="Shop suspense thriller novels by Julius Spenser & Royal Exchange the Brand streetwear. Empowering stories, bold fashion & publishing services — built to inspire."
+      />
       <Hero hero={homeCmsData?.hero_section} />
       <LineageSection lineage={homeCmsData?.our_ancestral_lineage_section} />
       <RoyalLibrarySection library={homeCmsData?.library_section} />

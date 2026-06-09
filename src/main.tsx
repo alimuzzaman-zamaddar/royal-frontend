@@ -8,7 +8,10 @@ import store from "./redux/store";
 import { AuthProvider } from "./Provider/AuthProvider";
 import router from "./router/router";
 
+import { HelmetProvider } from "react-helmet-async";
+
 createRoot(document.getElementById("root")!).render(
+ <HelmetProvider>
   <StrictMode>
     <Provider store={store}>
       <AuthProvider>
@@ -42,4 +45,5 @@ createRoot(document.getElementById("root")!).render(
       </AuthProvider>
     </Provider>
   </StrictMode>
+   </HelmetProvider>
 );
